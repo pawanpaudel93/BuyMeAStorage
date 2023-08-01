@@ -1760,7 +1760,7 @@ arweave-wallet-connector@^0.0.31:
 
 arweave-wallet-kit@^1.0.1:
   version "1.0.1"
-  resolved "https://registry.yarnpkg.com/arweave-wallet-kit/-/arweave-wallet-kit-1.0.1.tgz#aa1083b6c903a5b463fdef0b83f74b4a0860115a"
+  resolved "https://registry.npmjs.org/arweave-wallet-kit/-/arweave-wallet-kit-1.0.1.tgz#aa1083b6c903a5b463fdef0b83f74b4a0860115a"
   integrity sha512-EXspFZiGEHijYYKdBZD1bQmcXYAHTDTwJx+Tzsq0Yb/bsMMlJt4AknwBqoEmgUuxOY/WWk+X2gKDcj5GFUZ92g==
   dependencies:
     "@callstack/react-theme-provider" "^3.0.8"

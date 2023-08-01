@@ -97,17 +97,15 @@ export default function Gallery() {
               overflowY: "auto",
             }}
           >
-            <Image.PreviewGroup>
-              <Masonry
-                breakpointCols={breakpointColumnsObj}
-                className="my-masonry-grid"
-                columnClassName="my-masonry-grid_column"
-              >
-                {totalFiles?.map((file: any, index: number) => {
-                  return <ImageCard key={index} attach={file} />;
-                })}
-              </Masonry>
-            </Image.PreviewGroup>
+            <Masonry
+              breakpointCols={breakpointColumnsObj}
+              className="my-masonry-grid"
+              columnClassName="my-masonry-grid_column"
+            >
+              {totalFiles?.map((file: any, index: number) => {
+                return <ImageCard key={index} attach={file} />;
+              })}
+            </Masonry>
           </Row>
         </Spin>
       ),

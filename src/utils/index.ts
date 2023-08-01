@@ -1,4 +1,5 @@
 import Arweave from "arweave";
+import ArDB from "ardb";
 
 export function getErrorMessage(error: unknown): string {
   if (
@@ -23,3 +24,5 @@ export const arweave = Arweave.init({
   timeout: 20000, // Network request timeouts in milliseconds
   logging: false,
 });
+
+export const ardb = new ArDB(arweave);

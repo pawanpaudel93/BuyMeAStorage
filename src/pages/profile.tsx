@@ -12,7 +12,7 @@ function Profile() {
           display: "flex",
           justifyContent: "center",
           marginTop: "100px",
-          height: "100vh",
+          minHeight: "calc(100vh - 54px)",
         }}
       >
         <Spin size="large" />

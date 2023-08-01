@@ -161,16 +161,26 @@ export default function ProfileWithData({
               display: "flex",
               flexDirection: "row",
               justifyContent: "center",
+              gap: 8,
             }}
           >
             <Button
               onClick={() => onOpen()}
               icon={<ToolOutlined style={{ fontSize: 18 }} />}
               type="primary"
-              style={{ borderRadius: "999px", marginRight: 8 }}
+              style={{ borderRadius: "999px" }}
             >
               Edit Profile
             </Button>
+            {userAccount.profile.handleName && (
+              <Button
+                type="primary"
+                style={{ borderRadius: "999px" }}
+                href={`/${userAccount.handle}`}
+              >
+                Buy Me a Storage Page
+              </Button>
+            )}
           </div>
         )}
       </div>

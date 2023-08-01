@@ -43,6 +43,12 @@ const NavItems: Array<NavItem> = [
     href: "/profile",
     isAuthentionRequired: true,
   },
+  {
+    key: 1,
+    label: "Support",
+    href: "/support",
+    isAuthentionRequired: false,
+  },
 ];
 
 const NavLink = ({ href, children }: NavLinkProps) => {

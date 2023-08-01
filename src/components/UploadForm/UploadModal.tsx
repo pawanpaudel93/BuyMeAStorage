@@ -193,7 +193,7 @@ export default function UploadModal({
             </Form.Item>
             <Form.Item
               name="license"
-              label="Currencty"
+              label="License"
               rules={[
                 {
                   required: true,

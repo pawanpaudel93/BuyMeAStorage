@@ -1,14 +1,23 @@
 import React from "react";
 import Link from "next/link";
-import { Typography, Button } from "antd";
+import { Typography, Button, Space } from "antd";
 
 const { Text, Title } = Typography;
 
 export default function NotFound() {
   return (
-    <div style={{ textAlign: "center", padding: "32px", paddingLeft: "6px" }}>
+    <Space
+      direction="vertical"
+      size={20}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        marginTop: "100px",
+        minHeight: "calc(100vh - 54px)",
+      }}
+    >
       <Title
-        level={2}
+        level={1}
         style={{
           display: "inline-block",
           fontSize: "2xl",
@@ -23,19 +32,17 @@ export default function NotFound() {
         Profile Not Found
       </Text>
       <Text style={{ color: "gray", marginBottom: "6px" }}>
-        The profile you're looking for does not seem to exist
+        The profile you&apos;re looking for does not seem to exist
       </Text>
 
       <Button
         type="primary"
         style={{
-          backgroundImage:
-            "linear-gradient(to right, #1890ff, #1890ff, #1890ff)",
           color: "white",
         }}
       >
         <Link href="/">Go to Home</Link>
       </Button>
-    </div>
+    </Space>
   );
 }

@@ -5,6 +5,8 @@ import { UploadOutlined } from "@ant-design/icons";
 import ImageCard from "./ImageCard";
 import UploadModal from "../UploadForm/UploadModal";
 
+import Masonry from "react-masonry-css";
+
 import type { TabsProps } from "antd";
 import type { UploadChangeParam } from "antd/es/upload";
 import type { RcFile, UploadFile, UploadProps } from "antd/es/upload/interface";
@@ -74,6 +76,13 @@ export default function Gallery() {
     console.log(key);
   };
 
+  const breakpointColumnsObj = {
+    default: 5,
+    1100: 2,
+    700: 3,
+    500: 2,
+  };
+
   const items: TabsProps["items"] = [
     {
       key: "1",
@@ -83,16 +92,21 @@ export default function Gallery() {
           <Row
             gutter={[16, 16]}
             style={{
-              maxHeight: "calc(100vh - 164px)",
+              maxHeight: "calc(100vh - 170px)",
               minHeight: "160px",
               overflowY: "auto",
-              padding: 8,
             }}
           >
             <Image.PreviewGroup>
-              {totalFiles?.map((file: any, index: number) => {
-                return <ImageCard key={index} attach={file} />;
-              })}
+              <Masonry
+                breakpointCols={breakpointColumnsObj}
+                className="my-masonry-grid"
+                columnClassName="my-masonry-grid_column"
+              >
+                {totalFiles?.map((file: any, index: number) => {
+                  return <ImageCard key={index} attach={file} />;
+                })}
+              </Masonry>
             </Image.PreviewGroup>
           </Row>
         </Spin>

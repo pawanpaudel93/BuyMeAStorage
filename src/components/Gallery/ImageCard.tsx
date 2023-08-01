@@ -8,24 +8,30 @@ interface ImgProps {
 }
 
 export default function ImageCard({ attach, fromUploadZone }: ImgProps) {
-  return (
-    <Col
-      xs={12}
-      sm={6}
-      md={6}
-      lg={fromUploadZone ? 6 : 4}
-      xl={fromUploadZone ? 6 : 3}
-    >
+  return fromUploadZone ? (
+    <Image
+      width="100%"
+      style={{
+        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.4)",
+        maxHeight: 142,
+      }}
+      alt={attach.attachmentName}
+      src={attach.attachmentUrl}
+      onClick={(e) => e.stopPropagation()}
+    />
+  ) : (
+    <div>
       <Image
         width="100%"
-        height={fromUploadZone ? 80 : 160}
+        height={fromUploadZone ? 80 : "auto"}
         style={{
           boxShadow: "0 2px 4px rgba(0, 0, 0, 0.4)",
+          maxHeight: 320,
         }}
         alt={attach.attachmentName}
         src={attach.attachmentUrl}
         onClick={(e) => e.stopPropagation()}
       />
-    </Col>
+    </div>
   );
 }

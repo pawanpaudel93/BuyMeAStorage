@@ -1,4 +1,5 @@
 import "@/styles/globals.css";
+import NextNProgress from "nextjs-progressbar";
 import type { AppProps } from "next/app";
 import { ConfigProvider, Layout } from "antd";
 import { customTheme } from "@/config";
@@ -57,6 +58,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <main>
           <Layout>
             <NavBar />
+            <NextNProgress color="#a62a22" />
             <Component {...pageProps} />
           </Layout>
         </main>

@@ -26,3 +26,11 @@ export interface ISupport {
   storageValue: number;
   supporter: string;
 }
+
+export interface IPost {
+  title: string;
+  previewContent: string;
+  content: string;
+  createdAt: number;
+  updatedAt: number;
+}

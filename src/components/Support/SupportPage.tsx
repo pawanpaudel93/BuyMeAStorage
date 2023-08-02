@@ -123,7 +123,7 @@ export default function SupportPage({ address }: { address?: string }) {
         } else {
           message.error({
             content: getErrorMessage(error),
-            duration: 5000,
+            duration: 5,
           });
         }
       }
@@ -199,12 +199,12 @@ export default function SupportPage({ address }: { address?: string }) {
       ]);
       message.success({
         content: "Thank you for your support.",
-        duration: 5000,
+        duration: 5,
       });
     } catch (error) {
       message.error({
         content: getErrorMessage(error),
-        duration: 5000,
+        duration: 5,
       });
     }
     setIsLoading(false);

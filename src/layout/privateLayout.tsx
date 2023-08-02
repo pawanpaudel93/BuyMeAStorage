@@ -1,4 +1,4 @@
-// import { clearStorage, getHomeItems } from "@/core/utils";
+import { useEffect } from "react";
 import { customTheme } from "@/config";
 import {
   getHomeItems,
@@ -15,6 +15,7 @@ import {
   Avatar,
   Button,
   Dropdown,
+  Image,
   Layout,
   Menu,
   MenuProps,
@@ -24,9 +25,10 @@ import {
   Typography,
 } from "antd";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 import { Suspense, useState } from "react";
 import styled from "styled-components";
+import { ConnectButton } from "arweave-wallet-kit";
 
 const { Header, Footer, Sider, Content } = Layout;
 
@@ -43,8 +45,8 @@ const MenuWrapper = styled.div`
 
 const siderStyle: React.CSSProperties = {
   height: "100vh",
-  width: "clamp(220px,16.36%, 280px)",
-  backgroundColor: globalToken.colorPrimary,
+
+  backgroundColor: "#161b21",
 };
 const headerStyle: React.CSSProperties = {
   height: 54,
@@ -63,7 +65,8 @@ const contentStyle: React.CSSProperties = {
 function PrivateLayout({ children }: { children: React.ReactNode }) {
   const { token } = useToken();
   const router = useRouter();
-
+  const currentPath = router.pathname;
+  console.log({ currentPath });
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -71,7 +74,7 @@ function PrivateLayout({ children }: { children: React.ReactNode }) {
       <Sider
         collapsed={collapsed}
         collapsedWidth="0"
-        //   zeroWidthTriggerStyle="none"
+        width="clamp(220px,15%, 280px)"
         style={siderStyle}
       >
         <div
@@ -95,15 +98,13 @@ function PrivateLayout({ children }: { children: React.ReactNode }) {
           >
             <Space size={10} style={{ display: "flex", alignItems: "center" }}>
               {!collapsed && (
-                <Typography.Text
-                  style={{
-                    color: "white",
-                    fontSize: "16px",
-                    fontWeight: 500,
-                  }}
-                >
-                  MDT
-                </Typography.Text>
+                <Image
+                  width="32px"
+                  src="/logo.svg"
+                  alt="logo"
+                  style={{ borderRadius: "50%" }}
+                  preview={false}
+                />
               )}
             </Space>
           </div>
@@ -126,16 +127,14 @@ function PrivateLayout({ children }: { children: React.ReactNode }) {
             mode="inline"
             onClick={({ key }) => router.push(key)}
             style={{
-              background: token.colorPrimary,
+              background: "#161b21",
               color: "white",
             }}
             items={getHomeItems()}
-            selectedKeys={[location.pathname]}
+            selectedKeys={[router.pathname]}
           />
           <Space style={{ width: "100%", padding: "6px 10px" }}>
-            <Typography.Text
-              style={{ color: "#dfdfdf", fontWeight: 500, fontSize: 12 }}
-            >
+            <Typography.Text style={{ color: "#dfdfdf", fontSize: 10 }}>
               PUBLISH
             </Typography.Text>
           </Space>
@@ -143,16 +142,16 @@ function PrivateLayout({ children }: { children: React.ReactNode }) {
             mode="inline"
             onClick={({ key }) => router.push(key)}
             style={{
-              background: token.colorPrimary,
+              background: "#161b21",
               color: "white",
             }}
             items={getPublishItems()}
-            selectedKeys={[location.pathname]}
+            selectedKeys={
+              router.pathname.includes("posts") ? ["/posts"] : [router.pathname]
+            }
           />
           <Space style={{ width: "100%", padding: "6px 10px" }}>
-            <Typography.Text
-              style={{ color: "#dfdfdf", fontWeight: 500, fontSize: 12 }}
-            >
+            <Typography.Text style={{ color: "#dfdfdf", fontSize: 10 }}>
               SETTINGS
             </Typography.Text>
           </Space>
@@ -160,11 +159,11 @@ function PrivateLayout({ children }: { children: React.ReactNode }) {
             mode="inline"
             onClick={({ key }) => router.push(key)}
             style={{
-              background: token.colorPrimary,
+              background: "#161b21",
               color: "white",
             }}
             items={getSettingItems()}
-            selectedKeys={[location.pathname]}
+            selectedKeys={[router.pathname]}
           />
         </MenuWrapper>
       </Sider>
@@ -172,16 +171,27 @@ function PrivateLayout({ children }: { children: React.ReactNode }) {
         <Header style={headerStyle}>
           <Space>
             {collapsed ? (
-              <Button
-                type="text"
-                icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-                onClick={() => setCollapsed(!collapsed)}
-                style={{
-                  fontSize: "16px",
-                  display: "grid",
-                  placeItems: "center",
-                }}
-              />
+              <Space>
+                <Button
+                  type="text"
+                  icon={
+                    collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />
+                  }
+                  onClick={() => setCollapsed(!collapsed)}
+                  style={{
+                    fontSize: "16px",
+                    display: "grid",
+                    placeItems: "center",
+                  }}
+                />
+                <Image
+                  width="32px"
+                  src="/logo.svg"
+                  alt="logo"
+                  style={{ borderRadius: "50%" }}
+                  preview={false}
+                />
+              </Space>
             ) : (
               <div />
             )}
@@ -193,7 +203,7 @@ function PrivateLayout({ children }: { children: React.ReactNode }) {
                 marginLeft: "15px",
               }}
             >
-              Title
+              {/* Title */}
             </Typography.Text>
           </Space>
           <Space
@@ -202,15 +212,12 @@ function PrivateLayout({ children }: { children: React.ReactNode }) {
               padding: "0px 32px 0px 40px",
             }}
           >
-            <Avatar
+            <ConnectButton
+              accent={globalToken.colorPrimary}
               style={{
-                background: token.colorPrimary,
-                height: 32,
-                width: 32,
+                height: "34px",
               }}
-            >
-              M
-            </Avatar>
+            />
           </Space>
         </Header>
         <Content style={contentStyle}>

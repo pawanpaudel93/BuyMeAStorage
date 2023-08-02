@@ -22,6 +22,7 @@ import {
   ZoomOutOutlined,
   HeartOutlined,
 } from "@ant-design/icons";
+import { styled } from "styled-components";
 
 interface ImgProps {
   attach: any;
@@ -29,6 +30,31 @@ interface ImgProps {
 }
 
 const { useToken } = theme;
+
+export const ScrollableDiv = styled.div`
+  width: clamp(70vw, 70vw, 95vw);
+  background: white;
+  max-height: 95vh;
+  overflow: auto;
+  border-radius: 12px;
+  padding: 12px;
+
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 3px;
+  }
+  &::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    background-color: #f5f5f5;
+    border-radius: 0 12px 12px 0;
+  }
+  &::-webkit-scrollbar-thumb {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    background-color: #bebec0;
+  }
+`;
 
 export default function ImageCard({ attach, fromUploadZone }: ImgProps) {
   const { token } = useToken();
@@ -71,17 +97,7 @@ export default function ImageCard({ attach, fromUploadZone }: ImgProps) {
         src={attach.attachmentUrl}
         preview={{
           imageRender: () => (
-            <div
-              style={{
-                background: "white",
-                color: "black",
-                borderRadius: 12,
-                padding: 16,
-                width: "clamp(55vw, 70%, 90vw)",
-                maxHeight: "95vh",
-                overflow: "auto",
-              }}
-            >
+            <ScrollableDiv>
               <Row
                 justify="space-between"
                 align="middle"
@@ -109,10 +125,11 @@ export default function ImageCard({ attach, fromUploadZone }: ImgProps) {
                 <Col xs={24} md={14}>
                   <Space direction="vertical">
                     <Image
-                      width="100%"
+                      // width="100%"
+                      height="calc(100vh - 200px)"
                       style={{
                         boxShadow: "0 2px 4px rgba(0, 0, 0, 0.4)",
-                        maxHeight: 500,
+                        // maxHeight: "calc(100vh - 200px)",
                       }}
                       alt={attach.attachmentName}
                       src={attach.attachmentUrl}
@@ -123,24 +140,25 @@ export default function ImageCard({ attach, fromUploadZone }: ImgProps) {
                     </Typography.Text>
                   </Space>
                 </Col>
-                <Col xs={24} md={10} style={{}}>
+                <Col xs={24} md={10}>
                   <Card
-                    title={
-                      <Space>
-                        <Typography.Text>Asset Rights</Typography.Text>
-                      </Space>
-                    }
+                    title="Asset Rights"
                     type="inner"
                     hoverable
-                    // extra={<a href="#">More</a>}
                     headStyle={{
                       textAlign: "start",
                     }}
                     style={{
-                      marginBottom: 12,
+                      marginBottom: 8,
                     }}
                   >
-                    <Space direction="vertical" style={{ width: "100%" }}>
+                    <Space
+                      size={2}
+                      direction="vertical"
+                      style={{
+                        width: "100%",
+                      }}
+                    >
                       <Row
                         justify="space-between"
                         align="middle"
@@ -149,7 +167,7 @@ export default function ImageCard({ attach, fromUploadZone }: ImgProps) {
                         <Space
                           style={{
                             border: "1px solid black",
-                            padding: 12,
+                            padding: 8,
                             borderRadius: 8,
                           }}
                         >
@@ -189,12 +207,7 @@ export default function ImageCard({ attach, fromUploadZone }: ImgProps) {
                       </Row>
                     </Space>
                   </Card>
-                  <Card
-                    hoverable
-                    bodyStyle={{
-                      padding: 8,
-                    }}
-                  >
+                  <Card hoverable>
                     <Space direction="vertical">
                       <Row justify="center">
                         <Typography.Text
@@ -209,17 +222,11 @@ export default function ImageCard({ attach, fromUploadZone }: ImgProps) {
                         </Typography.Text>
                       </Row>
                       <Row justify="center">
-                        <Typography.Text
-                          style={
-                            {
-                              // color: token.colorPrimary,
-                            }
-                          }
-                        >
+                        <Typography.Text>
                           Lorem ipsum dolor sit amet consectetur adipisicing
-                          elit. Maxime mollitia, molestiae quas vel sint commodi
-                          repudiandae consequuntur voluptatum laborum numquam
-                          blanditiis
+                          elit. Lorem ipsum dolor sit amet consectetur
+                          adipisicing elit. Lorem ipsum dolor sit amet
+                          consectetur adipisicing elit.
                         </Typography.Text>
                       </Row>
                       <Row>
@@ -230,7 +237,8 @@ export default function ImageCard({ attach, fromUploadZone }: ImgProps) {
                               background: "transparent",
                               borderRadius: 8,
                               boxShadow: " 0 3px 10px rgb(0 0 0 / 0.2)",
-                              padding: "1px 3px",
+                              padding: "1px 6px",
+                              color: "GrayText",
                             }}
                           >
                             {tag}
@@ -241,7 +249,7 @@ export default function ImageCard({ attach, fromUploadZone }: ImgProps) {
                   </Card>
                 </Col>
               </Row>
-            </div>
+            </ScrollableDiv>
           ),
           toolbarRender: () => null,
         }}

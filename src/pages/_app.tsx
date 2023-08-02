@@ -3,14 +3,21 @@ import NextNProgress from "nextjs-progressbar";
 import type { AppProps } from "next/app";
 import { ConfigProvider, Layout } from "antd";
 import { customTheme } from "@/config";
-import { ArweaveWalletKit } from "arweave-wallet-kit";
+import { ArweaveWalletKit, useConnection } from "arweave-wallet-kit";
 import Head from "next/head";
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/router";
 
 const NavBar = dynamic(
   async () => await import("@/components/Navigation/NavBar"),
   { ssr: false }
+);
+const PrivateLayout = dynamic(
+  async () => await import("@/layout/privateLayout"),
+  {
+    ssr: false,
+  }
 );
 
 const noOverlayWorkaroundScript = `
@@ -23,7 +30,42 @@ const noOverlayWorkaroundScript = `
   })
 `;
 
-export default function App({ Component, pageProps }: AppProps) {
+export function AppLayout({ appProps }: { appProps: AppProps }) {
+  const { Component, pageProps } = appProps;
+  const router = useRouter();
+
+  const { connected } = useConnection();
+
+  const redirectToHome = () => {
+    if (connected) {
+      router.push("/home");
+    }
+  };
+
+  useEffect(() => {
+    redirectToHome();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connected]);
+
+  return (
+    <>
+      {connected ? (
+        <PrivateLayout>
+          <Component {...pageProps} />
+        </PrivateLayout>
+      ) : (
+        <Layout>
+          <NavBar />
+          <NextNProgress color="#a62a22" />
+          <Component {...pageProps} />
+        </Layout>
+      )}
+    </>
+  );
+}
+
+export default function App(appProps: AppProps) {
+  const { Component, pageProps } = appProps;
   const [logo, setLogo] = useState("/logo.svg");
 
   useEffect(() => {
@@ -56,13 +98,7 @@ export default function App({ Component, pageProps }: AppProps) {
             />
           )}
         </Head>
-        <main>
-          <Layout>
-            <NavBar />
-            <NextNProgress color="#a62a22" />
-            <Component {...pageProps} />
-          </Layout>
-        </main>
+        <AppLayout appProps={appProps} />
       </ArweaveWalletKit>
     </ConfigProvider>
   );

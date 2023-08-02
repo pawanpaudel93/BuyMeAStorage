@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import { Button, Image, Row, Spin, Tabs } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 
-import ImageCard from "./ImageCard";
-import UploadModal from "../UploadForm/UploadModal";
+import UploadModal from "../../components/UploadForm/UploadModal";
 
 import Masonry from "react-masonry-css";
 
 import type { TabsProps } from "antd";
 import type { UploadChangeParam } from "antd/es/upload";
 import type { RcFile, UploadFile, UploadProps } from "antd/es/upload/interface";
+import ImageCard from "@/components/Gallery/ImageCard";
 
 const allFiles = [
   {
@@ -141,7 +141,7 @@ export default function Gallery() {
         setFileList={setFileList}
       />
       <Tabs
-        style={{ padding: "8px", borderRadius: 8 }}
+        style={{ padding: "16px 24px", borderRadius: 8 }}
         defaultActiveKey="1"
         items={items}
         onChange={onChange}

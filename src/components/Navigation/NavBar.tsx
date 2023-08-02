@@ -105,7 +105,7 @@ const NavBar = () => {
           <NextLink href="/">
             <Image
               width="38px"
-              src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAC+UlEQVRYw7WXS0iUURTHfzNRWZGjQbWy0pKyhZmJi15gQbQqaiM9aBFkFj1oF22koEVUi4oWYQ/SIgqiIip6Qi+QoAdWJmgaBMVo2dOyZJw2/4mPz3Nn5hv1wmVm7v/ce8499/zPORNiYGMsUAJMAbKBVuAmQzxGA1XAA6AXiPvm8aFSHAKqgaih1Dv75JFBHROAuykUe+f0wVReALQFUH4rqFtT3bwByE8i0wY8AzqAZsXA78F6c5fbY0A9MGsoo73aoTwKLJJMGNgLtAPvgafAWWAzkDdQqkUdyr0Bti1JLMSA68C8TAzY6DiwQvgKfV5KIyj79Fw5QQx4aBxU53mal/q+JwA73gIz0lGe7chwxUAE+KJblQJjgCv6nY4RHUBRKgMWGBtbhW3wrL0GJmo9ouxXAdQALUmMaAfGJTNgnbHpvLB640Y1wBKg3HNwGFgPdDmMuJDMgC3GhiPC7qVwcQx4BCyX/FSHN/qAxUH4f0zYjQBBdw7I0tN0Gvh9lwErDeHbwg4GMCAumoaASocXTFbMNIS/6zYLAxoQVyygeuHHdloGhIFPhvAa4Y/TTD4fRNlWecGKrWuuZzhlCDfpoNUpFNf66sB8IFf898u/SwjNUZuVqG5zHQrygNlJDNin/ZMUzMuAYVobbiSsHoBNHiCmSoZRiruAkcBSh/JG4SWKmcT6VY83/hq07Vf1ulXxCuT2uN4ywe06hyvzZcBzAy9VivevfwP4agBv1A2FxOMsKV8lq71vflEpOaxewPJOmYNBjQD7HZtafB1PPnAGuANcViUsFpajNeucBl3kgIGdTjQfzY7Nf5SGCx1siQBbRTlrf7fySgT4bOBrEwcVJSkcCVc3Kb0eBU4q5/ekqAuVOn+7gf9QXPwf5Y4ElMns9WRAgN2GzGHLpYXAiwEqj6o8+9P7L49Mp6eX6DdGALtEkaC3rgXGO84tA04Ah4Bp6bRmOcAO4ImPev7YaFZrntH/wVCacrmi5GRgFPAT+Ai8ksszHv8A8LIPt8fFsuoAAAAASUVORK5CYII="
+              src="/logo.svg"
               alt="logo"
               style={{ borderRadius: "50%" }}
               preview={false}

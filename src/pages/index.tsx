@@ -1,7 +1,7 @@
 import { Layout } from "antd";
 const { Content } = Layout;
 
-import Gallery from "@/components/Gallery";
+import Gallery from "@/pages/gallery";
 
 import React from "react";
 
@@ -11,9 +11,5 @@ const contentStyle: React.CSSProperties = {
 };
 
 export default function Home() {
-  return (
-    <Content style={contentStyle}>
-      <Gallery />
-    </Content>
-  );
+  return <Content style={contentStyle}>{/* <Gallery /> */}</Content>;
 }

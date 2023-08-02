@@ -6,9 +6,16 @@ import { ArweaveWalletKit } from "arweave-wallet-kit";
 import Head from "next/head";
 import React from "react";
 import dynamic from "next/dynamic";
+// import PrivateLayout from "@/layout/privateLayout";
 
 const NavBar = dynamic(
   async () => await import("@/components/Navigation/NavBar"),
+  {
+    ssr: false,
+  }
+);
+const PrivateLayout = dynamic(
+  async () => await import("@/layout/privateLayout"),
   {
     ssr: false,
   }
@@ -54,12 +61,13 @@ export default function App({ Component, pageProps }: AppProps) {
             />
           )}
         </Head>
-        <main>
-          <Layout>
+        {/* <Layout>
             <NavBar />
             <Component {...pageProps} />
-          </Layout>
-        </main>
+          </Layout> */}
+        <PrivateLayout>
+          <Component {...pageProps} />
+        </PrivateLayout>
       </ArweaveWalletKit>
     </ConfigProvider>
   );

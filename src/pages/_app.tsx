@@ -51,6 +51,7 @@ export function AppLayout({ appProps }: { appProps: AppProps }) {
     <>
       {connected ? (
         <PrivateLayout>
+          <NextNProgress color="#a62a22" />
           <Component {...pageProps} />
         </PrivateLayout>
       ) : (

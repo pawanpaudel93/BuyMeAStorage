@@ -10,6 +10,7 @@ import {
 import { FaDiscord } from "react-icons/fa";
 import { ArAccount } from "arweave-account";
 import EditProfileModal from "./EditProfileModal";
+import { useRouter } from "next/router";
 
 const { Text } = Typography;
 
@@ -26,6 +27,7 @@ export default function ProfileWithData({
   showEditProfile: boolean;
   refetch?: () => void;
 }) {
+  const router = useRouter();
   const { token } = useToken();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -176,7 +178,7 @@ export default function ProfileWithData({
               <Button
                 type="primary"
                 style={{ borderRadius: "999px" }}
-                href={`/${userAccount.handle}`}
+                onClick={() => router.push("/view-page")}
               >
                 Buy Me a Storage Page
               </Button>

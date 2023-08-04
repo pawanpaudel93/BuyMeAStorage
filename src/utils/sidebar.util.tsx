@@ -27,7 +27,7 @@ function getItem(
 export const getHomeItems = () => {
   const allItems = [
     getItem("Home", "/home", <WindowsOutlined />),
-    getItem("ArProfile", "/ar-profile", <TeamOutlined />),
+    getItem("ArProfile", "/profile", <TeamOutlined />),
     getItem("View page", "/view-page", <TeamOutlined />),
   ];
   return allItems;

@@ -29,8 +29,7 @@ export interface ISupport {
 
 export interface IPost {
   title: string;
-  previewContent: string;
+  description: string;
   content: string;
-  createdAt: number;
-  updatedAt: number;
+  topics: string;
 }

@@ -16,6 +16,7 @@
     "antd": "^5.7.3",
     "arweave-account": "^1.4.0",
     "arweave-wallet-kit": "^1.0.1",
+    "dom-to-image": "^2.6.0",
     "eslint": "8.46.0",
     "eslint-config-next": "13.4.12",
     "md-editor-rt": "^4.2.2",
@@ -30,5 +31,8 @@
     "warp-contracts": "^1.4.14",
     "warp-contracts-plugin-deploy": "^1.0.9",
     "zustand": "^4.4.0"
+  },
+  "devDependencies": {
+    "@types/dom-to-image": "^2.6.4"
   }
 }

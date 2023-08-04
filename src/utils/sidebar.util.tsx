@@ -40,6 +40,8 @@ export const getPublishItems = () => {
   return allItems;
 };
 export const getSettingItems = () => {
-  const allItems = [getItem("Buttons", "/settings", <WindowsOutlined />)];
+  const allItems = [
+    getItem("Buttons", "/generate-buttons", <WindowsOutlined />),
+  ];
   return allItems;
 };

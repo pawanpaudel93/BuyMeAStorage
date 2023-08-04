@@ -49,7 +49,8 @@ const headerStyle: React.CSSProperties = {
 };
 
 const contentStyle: React.CSSProperties = {
-  minHeight: "calc(100vh - 54px)",
+  height: "calc(100vh - 54px)",
+  overflow: "auto",
 };
 
 function PrivateLayout({ children }: { children: React.ReactNode }) {

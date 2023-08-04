@@ -14,7 +14,7 @@ const NavBar = dynamic(
   { ssr: false }
 );
 const PrivateLayout = dynamic(
-  async () => await import("@/layout/privateLayout"),
+  async () => await import("@/components/Layouts/privateLayout"),
   {
     ssr: false,
   }

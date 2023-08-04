@@ -1,7 +1,7 @@
 import { Row, Space, theme, Image } from "antd";
 import { Header } from "antd/es/layout/layout";
 import { usePathname } from "next/navigation";
-import { ConnectButton, useConnection } from "arweave-wallet-kit";
+import { ConnectButton } from "arweave-wallet-kit";
 import { customTheme } from "@/config";
 import NextLink, { LinkProps } from "next/link";
 import React from "react";
@@ -35,18 +35,6 @@ const NavItems: Array<NavItem> = [
     key: 0,
     label: "Home",
     href: "/",
-    isAuthentionRequired: false,
-  },
-  {
-    key: 1,
-    label: "ArProfile",
-    href: "/profile",
-    isAuthentionRequired: true,
-  },
-  {
-    key: 1,
-    label: "Support",
-    href: "/support",
     isAuthentionRequired: false,
   },
 ];
@@ -93,11 +81,6 @@ const NavLink = ({ href, children }: NavLinkProps) => {
 };
 
 const NavBar = () => {
-  const { connected } = useConnection();
-  const navItems = NavItems.filter(({ isAuthentionRequired }) =>
-    connected ? true : !isAuthentionRequired
-  );
-
   return (
     <Header style={headerStyle}>
       <Row justify="space-between" align="middle">
@@ -112,7 +95,7 @@ const NavBar = () => {
             />
           </NextLink>
           <Space size={12}>
-            {navItems.map((item) => (
+            {NavItems.map((item) => (
               <NavLink key={item.key} href={item.href as string}>
                 {item.label}
               </NavLink>

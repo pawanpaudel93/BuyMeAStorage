@@ -27,8 +27,9 @@ function getItem(
 export const getHomeItems = () => {
   const allItems = [
     getItem("Home", "/home", <WindowsOutlined />),
-    getItem("ArProfile", "/ar-profile", <TeamOutlined />),
+    getItem("ArProfile", "/profile", <TeamOutlined />),
     getItem("View page", "/view-page", <TeamOutlined />),
+    getItem("Support", "/support", <TeamOutlined />),
   ];
   return allItems;
 };
@@ -40,6 +41,8 @@ export const getPublishItems = () => {
   return allItems;
 };
 export const getSettingItems = () => {
-  const allItems = [getItem("Buttons", "/settings", <WindowsOutlined />)];
+  const allItems = [
+    getItem("Buttons", "/generate-buttons", <WindowsOutlined />),
+  ];
   return allItems;
 };

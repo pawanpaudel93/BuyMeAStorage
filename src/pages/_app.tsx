@@ -30,7 +30,8 @@ const noOverlayWorkaroundScript = `
   })
 `;
 
-export function AppLayout({ Component, pageProps }: AppProps) {
+export function AppLayout({ appProps }: { appProps: AppProps }) {
+  const { Component, pageProps } = appProps;
   const router = useRouter();
 
   const { connected } = useConnection();
@@ -45,12 +46,14 @@ export function AppLayout({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     redirectToHome();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connected]);
 
   return (
     <>
       {connected ? (
         <PrivateLayout>
+          <NextNProgress color="#a62a22" />
           <Component {...pageProps} />
         </PrivateLayout>
       ) : (
@@ -64,7 +67,8 @@ export function AppLayout({ Component, pageProps }: AppProps) {
   );
 }
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function App(appProps: AppProps) {
+  const { Component, pageProps } = appProps;
   const [logo, setLogo] = useState("/logo.svg");
 
   useEffect(() => {
@@ -97,7 +101,7 @@ export default function App({ Component, pageProps }: AppProps) {
             />
           )}
         </Head>
-        <AppLayout Component={Component} pageProps={pageProps} />
+        <AppLayout appProps={appProps} />
       </ArweaveWalletKit>
     </ConfigProvider>
   );

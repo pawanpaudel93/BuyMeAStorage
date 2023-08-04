@@ -4,7 +4,7 @@ import { persist } from "zustand/middleware";
 
 interface AppPerisistState {
   post: IPost;
-  setPost: (post: IPost) => void;
+  setPost: (post: Partial<IPost>) => void;
 }
 
 export const usePersistStore = create(
@@ -12,12 +12,12 @@ export const usePersistStore = create(
     (set, get) => ({
       post: {
         title: "",
-        previewContent: "Note",
-        content: "# Note",
-        createdAt: new Date().getTime(),
-        updatedAt: new Date().getTime(),
+        description: "",
+        content: "",
+        topics: "",
       },
-      setPost: (post) => set(() => ({ post })),
+      setPost: (newPost: Partial<IPost>) =>
+        set((state) => ({ post: { ...state.post, ...newPost } })),
     }),
     {
       name: "buymeastorage.store",

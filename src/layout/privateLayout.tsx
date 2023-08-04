@@ -1,38 +1,28 @@
-import { useEffect } from "react";
 import { customTheme } from "@/config";
 import {
   getHomeItems,
   getPublishItems,
   getSettingItems,
 } from "@/utils/sidebar.util";
+import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import {
-  BellOutlined,
-  DownOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-} from "@ant-design/icons";
-import {
-  Avatar,
   Button,
-  Dropdown,
   Image,
   Layout,
   Menu,
-  MenuProps,
   Space,
   Spin,
   theme,
   Typography,
 } from "antd";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { Suspense, useState } from "react";
 import styled from "styled-components";
 import { ConnectButton } from "arweave-wallet-kit";
 
-const { Header, Footer, Sider, Content } = Layout;
+const { Header, Sider, Content } = Layout;
 
-const { useToken, getDesignToken } = theme;
+const { getDesignToken } = theme;
 
 const globalToken = getDesignToken(customTheme);
 
@@ -60,13 +50,11 @@ const headerStyle: React.CSSProperties = {
 
 const contentStyle: React.CSSProperties = {
   height: "calc(100vh - 54px)",
-  overflowY: "auto",
+  overflow: "auto",
 };
 
 function PrivateLayout({ children }: { children: React.ReactNode }) {
-  const { token } = useToken();
   const router = useRouter();
-  const currentPath = router.pathname;
   const [collapsed, setCollapsed] = useState(false);
 
   return (

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Avatar, Button, Tooltip, Typography, theme } from "antd";
+import { Avatar, Button, Tooltip, Typography, message, theme } from "antd";
 import {
   TwitterOutlined,
   GithubOutlined,
@@ -10,6 +10,8 @@ import {
 import { FaDiscord } from "react-icons/fa";
 import { ArAccount } from "arweave-account";
 import EditProfileModal from "./EditProfileModal";
+import { useRouter } from "next/router";
+import { AiOutlineCopy } from "react-icons/ai";
 
 const { Text } = Typography;
 
@@ -26,6 +28,7 @@ export default function ProfileWithData({
   showEditProfile: boolean;
   refetch?: () => void;
 }) {
+  const router = useRouter();
   const { token } = useToken();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -35,6 +38,17 @@ export default function ProfileWithData({
 
   const onOpen = () => {
     setIsOpen(true);
+  };
+
+  const copyToClipBoard = async () => {
+    try {
+      await navigator.clipboard.writeText(
+        `${window.location.origin}/${userAccount.handle}`
+      );
+      message.success("Copied!");
+    } catch (err) {
+      message.error("Failed to copy!");
+    }
   };
 
   return (
@@ -86,15 +100,24 @@ export default function ProfileWithData({
           <Text style={{ fontSize: "1.5rem", fontWeight: 500 }}>
             {userAccount.profile.name}
           </Text>
-          <Text style={{ color: "gray.500" }}>
-            <a
-              href={`https://viewblock.io/arweave/address/${addr}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              {userAccount.handle}{" "}
-            </a>
-          </Text>
+          <div style={{ display: "flex", gap: 4 }}>
+            <Text style={{ color: "gray.500" }}>
+              <a
+                href={`https://viewblock.io/arweave/address/${addr}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {userAccount.handle}{" "}
+              </a>{" "}
+            </Text>
+
+            <Button
+              size="small"
+              style={{ padding: 2 }}
+              icon={<AiOutlineCopy size="auto" />}
+              onClick={copyToClipBoard}
+            ></Button>
+          </div>
 
           <Text style={{ textAlign: "center" }}>{userAccount.profile.bio}</Text>
         </div>
@@ -176,7 +199,7 @@ export default function ProfileWithData({
               <Button
                 type="primary"
                 style={{ borderRadius: "999px" }}
-                href={`/${userAccount.handle}`}
+                onClick={() => router.push("/view-page")}
               >
                 Buy Me a Storage Page
               </Button>

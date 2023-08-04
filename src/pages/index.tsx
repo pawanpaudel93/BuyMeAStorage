@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Typography, Row, Col, Image, theme, Layout, Space } from "antd";
 import Illustration from "@/components/HomePage/Illustration";
 import CreateMyProfile from "@/components/HomePage/CreateMyProfile";
+import { useRouter } from "next/router";
+import { useConnection } from "arweave-wallet-kit";
 
 const { Title, Text } = Typography;
 const { Content } = Layout;
@@ -14,6 +16,23 @@ const contentStyle: React.CSSProperties = {
 
 export default function Home() {
   const { token } = useToken();
+
+  const router = useRouter();
+
+  const { connected } = useConnection();
+
+  // const redirectToHome = () => {
+  //   if (connected) {
+  //     router.push("/home");
+  //   } else {
+  //     router.push("/");
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   redirectToHome();
+  // }, [connected]);
+
   return (
     <Content style={contentStyle}>
       <div style={{ maxWidth: "5xl" }}>

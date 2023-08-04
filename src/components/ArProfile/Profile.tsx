@@ -57,7 +57,7 @@ function Profile({
   }, [addr]);
 
   return (
-    <div style={{ minHeight: "calc(100vh - 54px)" }}>
+    <div style={{ minHeight: "calc(100vh - 54px)", padding: "16px 24px" }}>
       {hasFailed ? (
         <>
           <Text type="danger">Something wrong happened :(</Text>

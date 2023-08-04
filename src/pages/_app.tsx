@@ -38,6 +38,8 @@ export function AppLayout({ Component, pageProps }: AppProps) {
   const redirectToHome = () => {
     if (connected) {
       router.push("/home");
+    } else {
+      router.push("/");
     }
   };
 

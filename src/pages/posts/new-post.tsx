@@ -212,7 +212,7 @@ export default function NewPost() {
             onUploadImg={onUploadImg}
             style={{
               padding: "25px",
-              height: "55vh",
+              height: "85vh",
             }}
             // theme=""
             previewTheme="github"

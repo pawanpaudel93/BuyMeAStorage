@@ -32,7 +32,7 @@ interface ImgProps {
 const { useToken } = theme;
 
 export const ScrollableDiv = styled.div`
-  width: clamp(70vw, 70vw, 95vw);
+  width: clamp(60vw, 60vw, 95vw);
   background: white;
   max-height: 95vh;
   overflow: auto;

@@ -60,13 +60,13 @@ const headerStyle: React.CSSProperties = {
 
 const contentStyle: React.CSSProperties = {
   height: "calc(100vh - 54px)",
+  overflowY: "auto",
 };
 
 function PrivateLayout({ children }: { children: React.ReactNode }) {
   const { token } = useToken();
   const router = useRouter();
   const currentPath = router.pathname;
-  console.log({ currentPath });
   const [collapsed, setCollapsed] = useState(false);
 
   return (

@@ -45,7 +45,7 @@ export default function NewPhoto() {
     description: string;
     license: string;
     payment?: string;
-    files: { file: File };
+    files: { file: File; fileList: { file: { originFileObj: File } }[] };
   }) => {
     setIsLoading(true);
     try {
@@ -56,8 +56,37 @@ export default function NewPhoto() {
           return { name: `topic:${topic}`, value: topic };
         });
       }
+      const transactionIds: string[] = [];
+      for (const {
+        file: { originFileObj },
+      } of fileList) {
+        try {
+          const contentType = await getMimeType(originFileObj);
+          const tags = [
+            { name: "App-Name", value: APP_NAME },
+            { name: "App-Version", value: APP_VERSION },
+            { name: "Content-Type", value: contentType },
+            { name: "Title", value: image.title },
+            { name: "Description", value: image.description },
+            { name: "Type", value: "image" },
+            ...topics,
+          ];
+
+          const data = await originFileObj.arrayBuffer();
+          const tx = await arweave.createTransaction({ data });
+          tags.forEach((tag) => tx.addTag(tag.name, tag.value));
+
+          if (walletApi) {
+            await walletApi.sign(tx);
+            const res = await walletApi.dispatch(tx);
+            transactionIds.push(res?.id as string);
+          }
+        } catch (err) {
+          console.log(originFileObj.name, err);
+        }
+      }
       const published = new Date().getTime();
-      const contentType = await getMimeType(image.files.file);
+      const contentType = "application/json";
       let tags = [
         { name: "App-Name", value: "SmartWeaveContract" },
         { name: "App-Version", value: "0.3.0" },
@@ -67,7 +96,7 @@ export default function NewPhoto() {
         { name: "Payment-Mode", value: "Global-Distribution" },
         { name: "Title", value: image.title },
         { name: "Description", value: image.description },
-        { name: "Type", value: "image" },
+        { name: "Type", value: "image-album" },
         { name: "Protocol", value: `${APP_NAME}-Post-v${APP_VERSION}` },
         { name: "Published", value: published.toString() },
         {
@@ -115,7 +144,7 @@ export default function NewPhoto() {
           { name: "Commercial-Fee", value: "One-Time-" + image.payment },
         ]);
       }
-      const data = await new Response(image.files.file).arrayBuffer();
+      const data = JSON.stringify(transactionIds);
       const transaction = await arweave.createTransaction({ data });
       tags.forEach((tag) => transaction.addTag(tag.name, tag.value));
 

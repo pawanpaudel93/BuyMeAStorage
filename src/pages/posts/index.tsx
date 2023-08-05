@@ -36,6 +36,7 @@ export default function Posts() {
       .search("transactions")
       .from(activeAddress as string)
       .tag("Protocol", `${APP_NAME}-Post-v${APP_VERSION}`)
+      .tag("Type", ["blog-post", "image-album"])
       .find();
 
     const _posts: IPost[] = transactions.map((transaction) => {
@@ -95,6 +96,8 @@ export default function Posts() {
       };
     });
     setPosts(_posts);
+
+    console.log(_posts);
     setLoading(false);
   }
 

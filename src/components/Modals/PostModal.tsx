@@ -12,6 +12,7 @@ import {
   Image,
   theme,
   message,
+  Carousel,
 } from "antd";
 import { IPost } from "@/types";
 import { ScrollableDiv } from "../Cards/ImageCard";
@@ -32,11 +33,17 @@ interface PostModalProps {
 const PostModal = ({ open, setOpen, post }: PostModalProps) => {
   const { token } = useToken();
   const [content, setContent] = useState("");
+  const [urls, setUrls] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   async function fetchData() {
     const _content = await (await fetch(post.link as string)).text();
-    setContent(_content);
+    if (post.type === "blog-post") {
+      setContent(_content);
+    } else {
+      const transactionIds = JSON.parse(_content) as string[];
+      setUrls(transactionIds.map((id) => `https://arweave.net/${id}`));
+    }
   }
 
   async function download() {
@@ -58,10 +65,44 @@ const PostModal = ({ open, setOpen, post }: PostModalProps) => {
     setIsLoading(false);
   }
 
+  const NextArrow = (props: any) => {
+    const { className, style, onClick } = props;
+
+    return (
+      <div
+        className={className}
+        style={{
+          ...style,
+          color: token.colorPrimary,
+          fontSize: "24px",
+          fontWeight: "bolder",
+          zIndex: 100,
+        }}
+        onClick={onClick}
+      ></div>
+    );
+  };
+
+  const PrevArrow = (props: any) => {
+    const { className, style, onClick } = props;
+    return (
+      <div
+        className={className}
+        style={{
+          ...style,
+          color: token.colorPrimary,
+          fontSize: "24px",
+          fontWeight: "bolder",
+          zIndex: 100,
+        }}
+        onClick={onClick}
+      ></div>
+    );
+  };
+
   useEffect(() => {
-    if (post.type === "blog-post") {
-      fetchData();
-    }
+    fetchData();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post.type]);
 
@@ -102,28 +143,37 @@ const PostModal = ({ open, setOpen, post }: PostModalProps) => {
           </Row>
           <Row style={{ padding: 16 }} gutter={[16, 16]}>
             <Col xs={24} md={14}>
-              <Space direction="vertical">
-                {post.type === "image" ? (
-                  <Image
-                    // width="100%"
-                    height="calc(100vh - 200px)"
-                    style={{
-                      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.4)",
-                      // maxHeight: "calc(100vh - 200px)",
-                    }}
-                    alt={post.title}
-                    src={post.link}
-                    preview={false}
-                  />
-                ) : (
-                  <MdPreview
-                    language="en-US"
-                    modelValue={content}
-                    previewTheme="github"
-                    codeTheme="github"
-                  />
-                )}
-              </Space>
+              {post.type === "image-album" ? (
+                <Carousel
+                  autoplay={false}
+                  prevArrow={<PrevArrow />}
+                  nextArrow={<NextArrow />}
+                  arrows
+                >
+                  {urls.map((url, index) => (
+                    <div key={index}>
+                      <Image
+                        // width="100%"
+                        height="calc(100vh - 200px)"
+                        style={{
+                          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.4)",
+                          // maxHeight: "calc(100vh - 200px)",
+                        }}
+                        alt={post.title}
+                        src={url}
+                        preview={false}
+                      />
+                    </div>
+                  ))}
+                </Carousel>
+              ) : (
+                <MdPreview
+                  language="en-US"
+                  modelValue={content}
+                  previewTheme="github"
+                  codeTheme="github"
+                />
+              )}
             </Col>
             <Col xs={24} md={10}>
               <Card

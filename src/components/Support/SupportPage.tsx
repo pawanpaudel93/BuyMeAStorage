@@ -412,6 +412,10 @@ export default function SupportPage({ address }: { address?: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeAddress]);
 
+  const navigateToSingleInfo = () => {
+    router.push("/singleItem");
+  };
+
   const breakpointColumnsObj = {
     default: 5,
     1100: 2,
@@ -539,13 +543,7 @@ export default function SupportPage({ address }: { address?: string }) {
         <Row gutter={[16, 16]} style={{ padding: 8 }}>
           {posts.length > 0 ? (
             posts.map((item, index) => (
-              <Col
-                span={24}
-                key={index}
-                style={{
-                  cursor: "pointer",
-                }}
-              >
+              <Col span={24} key={index}>
                 <Card
                   hoverable
                   style={{
@@ -553,7 +551,9 @@ export default function SupportPage({ address }: { address?: string }) {
                     border: "1px solid #dfdfdf",
                     background: "white",
                     borderRadius: 12,
+                    cursor: "pointer",
                   }}
+                  onClick={navigateToSingleInfo}
                 >
                   <Space direction="vertical" style={{ width: "100%" }}>
                     <Row justify="space-between">
@@ -608,7 +608,13 @@ export default function SupportPage({ address }: { address?: string }) {
                   columnClassName="my-masonry-grid_column"
                 >
                   {images.map((post, index) => {
-                    return <GalleryImageCard key={index} post={post} />;
+                    return (
+                      <GalleryImageCard
+                        key={index}
+                        post={post}
+                        imageClickHandler={navigateToSingleInfo}
+                      />
+                    );
                   })}
                 </Masonry>
               ) : (

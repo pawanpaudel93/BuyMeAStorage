@@ -32,15 +32,17 @@ export const ScrollableDiv = styled.div`
 `;
 
 export default function ImageCard({ attach }: ImgProps) {
-  <div>
-    <Image
-      width="100%"
-      style={{
-        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.4)",
-        maxHeight: 320,
-      }}
-      alt={attach.attachmentName}
-      src={attach.attachmentUrl}
-    />
-  </div>;
+  return (
+    <div>
+      <Image
+        width="100%"
+        style={{
+          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.4)",
+          maxHeight: 320,
+        }}
+        alt={attach.attachmentName}
+        src={attach.attachmentUrl}
+      />
+    </div>
+  );
 }

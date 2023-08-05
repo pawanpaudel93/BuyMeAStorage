@@ -15,6 +15,7 @@ import { InboxOutlined } from "@ant-design/icons";
 import type { UploadChangeParam } from "antd/es/upload";
 import type { RcFile, UploadFile, UploadProps } from "antd/es/upload/interface";
 import ImageCard from "../Gallery/ImageCard";
+import { licenseOptions } from "@/utils";
 
 const { Dragger } = Upload;
 
@@ -90,25 +91,6 @@ export default function UploadModal({
       console.log("Dropped files", e.dataTransfer.files);
     },
   };
-
-  const licenseOptions = [
-    {
-      label: "UDL Default Public",
-      value: "default",
-    },
-    {
-      label: "UDL Restricted Access",
-      value: "access",
-    },
-    {
-      label: "UDL Commercial Use - One Time",
-      value: "commercial",
-    },
-    {
-      label: "UDL Derivative Works - One Time Payment",
-      value: "derivative",
-    },
-  ];
 
   return (
     <Modal

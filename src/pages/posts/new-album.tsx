@@ -37,6 +37,7 @@ export default function NewPhoto() {
   const [showAmountInput, setShowAmountInput] = useState(false);
   const activeAddress = useActiveAddress();
   const walletApi = useApi();
+  const existingUidsRef = useRef(new Set<string>());
 
   const formSubmitHandler = async (image: {
     title: string;
@@ -44,7 +45,7 @@ export default function NewPhoto() {
     description: string;
     license: string;
     payment?: string;
-    files: { file: File };
+    files: { file: File; fileList: { file: { originFileObj: File } }[] };
   }) => {
     setIsLoading(true);
     try {
@@ -55,8 +56,37 @@ export default function NewPhoto() {
           return { name: `topic:${topic}`, value: topic };
         });
       }
+      const transactionIds: string[] = [];
+      for (const {
+        file: { originFileObj },
+      } of fileList) {
+        try {
+          const contentType = await getMimeType(originFileObj);
+          const tags = [
+            { name: "App-Name", value: APP_NAME },
+            { name: "App-Version", value: APP_VERSION },
+            { name: "Content-Type", value: contentType },
+            { name: "Title", value: image.title },
+            { name: "Description", value: image.description },
+            { name: "Type", value: "image" },
+            ...topics,
+          ];
+
+          const data = await originFileObj.arrayBuffer();
+          const tx = await arweave.createTransaction({ data });
+          tags.forEach((tag) => tx.addTag(tag.name, tag.value));
+
+          if (walletApi) {
+            await walletApi.sign(tx);
+            const res = await walletApi.dispatch(tx);
+            transactionIds.push(res?.id as string);
+          }
+        } catch (err) {
+          console.log(originFileObj.name, err);
+        }
+      }
       const published = new Date().getTime();
-      const contentType = await getMimeType(image.files.file);
+      const contentType = "application/json";
       let tags = [
         { name: "App-Name", value: "SmartWeaveContract" },
         { name: "App-Version", value: "0.3.0" },
@@ -66,7 +96,7 @@ export default function NewPhoto() {
         { name: "Payment-Mode", value: "Global-Distribution" },
         { name: "Title", value: image.title },
         { name: "Description", value: image.description },
-        { name: "Type", value: "image" },
+        { name: "Type", value: "image-album" },
         { name: "Protocol", value: `${APP_NAME}-Post-v${APP_VERSION}` },
         { name: "Published", value: published.toString() },
         {
@@ -114,7 +144,7 @@ export default function NewPhoto() {
           { name: "Commercial-Fee", value: "One-Time-" + image.payment },
         ]);
       }
-      const data = await new Response(image.files.file).arrayBuffer();
+      const data = JSON.stringify(transactionIds);
       const transaction = await arweave.createTransaction({ data });
       tags.forEach((tag) => transaction.addTag(tag.name, tag.value));
 
@@ -149,16 +179,24 @@ export default function NewPhoto() {
 
   const props: UploadProps = {
     name: "file",
-    multiple: false,
+    multiple: true,
     fileList: fileList,
     showUploadList: false,
     beforeUpload: () => false,
     onChange: async (info: any) => {
       if (lockRef.current) return;
       lockRef.current = true;
-      const newFiles = info.fileList.filter(
-        (infoUid: any) => infoUid?.attachmentType !== "uploadType"
-      );
+
+      const newFiles = info.fileList.filter((file: any) => {
+        if (
+          file?.attachmentType === "uploadType" ||
+          existingUidsRef.current.has(file.uid)
+        ) {
+          return false;
+        }
+        existingUidsRef.current.add(file.uid);
+        return true;
+      });
 
       const newFileInfos = newFiles.map((file: UploadFile) => {
         const thumbnailUrl = URL.createObjectURL(file.originFileObj as RcFile);
@@ -215,7 +253,7 @@ export default function NewPhoto() {
                   Click or drag image to this area to upload
                 </p>
                 <p className="ant-upload-hint">
-                  Support for a single image upload. Strictly prohibited from
+                  Support for multiple images upload. Strictly prohibited from
                   uploading company data or other banned files.
                 </p>
               </Dragger>

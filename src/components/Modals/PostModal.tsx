@@ -204,7 +204,7 @@ const PostModal = ({ open, setOpen, post }: PostModalProps) => {
                     <Typography.Text>{post.description}</Typography.Text>
                   </Row>
                   <Row>
-                    {post.topics.map((tag, index) => (
+                    {(post.topics as string[]).map((tag, index) => (
                       <Tag
                         key={index}
                         style={{

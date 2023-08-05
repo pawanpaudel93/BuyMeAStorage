@@ -26,3 +26,22 @@ export const arweave = Arweave.init({
 });
 
 export const ardb = new ArDB(arweave);
+
+export const licenseOptions = [
+  {
+    label: "UDL Default Public",
+    value: "default",
+  },
+  {
+    label: "UDL Restricted Access",
+    value: "access",
+  },
+  {
+    label: "UDL Commercial Use - One Time",
+    value: "commercial",
+  },
+  {
+    label: "UDL Derivative Works - One Time Payment",
+    value: "derivative",
+  },
+];

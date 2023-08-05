@@ -16,6 +16,7 @@ import { InboxOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import type { RcFile, UploadFile, UploadProps } from "antd/es/upload/interface";
 import ImageCard from "@/components/Gallery/ImageCard";
 import { useRouter } from "next/router";
+import { licenseOptions } from "@/utils";
 
 const { Dragger } = Upload;
 
@@ -71,25 +72,6 @@ export default function NewPhoto() {
       console.log("Dropped files", e.dataTransfer.files);
     },
   };
-
-  const licenseOptions = [
-    {
-      label: "UDL Default Public",
-      value: "default",
-    },
-    {
-      label: "UDL Restricted Access",
-      value: "access",
-    },
-    {
-      label: "UDL Commercial Use - One Time",
-      value: "commercial",
-    },
-    {
-      label: "UDL Derivative Works - One Time Payment",
-      value: "derivative",
-    },
-  ];
 
   return (
     <Row style={{ width: "100%", padding: "16px 24px" }}>

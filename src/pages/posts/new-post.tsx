@@ -2,7 +2,7 @@ import { MdEditor, ToolbarNames } from "md-editor-rt";
 import "md-editor-rt/lib/style.css";
 
 import { useActiveAddress, useApi } from "arweave-wallet-kit";
-import { getErrorMessage } from "@/utils";
+import { getErrorMessage, licenseOptions } from "@/utils";
 import { arweave } from "@/utils";
 import { useState } from "react";
 import {
@@ -14,25 +14,6 @@ import {
 import { Button, Form, Input, Row, Select, Space, message } from "antd";
 import usePersistStore from "@/lib/store/persist";
 import { registerPost } from "@/lib/warp/asset";
-
-const licenseOptions = [
-  {
-    label: "UDL Default Public",
-    value: "default",
-  },
-  {
-    label: "UDL Restricted Access",
-    value: "access",
-  },
-  {
-    label: "UDL Commercial Use - One Time",
-    value: "commercial",
-  },
-  {
-    label: "UDL Derivative Works - One Time Payment",
-    value: "derivative",
-  },
-];
 
 export default function NewPost() {
   const [postForm] = Form.useForm();

@@ -14,7 +14,7 @@ import {
   message,
 } from "antd";
 import { IPost } from "@/types";
-import { ScrollableDiv } from "../Gallery/ImageCard";
+import { ScrollableDiv } from "../Cards/ImageCard";
 import { DownloadOutlined } from "@ant-design/icons";
 import { MdPreview } from "md-editor-rt";
 import "md-editor-rt/lib/preview.css";

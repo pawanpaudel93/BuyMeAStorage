@@ -1,4 +1,4 @@
-import React, { SetStateAction, useEffect, useRef, useState } from "react";
+import React, { SetStateAction, useRef, useState } from "react";
 import {
   Button,
   Col,
@@ -12,10 +12,18 @@ import {
   message,
 } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
-import type { UploadChangeParam } from "antd/es/upload";
 import type { RcFile, UploadFile, UploadProps } from "antd/es/upload/interface";
-import ImageCard from "../Gallery/ImageCard";
-import { licenseOptions } from "@/utils";
+import ImageCard from "../Cards/ImageCard";
+import { arweave, getMimeType, licenseOptions } from "@/utils";
+import { registerContract } from "@/lib/warp/asset";
+import {
+  UDL,
+  APP_NAME,
+  APP_VERSION,
+  ATOMIC_ASSET_SRC,
+} from "@/utils/constants";
+import { useActiveAddress, useApi } from "arweave-wallet-kit";
+import { ITag } from "@/types";
 
 const { Dragger } = Upload;
 
@@ -35,22 +43,114 @@ export default function UploadModal({
   const lockRef = useRef(false);
   const [uploadForm] = Form.useForm();
   const [temporaryFiles, setTemporaryFiles] = useState<any>([]);
+  const [showAmountInput, setShowAmountInput] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const activeAddress = useActiveAddress();
+  const walletApi = useApi();
 
-  const formSubmitHandler = (values: any) => {
-    console.log({ values });
-    const filteredTemporaryFiles: any = temporaryFiles?.map((file: any) => {
-      return {
-        uid: file.uid,
-        name: file.name,
-        attachmentType: file.attachmentType,
-        attachmentUrl: file.attachmentUrl,
-      };
-    });
-    setFileList((prevFiles) => [...prevFiles, ...filteredTemporaryFiles]);
-    setTemporaryFiles([]);
-    message.success("Files successfully uploaded!");
-    uploadForm.resetFields();
-    setOpen(false);
+  const handleLicenseChange = (value: string) => {
+    setShowAmountInput(value !== "default");
+  };
+
+  const formSubmitHandler = async (image: {
+    title: string;
+    topics?: string;
+    description: string;
+    license: string;
+    payment?: string;
+    files: { file: File };
+  }) => {
+    setIsLoading(true);
+    try {
+      let topics: ITag[] = [];
+      if (image.topics) {
+        topics = image.topics.split(",").map((topic) => {
+          topic = topic.trim();
+          return { name: `topic:${topic}`, value: topic };
+        });
+      }
+      const published = new Date().getTime();
+      const contentType = await getMimeType(image.files.file);
+      let tags = [
+        { name: "App-Name", value: "SmartWeaveContract" },
+        { name: "App-Version", value: "0.3.0" },
+        { name: "Content-Type", value: contentType },
+        { name: "Indexed-By", value: "ucm" },
+        { name: "License", value: UDL },
+        { name: "Payment-Mode", value: "Global-Distribution" },
+        { name: "Title", value: image.title },
+        { name: "Description", value: image.description },
+        { name: "Type", value: "image" },
+        { name: "Protocol", value: `${APP_NAME}-Post-v${APP_VERSION}` },
+        { name: "Published", value: published.toString() },
+        {
+          name: "Contract-Manifest",
+          value:
+            '{"evaluationOptions":{"sourceType":"redstone-sequencer","allowBigInt":true,"internalWrites":true,"unsafeClient":"skip","useConstructor":true}}',
+        },
+        { name: "Contract-Src", value: ATOMIC_ASSET_SRC },
+        {
+          name: "Init-State",
+          value: JSON.stringify({
+            title: image.title,
+            description: image.description,
+            creator: activeAddress,
+            claimable: [],
+            ticker: "ATOMIC-POST",
+            name: image.title,
+            balances: {
+              [activeAddress as string]: 100,
+            },
+            emergencyHaltWallet: activeAddress as string,
+            contentType,
+            published,
+            settings: [["isTradeable", true]],
+            transferable: true,
+          }),
+        },
+      ].concat(topics);
+
+      if (image.license === "access") {
+        tags = tags.concat([
+          { name: "Access", value: "Restricted" },
+          { name: "Access-Fee", value: "One-Time-" + image.payment },
+        ]);
+      }
+      if (image.license === "derivative") {
+        tags = tags.concat([
+          { name: "Derivation", value: "Allowed-with-license-fee" },
+          { name: "Derivation-Fee", value: "One-Time-" + image.payment },
+        ]);
+      }
+      if (image.license === "commercial") {
+        tags = tags.concat([
+          { name: "Commercial-Use", value: "Allowed" },
+          { name: "Commercial-Fee", value: "One-Time-" + image.payment },
+        ]);
+      }
+      const data = await new Response(image.files.file).arrayBuffer();
+      const transaction = await arweave.createTransaction({ data });
+      tags.forEach((tag) => transaction.addTag(tag.name, tag.value));
+
+      await walletApi?.sign(transaction);
+      const response = await walletApi?.dispatch(transaction);
+      if (response?.id) {
+        const contractTxId = await registerContract(response?.id);
+        setTemporaryFiles([]);
+        message.success("Image uploaded succesfully!");
+        uploadForm.resetFields();
+        setOpen(false);
+        setShowAmountInput(false);
+      } else {
+        throw new Error("Image upload error");
+      }
+    } catch (error) {
+      console.log(error);
+      message.error({
+        content: "Image upload error",
+      });
+    }
+    setIsLoading(false);
   };
 
   const handleCancel = () => {
@@ -103,7 +203,12 @@ export default function UploadModal({
         <Button key="back" onClick={handleCancel}>
           Cancel
         </Button>,
-        <Button key="submit" type="primary" onClick={() => uploadForm.submit()}>
+        <Button
+          key="submit"
+          type="primary"
+          onClick={() => uploadForm.submit()}
+          loading={isLoading}
+        >
           Submit
         </Button>,
       ]}
@@ -133,7 +238,7 @@ export default function UploadModal({
             <Row gutter={[8, 8]} style={{ padding: 8 }}>
               <Image.PreviewGroup>
                 {temporaryFiles?.map((file: any, index: number) => {
-                  return <ImageCard key={index} attach={file} fromUploadZone />;
+                  return <ImageCard key={index} attach={file} />;
                 })}
               </Image.PreviewGroup>
             </Row>
@@ -156,6 +261,7 @@ export default function UploadModal({
               name="description"
               label="Description"
               style={{ marginBottom: 8 }}
+              rules={[{ required: true }]}
             >
               <Input.TextArea
                 placeholder="Enter description"
@@ -185,8 +291,21 @@ export default function UploadModal({
               style={{ marginBottom: 8 }}
               initialValue="default"
             >
-              <Select placeholder="Select license" options={licenseOptions} />
+              <Select
+                placeholder="Select license"
+                options={licenseOptions}
+                onChange={handleLicenseChange}
+              />
             </Form.Item>
+            {showAmountInput && (
+              <Form.Item
+                label="Payment"
+                name="payment"
+                rules={[{ required: showAmountInput }]}
+              >
+                <Input placeholder="Amount in $AR" type="number" />
+              </Form.Item>
+            )}
           </Col>
         </Row>
       </Form>

@@ -7,7 +7,7 @@ LoggerFactory.INST.logLevel("error");
 
 const warp = WarpFactory.forMainnet().use(new DeployPlugin());
 
-export const registerPost = async (txID: string) => {
+export const registerContract = async (txID: string) => {
   const { contractTxId } = await warp.register(txID, "node2");
   return contractTxId;
 };

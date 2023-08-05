@@ -2,7 +2,7 @@ import { MdEditor, ToolbarNames } from "md-editor-rt";
 import "md-editor-rt/lib/style.css";
 
 import { useActiveAddress, useApi } from "arweave-wallet-kit";
-import { getErrorMessage, licenseOptions } from "@/utils";
+import { getErrorMessage, getMimeType, licenseOptions } from "@/utils";
 import { arweave } from "@/utils";
 import { useState } from "react";
 import {
@@ -13,7 +13,7 @@ import {
 } from "@/utils/constants";
 import { Button, Form, Input, Row, Select, Space, message } from "antd";
 import usePersistStore from "@/lib/store/persist";
-import { registerPost } from "@/lib/warp/asset";
+import { registerContract } from "@/lib/warp/asset";
 
 export default function NewPost() {
   const [postForm] = Form.useForm();
@@ -23,76 +23,6 @@ export default function NewPost() {
   const [showAmountInput, setShowAmountInput] = useState(false);
   const toolbarsExclude: ToolbarNames[] = ["github"];
   const [isLoading, setIsLoading] = useState(false);
-
-  function getMimeType(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const fileReader = new FileReader();
-
-      fileReader.onloadend = function (event: ProgressEvent<EventTarget>) {
-        if (!event.target) {
-          reject(new Error("FileReader onloadend: event target is null."));
-          return;
-        }
-
-        const target = event.target as FileReader;
-        let mimeType = "";
-
-        const arr = new Uint8Array(target.result as ArrayBuffer).subarray(0, 4);
-        let header = "";
-
-        for (let index = 0; index < arr.length; index++) {
-          header += arr[index].toString(16);
-        }
-
-        // View other byte signature patterns here:
-        // 1) https://mimesniff.spec.whatwg.org/#matching-an-image-type-pattern
-        // 2) https://en.wikipedia.org/wiki/List_of_file_signatures
-        switch (header) {
-          case "89504e47": {
-            mimeType = "image/png";
-            break;
-          }
-          case "47494638": {
-            mimeType = "image/gif";
-            break;
-          }
-          case "52494646":
-          case "57454250":
-            mimeType = "image/webp";
-            break;
-          case "49492A00":
-          case "4D4D002A":
-            mimeType = "image/tiff";
-            break;
-          case "ffd8ffe0":
-          case "ffd8ffe1":
-          case "ffd8ffe2":
-          case "ffd8ffe3":
-          case "ffd8ffe8":
-            mimeType = "image/jpeg";
-            break;
-          default: {
-            mimeType = file.type;
-            break;
-          }
-        }
-
-        resolve(mimeType);
-      };
-
-      fileReader.onerror = function (event: ProgressEvent<EventTarget>) {
-        if (!event.target) {
-          reject(new Error("FileReader onerror: event target is null."));
-          return;
-        }
-
-        const target = event.target as FileReader;
-        reject(target.error || new Error("FileReader onerror: unknown error."));
-      };
-
-      fileReader.readAsArrayBuffer(file);
-    });
-  }
 
   const onSave = (content: string) => {
     if (content) {
@@ -182,7 +112,7 @@ export default function NewPost() {
             description: post.description,
             creator: activeAddress,
             claimable: [],
-            ticker: "POST",
+            ticker: "ATOMIC-POST",
             name: post.title,
             balances: {
               [activeAddress as string]: 10000,
@@ -223,7 +153,7 @@ export default function NewPost() {
       await walletApi?.sign(transaction);
       const response = await walletApi?.dispatch(transaction);
       if (response?.id) {
-        const contractTxId = await registerPost(response?.id);
+        const contractTxId = await registerContract(response?.id);
         setPost({
           title: "",
           description: "",
@@ -233,6 +163,7 @@ export default function NewPost() {
         message.success({
           content: "Post published sucessfully",
         });
+        postForm.resetFields();
       } else {
         throw new Error("Post publish error");
       }

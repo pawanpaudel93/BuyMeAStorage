@@ -9,6 +9,8 @@ import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 
+const { Content } = Layout;
+
 const NavBar = dynamic(
   async () => await import("@/components/Navigation/NavBar"),
   { ssr: false }
@@ -60,7 +62,9 @@ export function AppLayout({ appProps }: { appProps: AppProps }) {
         <Layout>
           <NavBar />
           <NextNProgress color="#a62a22" />
-          <Component {...pageProps} />
+          <Content style={{ minHeight: "calc(100vh - 54px)" }}>
+            <Component {...pageProps} />
+          </Content>
         </Layout>
       )}
     </>

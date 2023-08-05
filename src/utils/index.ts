@@ -116,3 +116,10 @@ export function getMimeType(file: File): Promise<string> {
     fileReader.readAsArrayBuffer(file);
   });
 }
+
+export function capitalizeAndFormat(input: string) {
+  return input
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}

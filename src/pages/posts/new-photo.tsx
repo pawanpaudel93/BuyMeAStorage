@@ -24,6 +24,7 @@ import {
   ATOMIC_ASSET_SRC,
 } from "@/utils/constants";
 import { useActiveAddress, useApi } from "arweave-wallet-kit";
+import { ITag } from "@/types";
 
 const { Dragger } = Upload;
 
@@ -47,10 +48,13 @@ export default function NewPhoto() {
   }) => {
     setIsLoading(true);
     try {
-      const topics = image.topics.split(",").map((topic) => {
-        topic = topic.trim();
-        return { name: `topic:${topic}`, value: topic };
-      });
+      let topics: ITag[] = [];
+      if (image.topics) {
+        topics = image.topics.split(",").map((topic) => {
+          topic = topic.trim();
+          return { name: `topic:${topic}`, value: topic };
+        });
+      }
       const published = new Date().getTime();
       const contentType = await getMimeType(image.files.file);
       let tags = [

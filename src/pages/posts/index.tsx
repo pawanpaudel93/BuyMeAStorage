@@ -176,7 +176,7 @@ export default function Posts() {
               }}
               onClick={() => router.push("/posts/new-photo")}
             >
-              Add an album
+              Add an image
             </Button>
           </Col>
         </Row>

@@ -56,7 +56,7 @@ export default function GalleryImageCard({
   imageClickHandler,
 }: {
   post: IPost;
-  imageClickHandler: () => void;
+  imageClickHandler?: () => void;
 }) {
   const { token } = useToken();
   const [isLoading, setIsLoading] = useState(false);

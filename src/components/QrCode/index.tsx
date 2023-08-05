@@ -1,4 +1,4 @@
-import { SetStateAction } from "react";
+import { SetStateAction, useState } from "react";
 import { Button, Modal, QRCode, Row, Space, Typography } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
 
@@ -9,12 +9,15 @@ interface IQrModalProps {
 }
 
 export default function QrModal({ qrValue, open, setOpen }: IQrModalProps) {
+  const [isDownloading, setIsDownloading] = useState(false);
   const downloadQRCode = () => {
+    setIsDownloading(true);
     const canvas = document
       .getElementById("myqrcode")
       ?.querySelector<HTMLCanvasElement>("canvas");
     if (canvas) {
       const url = canvas.toDataURL();
+      console.log({ url });
       const a = document.createElement("a");
       a.download = "QRCode.png";
       a.href = url;
@@ -22,6 +25,7 @@ export default function QrModal({ qrValue, open, setOpen }: IQrModalProps) {
       a.click();
       document.body.removeChild(a);
     }
+    setIsDownloading(false);
   };
 
   return (
@@ -47,6 +51,7 @@ export default function QrModal({ qrValue, open, setOpen }: IQrModalProps) {
             type="primary"
             icon={<DownloadOutlined />}
             onClick={downloadQRCode}
+            loading={isDownloading}
           >
             Download
           </Button>

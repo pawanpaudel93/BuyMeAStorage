@@ -82,20 +82,20 @@ export default function Supports({
   }, []);
 
   return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "center" }}>
+    <>
+      <Row justify="center">
         <Text style={{ fontSize: 14, fontWeight: "bold", marginBottom: 3 }}>
           RECENT SUPPORTS
         </Text>
-      </div>
-      <Row gutter={16}>
-        <Col span={24}>
-          {supports.map((support, index) => (
-            <Support support={support} key={index} />
-          ))}
-        </Col>
       </Row>
-      <div style={{ textAlign: "center" }}>
+      <Row gutter={[16, 16]}>
+        {supports?.map((support, index) => (
+          <Col span={24} key={index}>
+            <Support support={support} />
+          </Col>
+        ))}
+      </Row>
+      <Row justify="center" style={{ marginTop: 14 }}>
         <Button
           style={{ justifyContent: "center" }}
           loading={isLoading}
@@ -111,7 +111,7 @@ export default function Supports({
             ? "No more Supports"
             : "Load more Supports"}
         </Button>
-      </div>
-    </div>
+      </Row>
+    </>
   );
 }

@@ -25,7 +25,6 @@ export default function Support({ support }: { support: ISupport }) {
       style={{
         width: "100%",
         boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-        margin: 20,
       }}
     >
       <div style={{ display: "flex", alignItems: "center" }}>

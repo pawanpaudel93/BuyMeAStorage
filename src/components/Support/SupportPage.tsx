@@ -16,18 +16,24 @@ import {
   Row,
   theme,
   Col,
+  TabsProps,
+  Tabs,
+  Empty,
 } from "antd";
 import { RxCross1 } from "react-icons/rx";
 import { useActiveAddress, useApi, useConnection } from "arweave-wallet-kit";
-import { arweave } from "@/utils";
+import { arweave, ardb, capitalizeAndFormat } from "@/utils";
 import { APP_NAME, APP_VERSION } from "@/utils/constants";
 import "@/components/ArProfile/Profile.module.css";
 import Supports from "@/components/Support/Supports";
 import NotFound from "@/components/Errors/NotFound";
 import ProfileWithData from "@/components/ArProfile/ProfileWithData";
 import { getErrorMessage } from "@/utils";
-import { ISupport } from "@/types";
+import { IPost, ISupport, ITag } from "@/types";
 import { useRouter } from "next/router";
+import dayjs from "dayjs";
+import Masonry from "react-masonry-css";
+import GalleryImageCard from "../Cards/GalleryImageCard";
 
 const { Text, Title } = Typography;
 const { useToken } = theme;
@@ -36,6 +42,8 @@ export default function SupportPage({ address }: { address?: string }) {
   const walletApi = useApi();
   const { token } = useToken();
   const router = useRouter();
+  const activeAddress = useActiveAddress();
+
   const connectedAddress = useActiveAddress();
   const [supports, setSupports] = useState<ISupport[]>([]);
   const [userAccount, setUserAccount] = useState<ArAccount>();
@@ -52,11 +60,18 @@ export default function SupportPage({ address }: { address?: string }) {
   const [storageValue, setStorageValue] = useState(1);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+
+  const [posts, setPosts] = useState<IPost[]>([]);
+  const [images, setImages] = useState<IPost[]>([]);
+  const [loading, setLoading] = useState(false);
+
   const storageOptions = [
     { label: "1", value: 1 },
     { label: "2", value: 2 },
     { label: "3", value: 3 },
   ];
+
+  console.log({ posts });
 
   useEffect(() => {
     const favicon: HTMLLinkElement | null =
@@ -253,6 +268,374 @@ export default function SupportPage({ address }: { address?: string }) {
     return response.arweave.usd;
   }
 
+  async function fetchPosts() {
+    setLoading(true);
+    const transactions = await ardb
+      .search("transactions")
+      .from(activeAddress as string)
+      .tag("Protocol", `${APP_NAME}-Post-v${APP_VERSION}`)
+      .find();
+    const _posts: IPost[] = transactions.map((transaction) => {
+      // @ts-ignore
+      const tags = transaction.tags as ITag[];
+      const titleTag = tags.find((tag) => tag.name === "Title");
+      const descriptionTag = tags.find((tag) => tag.name === "Description");
+      const publishedTag = tags.find(
+        (tag) => tag.name === "Published" || tag.name === "Published-At"
+      );
+      const typeTag = tags.find((tag) => tag.name === "Type");
+      const topics = tags
+        .filter((tag) => tag.name.startsWith("topic:"))
+        .map((tag) => tag.value);
+      const licenseTag = tags.find(
+        (tag) =>
+          tag.name === "Access" ||
+          tag.name === "Derivation" ||
+          tag.name === "Commercial-Use"
+      );
+
+      let license: ITag[] = [];
+
+      if (licenseTag) {
+        const feeTag = tags.find(
+          (tag) =>
+            tag.name === "Access-Fee" ||
+            tag.name === "Derivation-Fee" ||
+            tag.name === "Commercial-Fee"
+        )!;
+        license = [
+          {
+            name: capitalizeAndFormat(licenseTag.name),
+            value: capitalizeAndFormat(licenseTag.value),
+          },
+          {
+            name: capitalizeAndFormat(feeTag.name),
+            value: capitalizeAndFormat(feeTag.value),
+          },
+        ];
+      }
+
+      return {
+        id: transaction.id,
+        link: `https://arweave.net/${transaction.id}`,
+        title: titleTag?.value ?? "",
+        description: descriptionTag?.value ?? "",
+        topics,
+        type: typeTag?.value ?? "",
+        license,
+        content: "",
+        published: dayjs(
+          new Date(
+            parseInt(publishedTag?.value ?? new Date().getTime().toString())
+          )
+        ).format("MMM DD, YYYY [at] HH:mmA"),
+      };
+    });
+    setPosts(_posts);
+    setLoading(false);
+  }
+
+  async function fetchImages() {
+    setLoading(true);
+    const transactions = await ardb
+      .search("transactions")
+      .from(activeAddress as string)
+      .tag("Protocol", `${APP_NAME}-Post-v${APP_VERSION}`)
+      .tag("Type", "image")
+      .find();
+
+    const _posts: IPost[] = transactions.map((transaction) => {
+      // @ts-ignore
+      const tags = transaction.tags as ITag[];
+      const titleTag = tags.find((tag) => tag.name === "Title");
+      const descriptionTag = tags.find((tag) => tag.name === "Description");
+      const publishedTag = tags.find(
+        (tag) => tag.name === "Published" || tag.name === "Published-At"
+      );
+      const typeTag = tags.find((tag) => tag.name === "Type");
+      const topics = tags
+        .filter((tag) => tag.name.startsWith("topic:"))
+        .map((tag) => tag.value);
+      const licenseTag = tags.find(
+        (tag) =>
+          tag.name === "Access" ||
+          tag.name === "Derivation" ||
+          tag.name === "Commercial-Use"
+      );
+
+      let license: ITag[] = [];
+
+      if (licenseTag) {
+        const feeTag = tags.find(
+          (tag) =>
+            tag.name === "Access-Fee" ||
+            tag.name === "Derivation-Fee" ||
+            tag.name === "Commercial-Fee"
+        )!;
+        license = [
+          {
+            name: capitalizeAndFormat(licenseTag.name),
+            value: capitalizeAndFormat(licenseTag.value),
+          },
+          {
+            name: capitalizeAndFormat(feeTag.name),
+            value: capitalizeAndFormat(feeTag.value),
+          },
+        ];
+      }
+
+      return {
+        id: transaction.id,
+        link: `https://arweave.net/${transaction.id}`,
+        title: titleTag?.value ?? "",
+        description: descriptionTag?.value ?? "",
+        topics,
+        type: typeTag?.value ?? "",
+        license,
+        content: "",
+        published: dayjs(
+          new Date(
+            parseInt(publishedTag?.value ?? new Date().getTime().toString())
+          )
+        ).format("MMM DD, YYYY [at] HH:mmA"),
+      };
+    });
+    setImages(_posts);
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    if (activeAddress) {
+      fetchPosts();
+      fetchImages();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeAddress]);
+
+  const breakpointColumnsObj = {
+    default: 5,
+    1100: 2,
+    700: 3,
+    500: 2,
+  };
+
+  const items: TabsProps["items"] = [
+    {
+      key: "1",
+      label: <p style={{ fontSize: 18 }}>Support</p>,
+      children: (
+        <Row gutter={[12, 12]}>
+          <Col span={12} sm={24} md={12}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <Card
+                title={
+                  <Title level={3} style={{ textAlign: "center" }}>
+                    Buy{" "}
+                    <Text style={{ color: token.colorPrimary, fontSize: 24 }}>
+                      {userAccount?.profile.name}
+                    </Text>{" "}
+                    a Storage
+                  </Title>
+                }
+                style={{ flex: 1, maxWidth: "600px" }}
+              >
+                <Space
+                  direction="vertical"
+                  size={16}
+                  style={{ width: "100%", marginBottom: 16 }}
+                >
+                  <Select
+                    placeholder="Select storage"
+                    defaultValue={storageUnit}
+                    onChange={(value) => setStorageUnit(value)}
+                    style={{ width: "100%" }}
+                  >
+                    <Select.Option value="MB">MB</Select.Option>
+                    <Select.Option value="GB">GB</Select.Option>
+                    <Select.Option value="TB">TB</Select.Option>
+                  </Select>
+
+                  <Space direction="horizontal" style={{ width: "100%" }}>
+                    <Image src="/icon.svg" height={40} alt="" />
+                    <RxCross1 style={{ fontSize: "1.5em" }} />
+                    <Radio.Group
+                      value={storageValue}
+                      onChange={(e) => setStorageValue(e.target.value)}
+                      options={storageOptions}
+                      optionType="button"
+                      buttonStyle="solid"
+                    />
+
+                    <Input
+                      type="number"
+                      min={1}
+                      value={storageValue}
+                      onChange={(e) =>
+                        setStorageValue(parseInt(e.target.value))
+                      }
+                      style={{ width: "100%" }}
+                    />
+                  </Space>
+                </Space>
+                <Space direction="vertical" style={{ width: "100%" }} size={16}>
+                  <Input
+                    type="text"
+                    placeholder="Name (optional)"
+                    onChange={(e) => setName(e.target.value)}
+                    value={name}
+                    style={{ width: "100%" }}
+                  />
+
+                  <Input.TextArea
+                    placeholder="Say something nice... (optional)"
+                    onChange={(e) => setDescription(e.target.value)}
+                    value={description}
+                    style={{ width: "100%" }}
+                  />
+
+                  {supportValue.ar && (
+                    <Space
+                      style={{ display: "flex", justifyContent: "center" }}
+                    >
+                      <Tag color="green">{supportValue.ar} AR</Tag>
+                      <Tag color="green">~${supportValue.usd}</Tag>
+                    </Space>
+                  )}
+
+                  <Button
+                    type="primary"
+                    onClick={support}
+                    loading={isLoading}
+                    disabled={userAccount?.addr === connectedAddress}
+                    shape="round"
+                    size="large"
+                    block
+                  >
+                    Support
+                  </Button>
+                </Space>
+              </Card>
+            </div>
+          </Col>
+          <Col span={12} sm={24} md={12}>
+            <Supports
+              recipient={userAccount?.addr as string}
+              supports={supports}
+              setSupports={setSupports}
+            />
+          </Col>
+        </Row>
+      ),
+    },
+    {
+      key: "2",
+      label: <p style={{ fontSize: 18 }}>Posts</p>,
+      children: (
+        <Row gutter={[16, 16]} style={{ padding: 8 }}>
+          {posts.length > 0 ? (
+            posts.map((item, index) => (
+              <Col
+                span={24}
+                key={index}
+                style={{
+                  cursor: "pointer",
+                }}
+              >
+                <Card
+                  hoverable
+                  style={{
+                    width: "100%",
+                    border: "1px solid #dfdfdf",
+                    background: "white",
+                    borderRadius: 12,
+                  }}
+                >
+                  <Space direction="vertical" style={{ width: "100%" }}>
+                    <Row justify="space-between">
+                      <Typography.Text
+                        style={{ fontSize: 18, fontWeight: 600 }}
+                      >
+                        {item.title}
+                      </Typography.Text>
+                      <Typography.Text style={{ color: "gray" }}>
+                        {item.published}
+                      </Typography.Text>
+                    </Row>
+                    <Row>
+                      <Typography.Text style={{ textAlign: "justify" }}>
+                        {item.description}
+                      </Typography.Text>
+                    </Row>
+                  </Space>
+                </Card>
+              </Col>
+            ))
+          ) : (
+            <Empty
+              description={
+                <Typography.Text style={{ fontSize: 14, color: "gray" }}>
+                  No post published yet!
+                </Typography.Text>
+              }
+            />
+          )}
+        </Row>
+      ),
+    },
+    {
+      key: "3",
+      label: <p style={{ fontSize: 18 }}>Gallery</p>,
+      children: (
+        <>
+          <Spin spinning={posts.length === 0 && loading}>
+            <Row
+              gutter={[16, 16]}
+              style={{
+                height: "calc(100vh - 170px)",
+                // minHeight: "160px",
+                overflowY: "auto",
+              }}
+            >
+              {images.length > 0 ? (
+                <Masonry
+                  breakpointCols={breakpointColumnsObj}
+                  className="my-masonry-grid"
+                  columnClassName="my-masonry-grid_column"
+                >
+                  {images.map((post, index) => {
+                    return <GalleryImageCard key={index} post={post} />;
+                  })}
+                </Masonry>
+              ) : (
+                <Empty
+                  style={{
+                    width: "100%",
+                    display: "grid",
+                    placeItems: "center",
+                  }}
+                  description={
+                    <Typography.Text style={{ fontSize: 14, color: "gray" }}>
+                      No Gallery Image!
+                    </Typography.Text>
+                  }
+                />
+              )}
+            </Row>
+          </Spin>
+        </>
+      ),
+    },
+  ];
+
+  const onTabChange = (key: string) => {
+    console.log(key);
+  };
+
   return (
     <div style={{ height: "100%" }}>
       {!isHandlePresent ? (
@@ -265,123 +648,13 @@ export default function SupportPage({ address }: { address?: string }) {
             userAccount={userAccount}
           />
           <Divider />
-          <Row style={{ padding: 12 }} gutter={[12, 12]}>
-            <Col span={12} sm={24} md={12}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              >
-                <Card
-                  title={
-                    <Title level={3} style={{ textAlign: "center" }}>
-                      Buy{" "}
-                      <Text style={{ color: token.colorPrimary, fontSize: 24 }}>
-                        {userAccount.profile.name}
-                      </Text>{" "}
-                      a Storage
-                    </Title>
-                  }
-                  style={{ flex: 1, maxWidth: "600px" }}
-                >
-                  <Space
-                    direction="vertical"
-                    size={16}
-                    style={{ width: "100%", marginBottom: 16 }}
-                  >
-                    <Select
-                      placeholder="Select storage"
-                      defaultValue={storageUnit}
-                      onChange={(value) => setStorageUnit(value)}
-                      style={{ width: "100%" }}
-                    >
-                      <Select.Option value="MB">MB</Select.Option>
-                      <Select.Option value="GB">GB</Select.Option>
-                      <Select.Option value="TB">TB</Select.Option>
-                    </Select>
-
-                    <Space direction="horizontal" style={{ width: "100%" }}>
-                      <Image src="/icon.svg" height={40} alt="" />
-                      <RxCross1 style={{ fontSize: "1.5em" }} />
-                      <Radio.Group
-                        value={storageValue}
-                        onChange={(e) => setStorageValue(e.target.value)}
-                        options={storageOptions}
-                        optionType="button"
-                        buttonStyle="solid"
-                      />
-
-                      <Input
-                        type="number"
-                        min={1}
-                        value={storageValue}
-                        onChange={(e) =>
-                          setStorageValue(parseInt(e.target.value))
-                        }
-                        style={{ width: "100%" }}
-                      />
-                    </Space>
-                  </Space>
-                  <Space
-                    direction="vertical"
-                    style={{ width: "100%" }}
-                    size={16}
-                  >
-                    <Input
-                      type="text"
-                      placeholder="Name (optional)"
-                      onChange={(e) => setName(e.target.value)}
-                      value={name}
-                      style={{ width: "100%" }}
-                    />
-
-                    <Input.TextArea
-                      placeholder="Say something nice... (optional)"
-                      onChange={(e) => setDescription(e.target.value)}
-                      value={description}
-                      style={{ width: "100%" }}
-                    />
-
-                    {supportValue.ar && (
-                      <Space
-                        style={{ display: "flex", justifyContent: "center" }}
-                      >
-                        <Tag color="green">{supportValue.ar} AR</Tag>
-                        <Tag color="green">~${supportValue.usd}</Tag>
-                      </Space>
-                    )}
-
-                    <Button
-                      type="primary"
-                      onClick={support}
-                      loading={isLoading}
-                      disabled={userAccount.addr === connectedAddress}
-                      shape="round"
-                      size="large"
-                      block
-                    >
-                      Support
-                    </Button>
-                  </Space>
-                </Card>
-              </div>
-            </Col>
-            <Col span={12} sm={24} md={12}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              >
-                <Supports
-                  recipient={userAccount.addr}
-                  supports={supports}
-                  setSupports={setSupports}
-                />
-              </div>
-            </Col>
-          </Row>
+          <Tabs
+            defaultActiveKey="1"
+            items={items}
+            onChange={onTabChange}
+            style={{ padding: "4px 24px" }}
+            tabBarGutter={12}
+          />
         </div>
       ) : (
         <div

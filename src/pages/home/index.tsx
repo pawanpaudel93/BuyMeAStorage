@@ -53,7 +53,6 @@ export default function HomePage() {
   };
 
   const handleMenuClick: MenuProps["onClick"] = ({ key }) => {
-    console.log({ key });
     if (key === "1") {
       copyToClipBoard();
     }
@@ -95,6 +94,11 @@ export default function HomePage() {
         padding: "12px 32px",
       }}
     >
+      <QrModal
+        qrValue={myProfileUrl}
+        open={isQrModalOpen}
+        setOpen={setIsQrModalOpen}
+      />
       <Row
         style={{
           borderBottom: "1px solid #dfdfdf",

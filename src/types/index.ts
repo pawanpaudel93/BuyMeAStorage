@@ -29,11 +29,14 @@ export interface ISupport {
 
 export interface IPost {
   id?: string;
+  link?: string;
   title: string;
   description: string;
   content: string;
-  topics: string;
+  topics: string[] | string;
+  type?: string;
   published?: string;
+  license?: ITag[];
 }
 
 export interface ITag {

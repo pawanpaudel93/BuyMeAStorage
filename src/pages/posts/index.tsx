@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import {
   Button,
-  Card,
-  Image,
   Row,
   Col,
   Space,
@@ -13,12 +11,13 @@ import {
 } from "antd";
 import { BookOutlined, ProjectOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
-import { ardb } from "@/utils";
+import { ardb, capitalizeAndFormat } from "@/utils";
 import { APP_NAME, APP_VERSION } from "@/utils/constants";
 import { useActiveAddress } from "arweave-wallet-kit";
 import { IPost, ITag } from "@/types";
 import dayjs from "dayjs";
 import usePersistStore from "@/lib/store/persist";
+import PostModal from "@/components/Modals/PostModal";
 
 const { Text } = Typography;
 
@@ -26,8 +25,10 @@ export default function Posts() {
   const router = useRouter();
   const activeAddress = useActiveAddress();
   const [posts, setPosts] = useState<IPost[]>([]);
+  const [post, setPost] = useState<IPost>();
   const draftPost = usePersistStore((state) => state.post);
   const [loading, setLoading] = useState(false);
+  const [isPostModalOpen, setIsPostModalOpen] = useState(false);
 
   async function fetchPosts() {
     setLoading(true);
@@ -39,21 +40,52 @@ export default function Posts() {
 
     const _posts: IPost[] = transactions.map((transaction) => {
       // @ts-ignore
-      const tags = transaction._tags as ITag[];
+      const tags = transaction.tags as ITag[];
       const titleTag = tags.find((tag) => tag.name === "Title");
       const descriptionTag = tags.find((tag) => tag.name === "Description");
       const publishedTag = tags.find(
         (tag) => tag.name === "Published" || tag.name === "Published-At"
       );
+      const typeTag = tags.find((tag) => tag.name === "Type");
       const topics = tags
         .filter((tag) => tag.name.startsWith("topic:"))
         .map((tag) => tag.value);
+      const licenseTag = tags.find(
+        (tag) =>
+          tag.name === "Access" ||
+          tag.name === "Derivation" ||
+          tag.name === "Commercial-Use"
+      );
+
+      let license: ITag[] = [];
+
+      if (licenseTag) {
+        const feeTag = tags.find(
+          (tag) =>
+            tag.name === "Access-Fee" ||
+            tag.name === "Derivation-Fee" ||
+            tag.name === "Commercial-Fee"
+        )!;
+        license = [
+          {
+            name: capitalizeAndFormat(licenseTag.name),
+            value: capitalizeAndFormat(licenseTag.value),
+          },
+          {
+            name: capitalizeAndFormat(feeTag.name),
+            value: capitalizeAndFormat(feeTag.value),
+          },
+        ];
+      }
 
       return {
         id: transaction.id,
+        link: `https://arweave.net/${transaction.id}`,
         title: titleTag?.value ?? "",
         description: descriptionTag?.value ?? "",
-        topics: topics.join(", "),
+        topics,
+        type: typeTag?.value ?? "",
+        license,
         content: "",
         published: dayjs(
           new Date(
@@ -74,7 +106,17 @@ export default function Posts() {
         <>
           <Row gutter={[16, 16]}>
             {posts.map((item, index) => (
-              <Col span={24} key={index}>
+              <Col
+                span={24}
+                key={index}
+                onClick={() => {
+                  setPost(item);
+                  setIsPostModalOpen(true);
+                }}
+                style={{
+                  cursor: "pointer",
+                }}
+              >
                 <Space
                   direction="vertical"
                   style={{
@@ -224,6 +266,13 @@ export default function Posts() {
           />
         </Row>
       </Space>
+      {post && (
+        <PostModal
+          open={isPostModalOpen}
+          setOpen={setIsPostModalOpen}
+          post={post}
+        />
+      )}
     </>
   );
 }

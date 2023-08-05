@@ -82,7 +82,7 @@ export default function NewPost() {
   async function publish(value: { license: string; payment: string }) {
     setIsLoading(true);
     try {
-      const topics = post.topics.split(",").map((topic) => {
+      const topics = (post.topics as string).split(",").map((topic) => {
         topic = topic.trim();
         return { name: `topic:${topic}`, value: topic };
       });

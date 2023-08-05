@@ -247,9 +247,9 @@ export default function Posts() {
                 fontSize: "1.5em",
                 color: "gray",
               }}
-              onClick={() => router.push("/posts/new-photo")}
+              onClick={() => router.push("/posts/new-album")}
             >
-              Add an image
+              Add an album
             </Button>
           </Col>
         </Row>

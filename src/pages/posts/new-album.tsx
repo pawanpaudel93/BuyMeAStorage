@@ -37,6 +37,7 @@ export default function NewPhoto() {
   const [showAmountInput, setShowAmountInput] = useState(false);
   const activeAddress = useActiveAddress();
   const walletApi = useApi();
+  const existingUidsRef = useRef(new Set<string>());
 
   const formSubmitHandler = async (image: {
     title: string;
@@ -149,16 +150,24 @@ export default function NewPhoto() {
 
   const props: UploadProps = {
     name: "file",
-    multiple: false,
+    multiple: true,
     fileList: fileList,
     showUploadList: false,
     beforeUpload: () => false,
     onChange: async (info: any) => {
       if (lockRef.current) return;
       lockRef.current = true;
-      const newFiles = info.fileList.filter(
-        (infoUid: any) => infoUid?.attachmentType !== "uploadType"
-      );
+
+      const newFiles = info.fileList.filter((file: any) => {
+        if (
+          file?.attachmentType === "uploadType" ||
+          existingUidsRef.current.has(file.uid)
+        ) {
+          return false;
+        }
+        existingUidsRef.current.add(file.uid);
+        return true;
+      });
 
       const newFileInfos = newFiles.map((file: UploadFile) => {
         const thumbnailUrl = URL.createObjectURL(file.originFileObj as RcFile);
@@ -215,7 +224,7 @@ export default function NewPhoto() {
                   Click or drag image to this area to upload
                 </p>
                 <p className="ant-upload-hint">
-                  Support for a single image upload. Strictly prohibited from
+                  Support for multiple images upload. Strictly prohibited from
                   uploading company data or other banned files.
                 </p>
               </Dragger>

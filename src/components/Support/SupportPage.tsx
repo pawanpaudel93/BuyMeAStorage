@@ -114,9 +114,12 @@ export default function SupportPage({ address }: { address?: string }) {
         if (favicon) {
           favicon.href = user.profile.avatarURL;
         }
-
-        setArweavePrice(await getArweavePrice());
         setUserAccount(user);
+        try {
+          setArweavePrice(await getArweavePrice());
+        } catch (e) {
+          //
+        }
       } catch (error) {
         if (getErrorMessage(error) === "Error: Account not available.") {
           setIsHandlePresent(false);

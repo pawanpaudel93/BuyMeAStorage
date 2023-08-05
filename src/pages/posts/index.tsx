@@ -13,89 +13,127 @@ import {
 } from "antd";
 import { BookOutlined, ProjectOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
+import { ardb } from "@/utils";
+import { APP_NAME, APP_VERSION } from "@/utils/constants";
+import { useActiveAddress } from "arweave-wallet-kit";
+import { IPost, ITag } from "@/types";
+import dayjs from "dayjs";
+import usePersistStore from "@/lib/store/persist";
+
+const { Text } = Typography;
 
 export default function Posts() {
   const router = useRouter();
+  const activeAddress = useActiveAddress();
+  const [posts, setPosts] = useState<IPost[]>([]);
+  const draftPost = usePersistStore((state) => state.post);
+  const [loading, setLoading] = useState(false);
 
-  const publishedItems = [
-    {
-      id: 1,
-      title: "First published title",
-      description: `Project Description here The ArConnect Injected API provides
-    some additional information about the extension. You can
-    retrive the wallet version
-    (window.arweaveWallet.walletVersion) and you can even verify
-    that the currently used wallet API indeed belongs to ArConnect
-    using the wallet name (window.arweaveWallet.walletName).The
-    ArConnect Injected API provides some additional information
-    about the extension. You can retrive the wallet version
-    (window.arweaveWallet.walletVersion) and you can even verify
-    that the currently used wallet API indeed belongs to ArConnect
-    using the wallet name (window.arweaveWallet.walletName).The
-    ArConnect Injected API provides some additional information
-    about the extension.`,
-    },
-    {
-      id: 2,
-      title: "Second published title",
-      description: `Project Description here The ArConnect Injected API provides
-    some additional information about the extension. You can
-    retrive the wallet version
-    (window.arweaveWallet.walletVersion) and you can even verify
-    that the currently used wallet API indeed belongs to ArConnect
-    using the wallet name (window.arweaveWallet.walletName).The
-    ArConnect Injected API provides some additional information
-    about the extension. You can retrive the wallet version
-    (window.arweaveWallet.walletVersion) and you can even verify
-    that the currently used wallet API indeed belongs to ArConnect
-    using the wallet name (window.arweaveWallet.walletName).The
-    ArConnect Injected API provides some additional information
-    about the extension.`,
-    },
-  ];
+  async function fetchPosts() {
+    setLoading(true);
+    const transactions = await ardb
+      .search("transactions")
+      .from(activeAddress as string)
+      .tag("Protocol", `${APP_NAME}-Post-v${APP_VERSION}`)
+      .find();
+
+    const _posts: IPost[] = transactions.map((transaction) => {
+      // @ts-ignore
+      const tags = transaction._tags as ITag[];
+      const titleTag = tags.find((tag) => tag.name === "Title");
+      const descriptionTag = tags.find((tag) => tag.name === "Description");
+      const publishedTag = tags.find(
+        (tag) => tag.name === "Published" || tag.name === "Published-At"
+      );
+      const topics = tags
+        .filter((tag) => tag.name.startsWith("topic:"))
+        .map((tag) => tag.value);
+
+      return {
+        id: transaction.id,
+        title: titleTag?.value ?? "",
+        description: descriptionTag?.value ?? "",
+        topics: topics.join(", "),
+        content: "",
+        published: dayjs(
+          new Date(
+            parseInt(publishedTag?.value ?? new Date().getTime().toString())
+          )
+        ).format("MMM DD, YYYY [at] HH:mmA"),
+      };
+    });
+    setPosts(_posts);
+    setLoading(false);
+  }
 
   const items: TabsProps["items"] = [
     {
       key: "1",
       label: <p style={{ fontSize: 18 }}>Published Posts</p>,
       children: (
-        <Row gutter={[16, 16]}>
-          {publishedItems.map((item) => (
-            <Col span={24} key={item.id}>
-              <Space
-                direction="vertical"
-                style={{
-                  width: "100%",
-                  padding: 16,
-                  border: "1px solid #dfdfdf",
-                  background: "white",
-                  borderRadius: 12,
-                }}
-              >
-                <Row justify="space-between">
-                  <Typography.Text style={{ fontSize: 18, fontWeight: 600 }}>
-                    {item.title}
-                  </Typography.Text>
-                  <Typography.Text style={{ color: "gray" }}>
-                    Aug 03, 2023 at 03:46PM
-                  </Typography.Text>
-                </Row>
-                <Row>
-                  <Typography.Text style={{ textAlign: "justify" }}>
-                    {item.description}
-                  </Typography.Text>
-                </Row>
-              </Space>
-            </Col>
-          ))}
-        </Row>
+        <>
+          <Row gutter={[16, 16]}>
+            {posts.map((item, index) => (
+              <Col span={24} key={index}>
+                <Space
+                  direction="vertical"
+                  style={{
+                    width: "100%",
+                    padding: 16,
+                    border: "1px solid #dfdfdf",
+                    background: "white",
+                    borderRadius: 12,
+                  }}
+                >
+                  <Row justify="space-between">
+                    <Typography.Text style={{ fontSize: 18, fontWeight: 600 }}>
+                      {item.title}
+                    </Typography.Text>
+                    <Typography.Text style={{ color: "gray" }}>
+                      {item.published}
+                    </Typography.Text>
+                  </Row>
+                  <Row>
+                    <Typography.Text style={{ textAlign: "justify" }}>
+                      {item.description}
+                    </Typography.Text>
+                  </Row>
+                </Space>
+              </Col>
+            ))}
+          </Row>
+          <Space
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: 16,
+            }}
+          >
+            {loading && <Spin size="large" />}
+            {!loading && posts.length === 0 && <Text>No published posts</Text>}
+          </Space>
+        </>
       ),
     },
-    {
+  ];
+
+  if (
+    draftPost.title !== "" &&
+    draftPost.description !== "" &&
+    draftPost.content !== ""
+  ) {
+    items.push({
       key: "2",
       label: <p style={{ fontSize: 18 }}>Draft Posts</p>,
       children: (
-        <Row gutter={[16, 16]}>
+        <Row
+          gutter={[16, 16]}
+          style={{
+            cursor: "pointer",
+          }}
+          onClick={() => router.push("/posts/new-post")}
+        >
           <Col span={24}>
             <Space
               direction="vertical"
@@ -109,35 +147,28 @@ export default function Posts() {
             >
               <Row justify="space-between">
                 <Typography.Text style={{ fontSize: 18, fontWeight: 600 }}>
-                  Draft Post Title{" "}
+                  {draftPost.title}
                 </Typography.Text>
-                <Typography.Text style={{ color: "gray" }}>
-                  Aug 03, 2023 at 03:46PM
-                </Typography.Text>
+                <Typography.Text style={{ color: "gray" }}></Typography.Text>
               </Row>
               <Row>
                 <Typography.Text style={{ textAlign: "justify" }}>
-                  Project Description here The ArConnect Injected API provides
-                  some additional information about the extension. You can
-                  retrive the wallet version
-                  (window.arweaveWallet.walletVersion) and you can even verify
-                  that the currently used wallet API indeed belongs to ArConnect
-                  using the wallet name (window.arweaveWallet.walletName).The
-                  ArConnect Injected API provides some additional information
-                  about the extension. You can retrive the wallet version
-                  (window.arweaveWallet.walletVersion) and you can even verify
-                  that the currently used wallet API indeed belongs to ArConnect
-                  using the wallet name (window.arweaveWallet.walletName).The
-                  ArConnect Injected API provides some additional information
-                  about the extension.
+                  {draftPost.description}
                 </Typography.Text>
               </Row>
             </Space>
           </Col>
         </Row>
       ),
-    },
-  ];
+    });
+  }
+
+  useEffect(() => {
+    if (activeAddress) {
+      fetchPosts();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeAddress]);
 
   return (
     <>

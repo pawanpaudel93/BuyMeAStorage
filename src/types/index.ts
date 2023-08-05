@@ -28,8 +28,15 @@ export interface ISupport {
 }
 
 export interface IPost {
+  id?: string;
   title: string;
   description: string;
   content: string;
   topics: string;
+  published?: string;
+}
+
+export interface ITag {
+  name: string;
+  value: string;
 }

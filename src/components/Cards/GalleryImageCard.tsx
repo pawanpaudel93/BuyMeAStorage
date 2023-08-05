@@ -79,7 +79,7 @@ export default function GalleryImageCard({ post }: { post: IPost }) {
         width="100%"
         style={{
           boxShadow: "0 2px 4px rgba(0, 0, 0, 0.4)",
-          maxHeight: 320,
+          maxHeight: 520,
         }}
         alt={post.title}
         src={post.link}

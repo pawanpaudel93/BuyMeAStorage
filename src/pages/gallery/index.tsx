@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Row, Space, Spin, Tabs } from "antd";
+import { Button, Empty, Row, Space, Spin, Tabs, Typography } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import UploadModal from "@/components/UploadForm/UploadModal";
@@ -115,26 +115,38 @@ export default function Gallery() {
       children: (
         <>
           <Spin spinning={posts.length === 0 && loading}>
-            {posts.length === 0 && !loading && (
-              <Space>No Gallery images...</Space>
-            )}
             <Row
               gutter={[16, 16]}
               style={{
-                maxHeight: "calc(100vh - 170px)",
-                minHeight: "160px",
+                height: "calc(100vh - 170px)",
+                // minHeight: "160px",
                 overflowY: "auto",
               }}
             >
-              <Masonry
-                breakpointCols={breakpointColumnsObj}
-                className="my-masonry-grid"
-                columnClassName="my-masonry-grid_column"
-              >
-                {posts.map((post, index) => {
-                  return <GalleryImageCard key={index} post={post} />;
-                })}
-              </Masonry>
+              {posts.length > 0 ? (
+                <Masonry
+                  breakpointCols={breakpointColumnsObj}
+                  className="my-masonry-grid"
+                  columnClassName="my-masonry-grid_column"
+                >
+                  {posts.map((post, index) => {
+                    return <GalleryImageCard key={index} post={post} />;
+                  })}
+                </Masonry>
+              ) : (
+                <Empty
+                  style={{
+                    width: "100%",
+                    display: "grid",
+                    placeItems: "center",
+                  }}
+                  description={
+                    <Typography.Text style={{ fontSize: 14, color: "gray" }}>
+                      No Gallery Image!
+                    </Typography.Text>
+                  }
+                />
+              )}
             </Row>
           </Spin>
         </>

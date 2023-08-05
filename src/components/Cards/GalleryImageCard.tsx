@@ -8,21 +8,16 @@ import {
   Space,
   Tag,
   Typography,
+  message,
   theme,
 } from "antd";
-import { Inter } from "next/font/google";
-import Link from "next/link";
 
-import {
-  DownloadOutlined,
-  RotateLeftOutlined,
-  RotateRightOutlined,
-  SwapOutlined,
-  ZoomInOutlined,
-  ZoomOutOutlined,
-  HeartOutlined,
-} from "@ant-design/icons";
+import { DownloadOutlined } from "@ant-design/icons";
 import { styled } from "styled-components";
+import { IPost } from "@/types";
+import { UDL } from "@/utils/constants";
+import StampButton from "../Stamp/StampButton";
+import { useState } from "react";
 
 interface ImgProps {
   attach: any;
@@ -56,36 +51,29 @@ export const ScrollableDiv = styled.div`
   }
 `;
 
-export default function ImageCard({ attach, fromUploadZone }: ImgProps) {
+export default function GalleryImageCard({ post }: { post: IPost }) {
   const { token } = useToken();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const onDownload = () => {
-    // fetch(src)
-    //   .then((response) => response.blob())
-    //   .then((blob) => {
-    //     const url = URL.createObjectURL(new Blob([blob]));
-    //     const link = document.createElement("a");
-    //     link.href = url;
-    //     link.download = "image.png";
-    //     document.body.appendChild(link);
-    //     link.click();
-    //     URL.revokeObjectURL(url);
-    //     link.remove();
-    //   });
-  };
+  async function download() {
+    setIsLoading(true);
+    try {
+      const response = await fetch(post.link as string);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.target = "_blank";
+      link.download = post.title;
+      link.click();
+      URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      message.error("Error downloading file");
+    }
+    setIsLoading(false);
+  }
 
-  return fromUploadZone ? (
-    <Image
-      width="100%"
-      style={{
-        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.4)",
-        maxHeight: 142,
-      }}
-      alt={attach.attachmentName}
-      src={attach.attachmentUrl}
-      onClick={(e) => e.stopPropagation()}
-    />
-  ) : (
+  return (
     <div>
       <Image
         width="100%"
@@ -93,8 +81,8 @@ export default function ImageCard({ attach, fromUploadZone }: ImgProps) {
           boxShadow: "0 2px 4px rgba(0, 0, 0, 0.4)",
           maxHeight: 320,
         }}
-        alt={attach.attachmentName}
-        src={attach.attachmentUrl}
+        alt={post.title}
+        src={post.link}
         preview={{
           imageRender: () => (
             <ScrollableDiv>
@@ -115,8 +103,13 @@ export default function ImageCard({ attach, fromUploadZone }: ImgProps) {
                   </Space>
                 </Space>
                 <Space>
-                  <Button icon={<HeartOutlined />}>Like</Button>
-                  <Button type="primary" icon={<DownloadOutlined />}>
+                  <StampButton assetTx={post.id as string} />
+                  <Button
+                    type="primary"
+                    icon={<DownloadOutlined />}
+                    onClick={download}
+                    loading={isLoading}
+                  >
                     Download
                   </Button>
                 </Space>
@@ -131,13 +124,10 @@ export default function ImageCard({ attach, fromUploadZone }: ImgProps) {
                         boxShadow: "0 2px 4px rgba(0, 0, 0, 0.4)",
                         // maxHeight: "calc(100vh - 200px)",
                       }}
-                      alt={attach.attachmentName}
-                      src={attach.attachmentUrl}
+                      alt={post.title}
+                      src={post.link}
                       preview={false}
                     />
-                    <Typography.Text style={{ color: "graytext" }}>
-                      {attach.attachmentName}
-                    </Typography.Text>
                   </Space>
                 </Col>
                 <Col xs={24} md={10}>
@@ -177,30 +167,28 @@ export default function ImageCard({ attach, fromUploadZone }: ImgProps) {
                             preview={false}
                           />
                         </Space>
-                        <a>License Information</a>
+                        <a href={`https://arweave.net/${UDL}`} target="_blank">
+                          License Information
+                        </a>
                       </Row>
-                      <Row justify="space-between" gutter={[16, 16]}>
-                        <Typography.Text>Access</Typography.Text>
-                        <Typography.Text>Public</Typography.Text>
-                      </Row>
-                      <Row justify="space-between" gutter={[16, 16]}>
-                        <Typography.Text>Commercial</Typography.Text>
-                        <Typography.Text>Allowed</Typography.Text>
-                      </Row>
-                      <Row justify="space-between" gutter={[16, 16]}>
-                        <Typography.Text>Commercail-Fee</Typography.Text>
-                        <Typography.Text>One Time 0.5</Typography.Text>
-                      </Row>
-                      <Row justify="space-between" gutter={[16, 16]}>
-                        <Typography.Text>Derivation</Typography.Text>
-                        <Typography.Text>
-                          Allowed With License Fee
-                        </Typography.Text>
-                      </Row>
-                      <Row justify="space-between" gutter={[16, 16]}>
-                        <Typography.Text>Derivation-Fee</Typography.Text>
-                        <Typography.Text>One Time 0.1</Typography.Text>
-                      </Row>
+                      {post.license?.length === 0 ? (
+                        <Row justify="space-between" gutter={[16, 16]}>
+                          <Typography.Text>Access</Typography.Text>
+                          <Typography.Text>Public</Typography.Text>
+                        </Row>
+                      ) : (
+                        post.license?.map((license, index) => (
+                          <Row
+                            justify="space-between"
+                            gutter={[16, 16]}
+                            key={index}
+                          >
+                            <Typography.Text>{license.name}</Typography.Text>
+                            <Typography.Text>{license.value}</Typography.Text>
+                          </Row>
+                        ))
+                      )}
+
                       <Row justify="space-between" gutter={[16, 16]}>
                         <Typography.Text>Payment-Mode</Typography.Text>
                         <Typography.Text>Global Distribution</Typography.Text>
@@ -218,19 +206,14 @@ export default function ImageCard({ attach, fromUploadZone }: ImgProps) {
                             borderBottom: `1px solid ${token.colorPrimary}`,
                           }}
                         >
-                          Image Title Here
+                          {post.title}
                         </Typography.Text>
                       </Row>
                       <Row justify="center">
-                        <Typography.Text>
-                          Lorem ipsum dolor sit amet consectetur adipisicing
-                          elit. Lorem ipsum dolor sit amet consectetur
-                          adipisicing elit. Lorem ipsum dolor sit amet
-                          consectetur adipisicing elit.
-                        </Typography.Text>
+                        <Typography.Text>{post.description}</Typography.Text>
                       </Row>
                       <Row>
-                        {["first tag", "second tag"].map((tag, index) => (
+                        {(post.topics as string[]).map((tag, index) => (
                           <Tag
                             key={index}
                             style={{

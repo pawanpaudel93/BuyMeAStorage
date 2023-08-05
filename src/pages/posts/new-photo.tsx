@@ -13,7 +13,7 @@ import {
 } from "antd";
 import { InboxOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import type { RcFile, UploadFile, UploadProps } from "antd/es/upload/interface";
-import ImageCard from "@/components/Gallery/ImageCard";
+import ImageCard from "@/components/Cards/ImageCard";
 import { useRouter } from "next/router";
 import { arweave, getMimeType, licenseOptions } from "@/utils";
 import { registerContract } from "@/lib/warp/asset";

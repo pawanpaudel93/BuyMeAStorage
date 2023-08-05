@@ -13,7 +13,7 @@ import {
 } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
 import type { RcFile, UploadFile, UploadProps } from "antd/es/upload/interface";
-import ImageCard from "../Gallery/ImageCard";
+import ImageCard from "../Cards/ImageCard";
 import { arweave, getMimeType, licenseOptions } from "@/utils";
 import { registerContract } from "@/lib/warp/asset";
 import {
@@ -238,7 +238,7 @@ export default function UploadModal({
             <Row gutter={[8, 8]} style={{ padding: 8 }}>
               <Image.PreviewGroup>
                 {temporaryFiles?.map((file: any, index: number) => {
-                  return <ImageCard key={index} attach={file} fromUploadZone />;
+                  return <ImageCard key={index} attach={file} />;
                 })}
               </Image.PreviewGroup>
             </Row>

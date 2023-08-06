@@ -1,10 +1,8 @@
 import {
   Avatar,
   Button,
-  Card,
   Col,
   Dropdown,
-  Image,
   MenuProps,
   Row,
   Space,
@@ -18,15 +16,19 @@ import {
   FileTextOutlined,
   HeartOutlined,
 } from "@ant-design/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import QrModal from "@/components/QrCode";
+import { useConnectedUserStore } from "@/lib/store";
 
 const { useToken } = theme;
 
 export default function HomePage() {
   const { token } = useToken();
-  const myProfileUrl = "https://buymeastorage.com/mikdorje";
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const { userAccount } = useConnectedUserStore();
+  const [myProfileUrl, setMyProfileUrl] = useState(
+    `/${userAccount?.handle ?? ""}`
+  );
 
   const items: MenuProps["items"] = [
     {
@@ -41,11 +43,13 @@ export default function HomePage() {
     },
   ];
 
+  useEffect(() => {
+    setMyProfileUrl(`${window.location.origin}/${userAccount?.handle ?? ""}`);
+  }, [userAccount?.handle]);
+
   const copyToClipBoard = async () => {
     try {
-      await navigator.clipboard.writeText(
-        `${window.location.origin}/mikdorje}`
-      );
+      await navigator.clipboard.writeText(myProfileUrl);
       message.success("Profile link copied to the clipboard!");
     } catch (err) {
       message.error("Failed to copy!");
@@ -120,7 +124,7 @@ export default function HomePage() {
                   background: token.colorPrimary,
                 }}
               >
-                M
+                {userAccount?.profile.name.slice(0, 1)}
               </Avatar>
             }
             <Space direction="vertical" size={1}>
@@ -132,10 +136,10 @@ export default function HomePage() {
                   fontWeight: 600,
                 }}
               >
-                Welcome, Mikma Tamang
+                Welcome, {userAccount?.profile.name}
               </Typography.Text>
               <Typography.Text style={{ color: "gray" }}>
-                buymeastorage.com/mikdorje
+                {myProfileUrl.replace(/^https?:\/\//, "")}
               </Typography.Text>
             </Space>
           </Space>

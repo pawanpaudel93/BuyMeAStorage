@@ -1,12 +1,12 @@
 import React from "react";
 import type { MenuProps } from "antd";
 import {
-  UserOutlined,
   WindowsOutlined,
   TeamOutlined,
   CreditCardOutlined,
   CalendarOutlined,
 } from "@ant-design/icons";
+import { SUPPORT_HANDLE } from "./constants";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -29,7 +29,7 @@ export const getHomeItems = () => {
     getItem("Home", "/home", <WindowsOutlined />),
     getItem("ArProfile", "/profile", <TeamOutlined />),
     getItem("View page", "/view-page", <TeamOutlined />),
-    getItem("Support", "/support", <TeamOutlined />),
+    getItem("Support", `/${SUPPORT_HANDLE}`, <TeamOutlined />),
   ];
   return allItems;
 };

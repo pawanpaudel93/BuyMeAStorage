@@ -16,7 +16,7 @@ import {
   Typography,
 } from "antd";
 import { useRouter } from "next/router";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import styled from "styled-components";
 import { ConnectButton } from "arweave-wallet-kit";
 

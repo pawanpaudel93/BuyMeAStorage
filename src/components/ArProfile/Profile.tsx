@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { ArAccount } from "arweave-account";
 import { Spin, Button, Typography } from "antd";
 import ProfileWithData from "./ProfileWithData";
 import "./Profile.module.css";
 import { fetchProfile } from "@/utils";
+import { useConnectedUserStore } from "@/lib/store";
 
 const { Text } = Typography;
 
@@ -14,7 +14,7 @@ function Profile({
   addr: string;
   showEditProfile: boolean;
 }) {
-  const [userAccount, setUserAccount] = useState<ArAccount | null>(null);
+  const { userAccount, setUserAccount } = useConnectedUserStore();
   const [hasFailed, setHasFailed] = useState<string | false>(false);
 
   async function refetch() {
@@ -28,7 +28,7 @@ function Profile({
   }
 
   useEffect(() => {
-    if (addr) {
+    if (addr && !userAccount) {
       refetch();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

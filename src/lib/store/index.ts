@@ -11,7 +11,7 @@ interface ViewedUserProfileState {
   setViewedAccount: (viewedAccount: ArAccount) => void; // Renamed for clarity
 }
 
-export const useLoggedInUserStore = create<LoggedInUserState>((set) => ({
+export const useConnectedUserStore = create<LoggedInUserState>((set) => ({
   userAccount: null,
   setUserAccount: (userAccount: ArAccount) => set(() => ({ userAccount })),
 }));

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Account from "arweave-account";
+import Account, { ArAccount } from "arweave-account";
 import {
   Input,
   Button,
@@ -27,7 +27,6 @@ import {
   ardb,
   capitalizeAndFormat,
   getHandle,
-  formatHandle,
   fetchProfile,
 } from "@/utils";
 import { APP_NAME, APP_VERSION } from "@/utils/constants";
@@ -85,25 +84,38 @@ export default function SupportPage({ address }: { address?: string }) {
 
     (async () => {
       if (!router.isReady) return;
-      if (viewedAccount) return;
       try {
         let userHandle = "";
+        let user: ArAccount | null;
         if (!address) {
           userHandle = getHandle(decodeURIComponent(router.asPath).slice(2));
           if (!/^[\w\d]+#\w{6}$/.test(userHandle)) {
             setIsHandlePresent(false);
           }
         }
-        const user = await fetchProfile({ address, userHandle });
+        if (
+          !viewedAccount ||
+          (viewedAccount &&
+            (viewedAccount.addr !== address ||
+              viewedAccount.handle !== userHandle) &&
+            (viewedAccount.addr !== address ||
+              viewedAccount.handle !== userHandle))
+        ) {
+          user = await fetchProfile({ address, userHandle });
+          setViewedAccount(user);
+        } else {
+          user = viewedAccount;
+        }
+        if (user) {
+          // Update favicon & title
+          if (title) {
+            title.innerText = user.profile.name || user.handle;
+          }
+          if (favicon) {
+            favicon.href = user.profile.avatarURL;
+          }
+        }
 
-        // Update favicon & title
-        if (title) {
-          title.innerText = user.profile.name || user.handle;
-        }
-        if (favicon) {
-          favicon.href = user.profile.avatarURL;
-        }
-        setViewedAccount(user);
         try {
           setArweavePrice(await getArweavePrice());
         } catch (e) {

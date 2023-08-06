@@ -21,6 +21,7 @@ import { MdPreview } from "md-editor-rt";
 import "md-editor-rt/lib/preview.css";
 import StampButton from "../Stamp/StampButton";
 import { UDL } from "@/utils/constants";
+import { useConnectedUserStore } from "@/lib/store";
 
 const { useToken } = theme;
 
@@ -35,6 +36,7 @@ const PostModal = ({ open, setOpen, post }: PostModalProps) => {
   const [content, setContent] = useState("");
   const [urls, setUrls] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { userAccount } = useConnectedUserStore();
 
   async function fetchData() {
     const _content = await (await fetch(post.link as string)).text();
@@ -120,10 +122,12 @@ const PostModal = ({ open, setOpen, post }: PostModalProps) => {
           <Row justify="space-between" align="middle" style={{ padding: 8 }}>
             <Space>
               <Avatar size="large" style={{ background: "green" }}>
-                M
+                {userAccount?.profile?.name.slice(0, 1) ?? ""}
               </Avatar>
               <Space direction="vertical" size={0}>
-                <Typography.Text>Mikma Tamang</Typography.Text>
+                <Typography.Text>
+                  {userAccount?.profile?.name ?? ""}
+                </Typography.Text>
                 <Typography.Text style={{ fontSize: 14, color: "gray" }}>
                   Creator
                 </Typography.Text>

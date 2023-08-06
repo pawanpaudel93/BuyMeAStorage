@@ -1,5 +1,6 @@
 import Arweave from "arweave";
 import ArDB from "ardb";
+import Account, { ArAccount } from "arweave-account";
 
 export function getErrorMessage(error: unknown): string {
   if (
@@ -122,4 +123,64 @@ export function capitalizeAndFormat(input: string) {
     .split("-")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
+}
+
+export function formatHandle(handle: string) {
+  const position = handle.length - 7;
+  return handle.slice(0, position) + "-" + handle.slice(position + 1);
+}
+
+export function getHandle(formattedHandle: string) {
+  const position = formattedHandle.length - 7;
+  return (
+    formattedHandle.slice(0, position) +
+    "#" +
+    formattedHandle.slice(position + 1)
+  );
+}
+
+export async function fetchProfile({
+  address,
+  userHandle,
+}: {
+  address?: string;
+  userHandle?: string;
+}) {
+  let user;
+  if (!address) {
+    const account = new Account();
+    user = await account.find(userHandle as string);
+  } else {
+    const account = new Account();
+    user = await account.get(address);
+  }
+
+  if (!user) {
+    throw new Error("Account not available.");
+  }
+
+  if (
+    user.profile.banner === "ar://a0ieiziq2JkYhWamlrUCHxrGYnHWUAMcONxRmfkWt-k"
+  ) {
+    user = {
+      ...user,
+      profile: { ...user.profile, bannerURL: "/background.png" },
+    };
+  }
+
+  if (
+    user.profile.avatar === "ar://OrG-ZG2WN3wdcwvpjz1ihPe4MI24QBJUpsJGIdL85wA"
+  ) {
+    user = {
+      ...user,
+      profile: {
+        ...user.profile,
+        avatarURL:
+          "https://arweave.net/4eJ0svoPeMtU0VyYODTPDYFrDKGALIt8Js25tUERLPw",
+      },
+    };
+  }
+
+  user = { ...user, handle: formatHandle(user.handle) };
+  return user as ArAccount;
 }

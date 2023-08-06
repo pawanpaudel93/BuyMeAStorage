@@ -8,7 +8,7 @@ export default function Support({ support }: { support: ISupport }) {
   const bg = "#f0f0f0"; // Update the background color as per your design
 
   const arweaveAddressPattern = /^[a-zA-Z0-9_-]{43}$/;
-  const isArProfile = /^@[\w\d]+#\w{6}$/.test(support.name);
+  const isArProfile = /^@[\w\d]+[#-]\w{6}$/.test(support.name);
 
   function isArweaveAddress(name: string) {
     return arweaveAddressPattern.test(name);

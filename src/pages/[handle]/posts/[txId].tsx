@@ -1,64 +1,133 @@
-import React, { useEffect, useState } from "react";
 import {
   Avatar,
   Button,
   Card,
+  Carousel,
   Col,
-  Modal,
+  Image,
   Row,
   Space,
+  Spin,
   Tag,
   Typography,
-  Image,
-  theme,
   message,
-  Carousel,
+  theme,
 } from "antd";
-import { IPost } from "@/types";
-import { ScrollableDiv } from "../Cards/ImageCard";
 import { DownloadOutlined } from "@ant-design/icons";
-import { MdPreview } from "md-editor-rt";
-import "md-editor-rt/lib/preview.css";
-import StampButton from "../Stamp/StampButton";
 import { UDL } from "@/utils/constants";
-import { useConnectedUserStore } from "@/lib/store";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { IPost, ITag } from "@/types";
+import { ardb, capitalizeAndFormat, fetchProfile, getHandle } from "@/utils";
+import dayjs from "dayjs";
+import StampButton from "@/components/Stamp/StampButton";
+import { MdPreview } from "md-editor-rt";
+import { ArAccount } from "arweave-account";
 
 const { useToken } = theme;
 
-interface PostModalProps {
-  open: boolean;
-  setOpen: (value: boolean) => void;
-  post: IPost;
-}
-
-const PostModal = ({ open, setOpen, post }: PostModalProps) => {
+export default function Post() {
   const { token } = useToken();
+  const [isLoading, setIsLoading] = useState(false);
+  const [post, setPost] = useState<IPost>();
+  const [loading, setLoading] = useState(false);
   const [content, setContent] = useState("");
   const [urls, setUrls] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const { userAccount } = useConnectedUserStore();
+  const [userAccount, setUserAccount] = useState<ArAccount>();
+  const router = useRouter();
+
+  const { txId, handle } = router.query;
+
+  async function fetchPost() {
+    setLoading(true);
+    const transaction = await ardb
+      .search("transactions")
+      .id(txId as string)
+      .findOne();
+
+    // @ts-ignore
+    const tags = transaction.tags as ITag[];
+    const titleTag = tags.find((tag) => tag.name === "Title");
+    const descriptionTag = tags.find((tag) => tag.name === "Description");
+    const publishedTag = tags.find(
+      (tag) => tag.name === "Published" || tag.name === "Published-At"
+    );
+    const typeTag = tags.find((tag) => tag.name === "Type");
+    const topics = tags
+      .filter((tag) => tag.name.startsWith("topic:"))
+      .map((tag) => tag.value);
+    const licenseTag = tags.find(
+      (tag) =>
+        tag.name === "Access" ||
+        tag.name === "Derivation" ||
+        tag.name === "Commercial-Use"
+    );
+
+    let license: ITag[] = [];
+
+    if (licenseTag) {
+      const feeTag = tags.find(
+        (tag) =>
+          tag.name === "Access-Fee" ||
+          tag.name === "Derivation-Fee" ||
+          tag.name === "Commercial-Fee"
+      )!;
+      license = [
+        {
+          name: capitalizeAndFormat(licenseTag.name),
+          value: capitalizeAndFormat(licenseTag.value),
+        },
+        {
+          name: capitalizeAndFormat(feeTag.name),
+          value: capitalizeAndFormat(feeTag.value),
+        },
+      ];
+    }
+
+    setPost({
+      id: transaction.id,
+      link: `https://arweave.net/${transaction.id}`,
+      title: titleTag?.value ?? "",
+      description: descriptionTag?.value ?? "",
+      topics,
+      type: typeTag?.value ?? "",
+      license,
+      content: "",
+      published: dayjs(
+        new Date(
+          parseInt(publishedTag?.value ?? new Date().getTime().toString())
+        )
+      ).format("MMM DD, YYYY [at] HH:mmA"),
+    });
+    setLoading(false);
+  }
 
   async function fetchData() {
-    const _content = await (await fetch(post.link as string)).text();
-    if (post.type === "blog-post") {
-      setContent(_content);
-    } else {
-      const transactionIds = JSON.parse(_content) as string[];
-      setUrls(transactionIds.map((id) => `https://arweave.net/${id}`));
+    try {
+      const _content = await (await fetch(post?.link as string)).text();
+      if (post?.type === "blog-post") {
+        setContent(_content);
+      } else {
+        const transactionIds = JSON.parse(_content) as string[];
+        setUrls(transactionIds.map((id) => `https://arweave.net/${id}`));
+      }
+    } catch (error) {
+      console.log(error);
     }
   }
 
   async function download() {
     setIsLoading(true);
     try {
-      const response = await fetch(post.link as string);
+      const response = await fetch(post?.link as string);
       const blob = await response.blob();
       const blobUrl = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = blobUrl;
       link.target = "_blank";
-      link.download =
-        post.type === "blog-post" ? `${post.title}.md` : post.title;
+      link.download = (
+        post?.type === "blog-post" ? `${post?.title}.md` : post?.title
+      ) as string;
       link.click();
       URL.revokeObjectURL(blobUrl);
     } catch (error) {
@@ -103,22 +172,43 @@ const PostModal = ({ open, setOpen, post }: PostModalProps) => {
   };
 
   useEffect(() => {
-    fetchData();
+    if (txId) {
+      fetchPost();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [txId]);
+
+  useEffect(() => {
+    if (post?.link) {
+      fetchData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [post?.link]);
+
+  useEffect(() => {
+    if (handle) {
+      fetchProfile({ userHandle: getHandle(handle.slice(1) as string) }).then(
+        (user) => {
+          setUserAccount(user);
+        }
+      );
+    }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [post.type]);
+  }, [handle]);
 
   return (
-    <>
-      <Modal
-        centered
-        title={post.title}
-        open={open}
-        onOk={() => setOpen(false)}
-        onCancel={() => setOpen(false)}
-        width="auto"
-      >
-        <ScrollableDiv>
+    <div
+      style={{
+        margin: "24px 54px",
+        background: "white",
+        padding: 16,
+        borderRadius: 12,
+        border: "1px solid #dfdfdf",
+      }}
+    >
+      {post ? (
+        <>
           <Row justify="space-between" align="middle" style={{ padding: 8 }}>
             <Space>
               <Avatar size="large" style={{ background: "green" }}>
@@ -277,10 +367,10 @@ const PostModal = ({ open, setOpen, post }: PostModalProps) => {
               </Card>
             </Col>
           </Row>
-        </ScrollableDiv>
-      </Modal>
-    </>
+        </>
+      ) : (
+        <Spin />
+      )}
+    </div>
   );
-};
-
-export default PostModal;
+}

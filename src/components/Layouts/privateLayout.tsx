@@ -16,9 +16,10 @@ import {
   Typography,
 } from "antd";
 import { useRouter } from "next/router";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import styled from "styled-components";
 import { ConnectButton } from "arweave-wallet-kit";
+import { useConnectedUserStore } from "@/lib/store";
 
 const { Header, Sider, Content } = Layout;
 
@@ -56,6 +57,7 @@ const contentStyle: React.CSSProperties = {
 function PrivateLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
+  const { userAccount } = useConnectedUserStore();
 
   return (
     <Layout>
@@ -118,7 +120,7 @@ function PrivateLayout({ children }: { children: React.ReactNode }) {
               background: "#161b21",
               color: "white",
             }}
-            items={getHomeItems()}
+            items={getHomeItems(userAccount?.handle ?? "")}
             selectedKeys={[router.pathname]}
           />
           <Space style={{ width: "100%", padding: "6px 10px" }}>

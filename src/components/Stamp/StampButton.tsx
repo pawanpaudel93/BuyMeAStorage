@@ -1,5 +1,5 @@
 import { getStampCount, hasStampedAsset, stampAsset } from "@/lib/stamp";
-import { Button, Space, message } from "antd";
+import { Button, message } from "antd";
 import { useEffect, useState } from "react";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 

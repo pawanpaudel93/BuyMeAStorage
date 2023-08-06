@@ -1,14 +1,25 @@
 import { create } from "zustand";
 import { ArAccount } from "arweave-account";
 
-interface AppState {
+interface LoggedInUserState {
   userAccount: ArAccount | null;
   setUserAccount: (userAccount: ArAccount) => void;
 }
 
-export const useAppStore = create<AppState>((set) => ({
+interface ViewedUserProfileState {
+  viewedAccount: ArAccount | null; // Renamed for clarity
+  setViewedAccount: (viewedAccount: ArAccount) => void; // Renamed for clarity
+}
+
+export const useConnectedUserStore = create<LoggedInUserState>((set) => ({
   userAccount: null,
   setUserAccount: (userAccount: ArAccount) => set(() => ({ userAccount })),
 }));
 
-export default useAppStore;
+export const useViewedUserProfileStore = create<ViewedUserProfileState>(
+  (set) => ({
+    viewedAccount: null,
+    setViewedAccount: (viewedAccount: ArAccount) =>
+      set(() => ({ viewedAccount })),
+  })
+);

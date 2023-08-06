@@ -18,7 +18,7 @@ import { IPost } from "@/types";
 import { UDL } from "@/utils/constants";
 import StampButton from "../Stamp/StampButton";
 import { useState } from "react";
-import DonateModal from "../Modals/DonateModal";
+import { useConnectedUserStore } from "@/lib/store";
 
 interface ImgProps {
   attach: any;
@@ -61,6 +61,7 @@ export default function GalleryImageCard({
 }) {
   const { token } = useToken();
   const [isLoading, setIsLoading] = useState(false);
+  const { userAccount } = useConnectedUserStore();
 
   async function download() {
     setIsLoading(true);
@@ -108,10 +109,12 @@ export default function GalleryImageCard({
                       >
                         <Space>
                           <Avatar size="large" style={{ background: "green" }}>
-                            M
+                            {userAccount?.profile?.name.slice(0, 1) ?? ""}
                           </Avatar>
                           <Space direction="vertical" size={0}>
-                            <Typography.Text>Mikma Tamang</Typography.Text>
+                            <Typography.Text>
+                              {userAccount?.profile?.name ?? ""}
+                            </Typography.Text>
                             <Typography.Text
                               style={{ fontSize: 14, color: "gray" }}
                             >

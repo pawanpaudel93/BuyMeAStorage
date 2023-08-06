@@ -79,7 +79,7 @@ export default function Supports({
   useEffect(() => {
     fetchSupports();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [recipient]);
 
   return (
     <>

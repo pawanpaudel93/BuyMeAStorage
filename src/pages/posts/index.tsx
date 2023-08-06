@@ -8,6 +8,7 @@ import {
   Tabs,
   Typography,
   TabsProps,
+  Card,
 } from "antd";
 import { BookOutlined, ProjectOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
@@ -36,6 +37,7 @@ export default function Posts() {
       .search("transactions")
       .from(activeAddress as string)
       .tag("Protocol", `${APP_NAME}-Post-v${APP_VERSION}`)
+      .tag("Type", ["blog-post", "image-album"])
       .find();
 
     const _posts: IPost[] = transactions.map((transaction) => {
@@ -95,6 +97,8 @@ export default function Posts() {
       };
     });
     setPosts(_posts);
+
+    console.log(_posts);
     setLoading(false);
   }
 
@@ -106,41 +110,39 @@ export default function Posts() {
         <>
           <Row gutter={[16, 16]}>
             {posts.map((item, index) => (
-              <Col
-                span={24}
-                key={index}
-                onClick={() => {
-                  setPost(item);
-                  setIsPostModalOpen(true);
-                }}
-                style={{
-                  cursor: "pointer",
-                }}
-              >
-                <Space
-                  direction="vertical"
+              <Col span={24} key={index}>
+                <Card
+                  hoverable
                   style={{
                     width: "100%",
-                    padding: 16,
                     border: "1px solid #dfdfdf",
                     background: "white",
                     borderRadius: 12,
+                    cursor: "pointer",
+                  }}
+                  onClick={() => {
+                    setPost(item);
+                    setIsPostModalOpen(true);
                   }}
                 >
-                  <Row justify="space-between">
-                    <Typography.Text style={{ fontSize: 18, fontWeight: 600 }}>
-                      {item.title}
-                    </Typography.Text>
-                    <Typography.Text style={{ color: "gray" }}>
-                      {item.published}
-                    </Typography.Text>
-                  </Row>
-                  <Row>
-                    <Typography.Text style={{ textAlign: "justify" }}>
-                      {item.description}
-                    </Typography.Text>
-                  </Row>
-                </Space>
+                  <Space direction="vertical" style={{ width: "100%" }}>
+                    <Row justify="space-between">
+                      <Typography.Text
+                        style={{ fontSize: 18, fontWeight: 600 }}
+                      >
+                        {item.title}
+                      </Typography.Text>
+                      <Typography.Text style={{ color: "gray" }}>
+                        {item.published}
+                      </Typography.Text>
+                    </Row>
+                    <Row>
+                      <Typography.Text style={{ textAlign: "justify" }}>
+                        {item.description}
+                      </Typography.Text>
+                    </Row>
+                  </Space>
+                </Card>
               </Col>
             ))}
           </Row>
@@ -177,28 +179,30 @@ export default function Posts() {
           onClick={() => router.push("/posts/new-post")}
         >
           <Col span={24}>
-            <Space
-              direction="vertical"
+            <Card
+              hoverable
               style={{
                 width: "100%",
-                padding: 16,
-                border: "1px solid gray",
+                border: "1px solid #dfdfdf",
                 background: "white",
                 borderRadius: 12,
+                cursor: "pointer",
               }}
             >
-              <Row justify="space-between">
-                <Typography.Text style={{ fontSize: 18, fontWeight: 600 }}>
-                  {draftPost.title}
-                </Typography.Text>
-                <Typography.Text style={{ color: "gray" }}></Typography.Text>
-              </Row>
-              <Row>
-                <Typography.Text style={{ textAlign: "justify" }}>
-                  {draftPost.description}
-                </Typography.Text>
-              </Row>
-            </Space>
+              <Space direction="vertical" style={{ width: "100%" }}>
+                <Row justify="space-between">
+                  <Typography.Text style={{ fontSize: 18, fontWeight: 600 }}>
+                    {draftPost.title}
+                  </Typography.Text>
+                  <Typography.Text style={{ color: "gray" }}></Typography.Text>
+                </Row>
+                <Row>
+                  <Typography.Text style={{ textAlign: "justify" }}>
+                    {draftPost.description}
+                  </Typography.Text>
+                </Row>
+              </Space>
+            </Card>
           </Col>
         </Row>
       ),
@@ -247,9 +251,9 @@ export default function Posts() {
                 fontSize: "1.5em",
                 color: "gray",
               }}
-              onClick={() => router.push("/posts/new-photo")}
+              onClick={() => router.push("/posts/new-album")}
             >
-              Add an image
+              Add an album
             </Button>
           </Col>
         </Row>

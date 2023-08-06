@@ -3,11 +3,17 @@ import NextNProgress from "nextjs-progressbar";
 import type { AppProps } from "next/app";
 import { ConfigProvider, Layout } from "antd";
 import { customTheme } from "@/config";
-import { ArweaveWalletKit, useConnection } from "arweave-wallet-kit";
+import {
+  ArweaveWalletKit,
+  useActiveAddress,
+  useConnection,
+} from "arweave-wallet-kit";
 import Head from "next/head";
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
+import { fetchProfile } from "@/utils";
+import { useConnectedUserStore } from "@/lib/store";
 
 const { Content } = Layout;
 
@@ -37,6 +43,8 @@ export function AppLayout({ appProps }: { appProps: AppProps }) {
   const router = useRouter();
 
   const { connected } = useConnection();
+  const connectedAddress = useActiveAddress();
+  const { setUserAccount } = useConnectedUserStore();
 
   const redirectToHome = () => {
     if (connected) {
@@ -46,10 +54,26 @@ export function AppLayout({ appProps }: { appProps: AppProps }) {
     }
   };
 
+  const fetchConnectedProfile = async () => {
+    try {
+      const user = await fetchProfile({ address: connectedAddress });
+      setUserAccount(user);
+    } catch (err) {
+      //
+    }
+  };
+
   useEffect(() => {
     redirectToHome();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connected]);
+
+  useEffect(() => {
+    if (connectedAddress) {
+      fetchConnectedProfile();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connectedAddress]);
 
   return (
     <>

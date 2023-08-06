@@ -43,7 +43,7 @@ export default function ProfileWithData({
   const copyToClipBoard = async () => {
     try {
       await navigator.clipboard.writeText(
-        `${window.location.origin}/${userAccount.handle}`
+        `${window.location.origin}/${userAccount.handle.replace("#", "-")}`
       );
       message.success("Copied!");
     } catch (err) {
@@ -199,7 +199,7 @@ export default function ProfileWithData({
               <Button
                 type="primary"
                 style={{ borderRadius: "999px" }}
-                onClick={() => router.push("/view-page")}
+                onClick={() => router.push(`/${userAccount.handle}`)}
               >
                 Buy Me a Storage Page
               </Button>

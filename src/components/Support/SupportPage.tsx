@@ -18,22 +18,19 @@ import {
   Col,
   TabsProps,
   Tabs,
-  Empty,
 } from "antd";
 import { RxCross1 } from "react-icons/rx";
 import { useActiveAddress, useApi, useConnection } from "arweave-wallet-kit";
-import { arweave, ardb, capitalizeAndFormat } from "@/utils";
+import { arweave, fetchProfile, formatHandle, getHandle } from "@/utils";
 import { APP_NAME, APP_VERSION } from "@/utils/constants";
 import "@/components/ArProfile/Profile.module.css";
 import Supports from "@/components/Support/Supports";
 import NotFound from "@/components/Errors/NotFound";
 import ProfileWithData from "@/components/ArProfile/ProfileWithData";
 import { getErrorMessage } from "@/utils";
-import { IPost, ISupport, ITag } from "@/types";
+import { ISupport } from "@/types";
 import { useRouter } from "next/router";
-import dayjs from "dayjs";
-import Masonry from "react-masonry-css";
-import GalleryImageCard from "../Cards/GalleryImageCard";
+import { useConnectedUserStore, useViewedUserProfileStore } from "@/lib/store";
 
 const { Text, Title } = Typography;
 const { useToken } = theme;
@@ -42,15 +39,15 @@ export default function SupportPage({ address }: { address?: string }) {
   const walletApi = useApi();
   const { token } = useToken();
   const router = useRouter();
-  const activeAddress = useActiveAddress();
 
   const connectedAddress = useActiveAddress();
   const [supports, setSupports] = useState<ISupport[]>([]);
-  const [userAccount, setUserAccount] = useState<ArAccount>();
+  const { viewedAccount, setViewedAccount } = useViewedUserProfileStore();
   const [isHandlePresent, setIsHandlePresent] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const { connected, connect } = useConnection();
   const [arweavePrice, setArweavePrice] = useState(0);
+  const { userAccount, setUserAccount } = useConnectedUserStore();
   const [supportValue, setSupportValue] = useState({
     winston: "0",
     ar: 0,
@@ -60,18 +57,13 @@ export default function SupportPage({ address }: { address?: string }) {
   const [storageValue, setStorageValue] = useState(1);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-
-  const [posts, setPosts] = useState<IPost[]>([]);
-  const [images, setImages] = useState<IPost[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { handle } = router.query;
 
   const storageOptions = [
     { label: "1", value: 1 },
     { label: "2", value: 2 },
     { label: "3", value: 3 },
   ];
-
-  console.log({ posts });
 
   useEffect(() => {
     const favicon: HTMLLinkElement | null =
@@ -81,55 +73,39 @@ export default function SupportPage({ address }: { address?: string }) {
     (async () => {
       if (!router.isReady) return;
       try {
-        let user;
+        let userHandle = "";
+        let user: ArAccount | null;
         if (!address) {
-          const userHandle = decodeURIComponent(router.asPath).slice(2);
+          userHandle = getHandle(handle?.slice(1) as string);
+
           if (!/^[\w\d]+#\w{6}$/.test(userHandle)) {
             setIsHandlePresent(false);
           }
-          const account = new Account();
-          user = await account.find(userHandle);
+        }
+
+        if (
+          !viewedAccount ||
+          (viewedAccount &&
+            (viewedAccount.addr !== address ||
+              viewedAccount.handle !== userHandle))
+        ) {
+          user = await fetchProfile({ address, userHandle });
+          setSupports([]);
+          setViewedAccount(user);
         } else {
-          const account = new Account();
-          user = await account.get(address);
+          user = viewedAccount;
         }
 
-        if (!user) {
-          throw new Error("Account not available.");
+        if (user) {
+          // Update favicon & title
+          if (title) {
+            title.innerText = user.profile.name || user.handle;
+          }
+          if (favicon) {
+            favicon.href = user.profile.avatarURL;
+          }
         }
 
-        if (
-          user.profile.banner ===
-          "ar://a0ieiziq2JkYhWamlrUCHxrGYnHWUAMcONxRmfkWt-k"
-        ) {
-          user = {
-            ...user,
-            profile: { ...user.profile, bannerURL: "/background.png" },
-          };
-        }
-
-        if (
-          user.profile.avatar ===
-          "ar://OrG-ZG2WN3wdcwvpjz1ihPe4MI24QBJUpsJGIdL85wA"
-        ) {
-          user = {
-            ...user,
-            profile: {
-              ...user.profile,
-              avatarURL:
-                "https://arweave.net/4eJ0svoPeMtU0VyYODTPDYFrDKGALIt8Js25tUERLPw",
-            },
-          };
-        }
-
-        // Update favicon & title
-        if (title) {
-          title.innerText = user.profile.name || user.handle;
-        }
-        if (favicon) {
-          favicon.href = user.profile.avatarURL;
-        }
-        setUserAccount(user);
         try {
           setArweavePrice(await getArweavePrice());
         } catch (e) {
@@ -157,22 +133,31 @@ export default function SupportPage({ address }: { address?: string }) {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.isReady]);
+  }, [router.isReady, handle, address]);
 
   useEffect(() => {
     if (connectedAddress) {
       (async () => {
         try {
-          const account = new Account();
-          const user = await account.get(connectedAddress);
-          if (user.handle && /^@[\w\d]+#\w{6}$/.test(user.handle)) {
-            setName(user.handle);
+          if (userAccount) {
+            if (
+              userAccount.handle &&
+              /^@[\w\d]+-\w{6}$/.test(userAccount.handle)
+            ) {
+              setName(userAccount.handle);
+            }
+          } else {
+            const user = await fetchProfile({ address: connectedAddress });
+            if (user.handle && /^@[\w\d]+-\w{6}$/.test(user.handle)) {
+              setName(user.handle);
+            }
           }
         } catch (error) {
           //
         }
       })();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connectedAddress]);
 
   async function support(e: { preventDefault: () => void }) {
@@ -182,14 +167,14 @@ export default function SupportPage({ address }: { address?: string }) {
       if (!connected) {
         await connect();
       }
-      if (userAccount?.addr === connectedAddress) {
+      if (viewedAccount?.addr === connectedAddress) {
         throw new Error("You cannot support yourself.");
       }
-      if (!userAccount?.addr) {
+      if (!viewedAccount?.addr) {
         throw new Error("No receiver address available.");
       }
       const transaction = await arweave.createTransaction({
-        target: userAccount?.addr,
+        target: viewedAccount?.addr,
         quantity: supportValue.winston,
       });
       transaction.addTag("App-Name", APP_NAME);
@@ -268,162 +253,6 @@ export default function SupportPage({ address }: { address?: string }) {
     return response.arweave.usd;
   }
 
-  async function fetchPosts() {
-    setLoading(true);
-    const transactions = await ardb
-      .search("transactions")
-      .from(activeAddress as string)
-      .tag("Protocol", `${APP_NAME}-Post-v${APP_VERSION}`)
-      .tag("Type", ["blog-post", "image-album"])
-      .find();
-    const _posts: IPost[] = transactions.map((transaction) => {
-      // @ts-ignore
-      const tags = transaction.tags as ITag[];
-      const titleTag = tags.find((tag) => tag.name === "Title");
-      const descriptionTag = tags.find((tag) => tag.name === "Description");
-      const publishedTag = tags.find(
-        (tag) => tag.name === "Published" || tag.name === "Published-At"
-      );
-      const typeTag = tags.find((tag) => tag.name === "Type");
-      const topics = tags
-        .filter((tag) => tag.name.startsWith("topic:"))
-        .map((tag) => tag.value);
-      const licenseTag = tags.find(
-        (tag) =>
-          tag.name === "Access" ||
-          tag.name === "Derivation" ||
-          tag.name === "Commercial-Use"
-      );
-
-      let license: ITag[] = [];
-
-      if (licenseTag) {
-        const feeTag = tags.find(
-          (tag) =>
-            tag.name === "Access-Fee" ||
-            tag.name === "Derivation-Fee" ||
-            tag.name === "Commercial-Fee"
-        )!;
-        license = [
-          {
-            name: capitalizeAndFormat(licenseTag.name),
-            value: capitalizeAndFormat(licenseTag.value),
-          },
-          {
-            name: capitalizeAndFormat(feeTag.name),
-            value: capitalizeAndFormat(feeTag.value),
-          },
-        ];
-      }
-
-      return {
-        id: transaction.id,
-        link: `https://arweave.net/${transaction.id}`,
-        title: titleTag?.value ?? "",
-        description: descriptionTag?.value ?? "",
-        topics,
-        type: typeTag?.value ?? "",
-        license,
-        content: "",
-        published: dayjs(
-          new Date(
-            parseInt(publishedTag?.value ?? new Date().getTime().toString())
-          )
-        ).format("MMM DD, YYYY [at] HH:mmA"),
-      };
-    });
-    setPosts(_posts);
-    setLoading(false);
-  }
-
-  async function fetchImages() {
-    setLoading(true);
-    const transactions = await ardb
-      .search("transactions")
-      .from(activeAddress as string)
-      .tag("Protocol", `${APP_NAME}-Post-v${APP_VERSION}`)
-      .tag("Type", "image")
-      .find();
-
-    const _posts: IPost[] = transactions.map((transaction) => {
-      // @ts-ignore
-      const tags = transaction.tags as ITag[];
-      const titleTag = tags.find((tag) => tag.name === "Title");
-      const descriptionTag = tags.find((tag) => tag.name === "Description");
-      const publishedTag = tags.find(
-        (tag) => tag.name === "Published" || tag.name === "Published-At"
-      );
-      const typeTag = tags.find((tag) => tag.name === "Type");
-      const topics = tags
-        .filter((tag) => tag.name.startsWith("topic:"))
-        .map((tag) => tag.value);
-      const licenseTag = tags.find(
-        (tag) =>
-          tag.name === "Access" ||
-          tag.name === "Derivation" ||
-          tag.name === "Commercial-Use"
-      );
-
-      let license: ITag[] = [];
-
-      if (licenseTag) {
-        const feeTag = tags.find(
-          (tag) =>
-            tag.name === "Access-Fee" ||
-            tag.name === "Derivation-Fee" ||
-            tag.name === "Commercial-Fee"
-        )!;
-        license = [
-          {
-            name: capitalizeAndFormat(licenseTag.name),
-            value: capitalizeAndFormat(licenseTag.value),
-          },
-          {
-            name: capitalizeAndFormat(feeTag.name),
-            value: capitalizeAndFormat(feeTag.value),
-          },
-        ];
-      }
-
-      return {
-        id: transaction.id,
-        link: `https://arweave.net/${transaction.id}`,
-        title: titleTag?.value ?? "",
-        description: descriptionTag?.value ?? "",
-        topics,
-        type: typeTag?.value ?? "",
-        license,
-        content: "",
-        published: dayjs(
-          new Date(
-            parseInt(publishedTag?.value ?? new Date().getTime().toString())
-          )
-        ).format("MMM DD, YYYY [at] HH:mmA"),
-      };
-    });
-    setImages(_posts);
-    setLoading(false);
-  }
-
-  useEffect(() => {
-    if (activeAddress) {
-      fetchPosts();
-      fetchImages();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeAddress]);
-
-  const navigateToSingleInfo = () => {
-    router.push("/singleItem");
-  };
-
-  const breakpointColumnsObj = {
-    default: 5,
-    1100: 2,
-    700: 3,
-    500: 2,
-  };
-
   const items: TabsProps["items"] = [
     {
       key: "1",
@@ -442,7 +271,7 @@ export default function SupportPage({ address }: { address?: string }) {
                   <Title level={3} style={{ textAlign: "center" }}>
                     Buy{" "}
                     <Text style={{ color: token.colorPrimary, fontSize: 24 }}>
-                      {userAccount?.profile.name}
+                      {viewedAccount?.profile.name}
                     </Text>{" "}
                     a Storage
                   </Title>
@@ -516,7 +345,7 @@ export default function SupportPage({ address }: { address?: string }) {
                     type="primary"
                     onClick={support}
                     loading={isLoading}
-                    disabled={userAccount?.addr === connectedAddress}
+                    disabled={viewedAccount?.addr === connectedAddress}
                     shape="round"
                     size="large"
                     block
@@ -529,7 +358,7 @@ export default function SupportPage({ address }: { address?: string }) {
           </Col>
           <Col span={12} sm={24} md={12}>
             <Supports
-              recipient={userAccount?.addr as string}
+              recipient={viewedAccount?.addr as string}
               supports={supports}
               setSupports={setSupports}
             />
@@ -540,119 +369,35 @@ export default function SupportPage({ address }: { address?: string }) {
     {
       key: "2",
       label: <p style={{ fontSize: 18 }}>Posts</p>,
-      children: (
-        <Row gutter={[16, 16]} style={{ padding: 8 }}>
-          {posts.length > 0 ? (
-            posts.map((item, index) => (
-              <Col span={24} key={index}>
-                <Card
-                  hoverable
-                  style={{
-                    width: "100%",
-                    border: "1px solid #dfdfdf",
-                    background: "white",
-                    borderRadius: 12,
-                    cursor: "pointer",
-                  }}
-                  onClick={navigateToSingleInfo}
-                >
-                  <Space direction="vertical" style={{ width: "100%" }}>
-                    <Row justify="space-between">
-                      <Typography.Text
-                        style={{ fontSize: 18, fontWeight: 600 }}
-                      >
-                        {item.title}
-                      </Typography.Text>
-                      <Typography.Text style={{ color: "gray" }}>
-                        {item.published}
-                      </Typography.Text>
-                    </Row>
-                    <Row>
-                      <Typography.Text style={{ textAlign: "justify" }}>
-                        {item.description}
-                      </Typography.Text>
-                    </Row>
-                  </Space>
-                </Card>
-              </Col>
-            ))
-          ) : (
-            <Empty
-              description={
-                <Typography.Text style={{ fontSize: 14, color: "gray" }}>
-                  No post published yet!
-                </Typography.Text>
-              }
-            />
-          )}
-        </Row>
-      ),
+      children: <></>,
     },
     {
       key: "3",
       label: <p style={{ fontSize: 18 }}>Gallery</p>,
-      children: (
-        <>
-          <Spin spinning={posts.length === 0 && loading}>
-            <Row
-              gutter={[16, 16]}
-              style={{
-                height: "calc(100vh - 170px)",
-                // minHeight: "160px",
-                overflowY: "auto",
-              }}
-            >
-              {images.length > 0 ? (
-                <Masonry
-                  breakpointCols={breakpointColumnsObj}
-                  className="my-masonry-grid"
-                  columnClassName="my-masonry-grid_column"
-                >
-                  {images.map((post, index) => {
-                    return (
-                      <GalleryImageCard
-                        key={index}
-                        post={post}
-                        imageClickHandler={navigateToSingleInfo}
-                      />
-                    );
-                  })}
-                </Masonry>
-              ) : (
-                <Empty
-                  style={{
-                    width: "100%",
-                    display: "grid",
-                    placeItems: "center",
-                  }}
-                  description={
-                    <Typography.Text style={{ fontSize: 14, color: "gray" }}>
-                      No Gallery Image!
-                    </Typography.Text>
-                  }
-                />
-              )}
-            </Row>
-          </Spin>
-        </>
-      ),
+      children: <></>,
     },
   ];
 
   const onTabChange = (key: string) => {
-    console.log(key);
+    if (key === "1") {
+      router.push(`/${viewedAccount?.handle.replace("#", "-")}`);
+    } else if (key === "2") {
+      router.push(`/${viewedAccount?.handle.replace("#", "-")}/posts`);
+    } else {
+      router.push(`/${viewedAccount?.handle.replace("#", "-")}/gallery`);
+    }
   };
 
   return (
     <div style={{ height: "100%" }}>
       {!isHandlePresent ? (
         <NotFound />
-      ) : userAccount ? (
+      ) : viewedAccount ? (
         <div>
           <ProfileWithData
-            addr={userAccount.addr}
+            addr={viewedAccount.addr}
             showEditProfile={false}
-            userAccount={userAccount}
+            userAccount={viewedAccount}
           />
           <Divider />
           <Tabs

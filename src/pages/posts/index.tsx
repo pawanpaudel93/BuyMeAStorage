@@ -8,6 +8,7 @@ import {
   Tabs,
   Typography,
   TabsProps,
+  Card,
 } from "antd";
 import { BookOutlined, ProjectOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
@@ -109,41 +110,39 @@ export default function Posts() {
         <>
           <Row gutter={[16, 16]}>
             {posts.map((item, index) => (
-              <Col
-                span={24}
-                key={index}
-                onClick={() => {
-                  setPost(item);
-                  setIsPostModalOpen(true);
-                }}
-                style={{
-                  cursor: "pointer",
-                }}
-              >
-                <Space
-                  direction="vertical"
+              <Col span={24} key={index}>
+                <Card
+                  hoverable
                   style={{
                     width: "100%",
-                    padding: 16,
                     border: "1px solid #dfdfdf",
                     background: "white",
                     borderRadius: 12,
+                    cursor: "pointer",
+                  }}
+                  onClick={() => {
+                    setPost(item);
+                    setIsPostModalOpen(true);
                   }}
                 >
-                  <Row justify="space-between">
-                    <Typography.Text style={{ fontSize: 18, fontWeight: 600 }}>
-                      {item.title}
-                    </Typography.Text>
-                    <Typography.Text style={{ color: "gray" }}>
-                      {item.published}
-                    </Typography.Text>
-                  </Row>
-                  <Row>
-                    <Typography.Text style={{ textAlign: "justify" }}>
-                      {item.description}
-                    </Typography.Text>
-                  </Row>
-                </Space>
+                  <Space direction="vertical" style={{ width: "100%" }}>
+                    <Row justify="space-between">
+                      <Typography.Text
+                        style={{ fontSize: 18, fontWeight: 600 }}
+                      >
+                        {item.title}
+                      </Typography.Text>
+                      <Typography.Text style={{ color: "gray" }}>
+                        {item.published}
+                      </Typography.Text>
+                    </Row>
+                    <Row>
+                      <Typography.Text style={{ textAlign: "justify" }}>
+                        {item.description}
+                      </Typography.Text>
+                    </Row>
+                  </Space>
+                </Card>
               </Col>
             ))}
           </Row>

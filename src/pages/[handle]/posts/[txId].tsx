@@ -18,10 +18,11 @@ import { UDL } from "@/utils/constants";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { IPost, ITag } from "@/types";
-import { ardb, capitalizeAndFormat } from "@/utils";
+import { ardb, capitalizeAndFormat, fetchProfile, getHandle } from "@/utils";
 import dayjs from "dayjs";
 import StampButton from "@/components/Stamp/StampButton";
 import { MdPreview } from "md-editor-rt";
+import { ArAccount } from "arweave-account";
 
 const { useToken } = theme;
 
@@ -32,9 +33,10 @@ export default function Post() {
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState("");
   const [urls, setUrls] = useState<string[]>([]);
+  const [userAccount, setUserAccount] = useState<ArAccount>();
   const router = useRouter();
 
-  const { txId } = router.query;
+  const { txId, handle } = router.query;
 
   async function fetchPost() {
     setLoading(true);
@@ -183,6 +185,18 @@ export default function Post() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post?.link]);
 
+  useEffect(() => {
+    if (handle) {
+      fetchProfile({ userHandle: getHandle(handle.slice(1) as string) }).then(
+        (user) => {
+          setUserAccount(user);
+        }
+      );
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [handle]);
+
   return (
     <div
       style={{
@@ -198,10 +212,12 @@ export default function Post() {
           <Row justify="space-between" align="middle" style={{ padding: 8 }}>
             <Space>
               <Avatar size="large" style={{ background: "green" }}>
-                M
+                {userAccount?.profile?.name.slice(0, 1) ?? ""}
               </Avatar>
               <Space direction="vertical" size={0}>
-                <Typography.Text>Mikma Tamang</Typography.Text>
+                <Typography.Text>
+                  {userAccount?.profile?.name ?? ""}
+                </Typography.Text>
                 <Typography.Text style={{ fontSize: 14, color: "gray" }}>
                   Creator
                 </Typography.Text>

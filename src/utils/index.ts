@@ -1,6 +1,6 @@
 import Arweave from "arweave";
 import ArDB from "ardb";
-import Account from "arweave-account";
+import Account, { ArAccount } from "arweave-account";
 
 export function getErrorMessage(error: unknown): string {
   if (
@@ -182,5 +182,5 @@ export async function fetchProfile({
   }
 
   user = { ...user, handle: formatHandle(user.handle) };
-  return user;
+  return user as ArAccount;
 }

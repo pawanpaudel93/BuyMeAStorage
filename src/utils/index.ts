@@ -1,5 +1,6 @@
 import Arweave from "arweave";
 import ArDB from "ardb";
+import Account from "arweave-account";
 
 export function getErrorMessage(error: unknown): string {
   if (
@@ -136,4 +137,50 @@ export function getHandle(formattedHandle: string) {
     "#" +
     formattedHandle.slice(position + 1)
   );
+}
+
+export async function fetchProfile({
+  address,
+  userHandle,
+}: {
+  address?: string;
+  userHandle?: string;
+}) {
+  let user;
+  if (!address) {
+    const account = new Account();
+    user = await account.find(userHandle as string);
+  } else {
+    const account = new Account();
+    user = await account.get(address);
+  }
+
+  if (!user) {
+    throw new Error("Account not available.");
+  }
+
+  if (
+    user.profile.banner === "ar://a0ieiziq2JkYhWamlrUCHxrGYnHWUAMcONxRmfkWt-k"
+  ) {
+    user = {
+      ...user,
+      profile: { ...user.profile, bannerURL: "/background.png" },
+    };
+  }
+
+  if (
+    user.profile.avatar === "ar://OrG-ZG2WN3wdcwvpjz1ihPe4MI24QBJUpsJGIdL85wA"
+  ) {
+    user = {
+      ...user,
+      profile: {
+        ...user.profile,
+        avatarURL:
+          "https://arweave.net/4eJ0svoPeMtU0VyYODTPDYFrDKGALIt8Js25tUERLPw",
+      },
+    };
+  }
+
+  user = { ...user, handle: formatHandle(user.handle) };
+  return user;
 }

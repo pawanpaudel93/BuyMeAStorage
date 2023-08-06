@@ -28,6 +28,7 @@ import {
   capitalizeAndFormat,
   getHandle,
   formatHandle,
+  fetchProfile,
 } from "@/utils";
 import { APP_NAME, APP_VERSION } from "@/utils/constants";
 import "@/components/ArProfile/Profile.module.css";
@@ -86,48 +87,14 @@ export default function SupportPage({ address }: { address?: string }) {
       if (!router.isReady) return;
       if (viewedAccount) return;
       try {
-        let user;
+        let userHandle = "";
         if (!address) {
-          const userHandle = getHandle(
-            decodeURIComponent(router.asPath).slice(2)
-          );
+          userHandle = getHandle(decodeURIComponent(router.asPath).slice(2));
           if (!/^[\w\d]+#\w{6}$/.test(userHandle)) {
             setIsHandlePresent(false);
           }
-          const account = new Account();
-          user = await account.find(userHandle);
-        } else {
-          const account = new Account();
-          user = await account.get(address);
         }
-
-        if (!user) {
-          throw new Error("Account not available.");
-        }
-
-        if (
-          user.profile.banner ===
-          "ar://a0ieiziq2JkYhWamlrUCHxrGYnHWUAMcONxRmfkWt-k"
-        ) {
-          user = {
-            ...user,
-            profile: { ...user.profile, bannerURL: "/background.png" },
-          };
-        }
-
-        if (
-          user.profile.avatar ===
-          "ar://OrG-ZG2WN3wdcwvpjz1ihPe4MI24QBJUpsJGIdL85wA"
-        ) {
-          user = {
-            ...user,
-            profile: {
-              ...user.profile,
-              avatarURL:
-                "https://arweave.net/4eJ0svoPeMtU0VyYODTPDYFrDKGALIt8Js25tUERLPw",
-            },
-          };
-        }
+        const user = await fetchProfile({ address, userHandle });
 
         // Update favicon & title
         if (title) {
@@ -136,7 +103,7 @@ export default function SupportPage({ address }: { address?: string }) {
         if (favicon) {
           favicon.href = user.profile.avatarURL;
         }
-        setViewedAccount({ ...user, handle: formatHandle(user.handle) });
+        setViewedAccount(user);
         try {
           setArweavePrice(await getArweavePrice());
         } catch (e) {

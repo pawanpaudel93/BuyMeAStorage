@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import Account, { ArAccount } from "arweave-account";
+import { ArAccount } from "arweave-account";
 import { Spin, Button, Typography } from "antd";
 import ProfileWithData from "./ProfileWithData";
 import "./Profile.module.css";
-import { formatHandle } from "@/utils";
+import { fetchProfile } from "@/utils";
 
 const { Text } = Typography;
 
@@ -17,33 +17,10 @@ function Profile({
   const [userAccount, setUserAccount] = useState<ArAccount | null>(null);
   const [hasFailed, setHasFailed] = useState<string | false>(false);
 
-  async function fetchProfile() {
+  async function refetch() {
     try {
-      const account = new Account();
-      let user = await account.get(addr);
-      if (
-        user.profile.banner ===
-        "ar://a0ieiziq2JkYhWamlrUCHxrGYnHWUAMcONxRmfkWt-k"
-      ) {
-        user = {
-          ...user,
-          profile: { ...user.profile, bannerURL: "/background.png" },
-        };
-      }
-      if (
-        user.profile.avatar ===
-        "ar://OrG-ZG2WN3wdcwvpjz1ihPe4MI24QBJUpsJGIdL85wA"
-      ) {
-        user = {
-          ...user,
-          profile: {
-            ...user.profile,
-            avatarURL:
-              "https://arweave.net/4eJ0svoPeMtU0VyYODTPDYFrDKGALIt8Js25tUERLPw",
-          },
-        };
-      }
-      setUserAccount({ ...user, handle: formatHandle(user.handle) });
+      const user = await fetchProfile({ address: addr, userHandle: "" });
+      setUserAccount(user);
     } catch (e) {
       console.log(e);
       setHasFailed(JSON.stringify(e));
@@ -52,7 +29,7 @@ function Profile({
 
   useEffect(() => {
     if (addr) {
-      fetchProfile();
+      refetch();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [addr]);
@@ -71,7 +48,7 @@ function Profile({
           addr={addr}
           userAccount={userAccount}
           showEditProfile={showEditProfile}
-          refetch={fetchProfile}
+          refetch={refetch}
         />
       ) : (
         <div

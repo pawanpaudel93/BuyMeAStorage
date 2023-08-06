@@ -13,7 +13,13 @@ import {
   Tabs,
   Empty,
 } from "antd";
-import { ardb, capitalizeAndFormat, formatHandle, getHandle } from "@/utils";
+import {
+  ardb,
+  capitalizeAndFormat,
+  fetchProfile,
+  formatHandle,
+  getHandle,
+} from "@/utils";
 import { APP_NAME, APP_VERSION } from "@/utils/constants";
 import "@/components/ArProfile/Profile.module.css";
 import NotFound from "@/components/Errors/NotFound";
@@ -40,50 +46,18 @@ export default function SupportPage({ address }: { address?: string }) {
       if (!router.isReady) return;
       if (viewedAccount) return;
       try {
-        let user;
+        let userHandle = "";
         if (!address) {
-          const userHandle = getHandle(
+          userHandle = getHandle(
             decodeURIComponent(router.asPath).slice(2).split("/")[0]
           );
 
           if (!/^[\w\d]+#\w{6}$/.test(userHandle)) {
             setIsHandlePresent(false);
           }
-
-          const account = new Account();
-          user = await account.find(userHandle);
-        } else {
-          const account = new Account();
-          user = await account.get(address);
         }
 
-        if (!user) {
-          throw new Error("Account not available.");
-        }
-
-        if (
-          user.profile.banner ===
-          "ar://a0ieiziq2JkYhWamlrUCHxrGYnHWUAMcONxRmfkWt-k"
-        ) {
-          user = {
-            ...user,
-            profile: { ...user.profile, bannerURL: "/background.png" },
-          };
-        }
-
-        if (
-          user.profile.avatar ===
-          "ar://OrG-ZG2WN3wdcwvpjz1ihPe4MI24QBJUpsJGIdL85wA"
-        ) {
-          user = {
-            ...user,
-            profile: {
-              ...user.profile,
-              avatarURL:
-                "https://arweave.net/4eJ0svoPeMtU0VyYODTPDYFrDKGALIt8Js25tUERLPw",
-            },
-          };
-        }
+        const user = await fetchProfile({ address, userHandle });
 
         // Update favicon & title
         if (title) {
@@ -92,7 +66,7 @@ export default function SupportPage({ address }: { address?: string }) {
         if (favicon) {
           favicon.href = user.profile.avatarURL;
         }
-        setViewedAccount({ ...user, handle: formatHandle(user.handle) });
+        setViewedAccount(user);
       } catch (error) {
         if (getErrorMessage(error) === "Error: Account not available.") {
           setIsHandlePresent(false);

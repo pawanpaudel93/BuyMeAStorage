@@ -193,7 +193,7 @@ export default function SupportPage({ address }: { address?: string }) {
                     borderRadius: 12,
                     cursor: "pointer",
                   }}
-                  onClick={() => navigateToSingleInfo(item.id)}
+                  onClick={() => navigateToSingleInfo(item.id as string)}
                 >
                   <Space direction="vertical" style={{ width: "100%" }}>
                     <Row justify="space-between">

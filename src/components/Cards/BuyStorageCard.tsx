@@ -105,6 +105,7 @@ export default function BuyStorageCard() {
 
   return (
     <Card
+      bordered={false}
       title={
         <Title level={3} style={{ textAlign: "center" }}>
           Buy{" "}

@@ -23,6 +23,7 @@ import dayjs from "dayjs";
 import StampButton from "@/components/Stamp/StampButton";
 import { MdPreview } from "md-editor-rt";
 import { ArAccount } from "arweave-account";
+import DonateModal from "@/components/Modals/DonateModal";
 
 const { useToken } = theme;
 
@@ -35,6 +36,7 @@ export default function Post() {
   const [urls, setUrls] = useState<string[]>([]);
   const [userAccount, setUserAccount] = useState<ArAccount>();
   const router = useRouter();
+  const [isDonateModalOpen, setIsDonateModalOpen] = useState(false);
 
   const { txId, handle } = router.query;
 
@@ -117,6 +119,7 @@ export default function Post() {
   }
 
   async function download() {
+    setIsDonateModalOpen(true);
     setIsLoading(true);
     try {
       const response = await fetch(post?.link as string);
@@ -207,6 +210,7 @@ export default function Post() {
         border: "1px solid #dfdfdf",
       }}
     >
+      <DonateModal open={isDonateModalOpen} setOpen={setIsDonateModalOpen} />
       {post ? (
         <>
           <Row justify="space-between" align="middle" style={{ padding: 8 }}>

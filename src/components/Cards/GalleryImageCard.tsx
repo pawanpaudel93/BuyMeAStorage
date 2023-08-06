@@ -18,6 +18,7 @@ import { IPost } from "@/types";
 import { UDL } from "@/utils/constants";
 import StampButton from "../Stamp/StampButton";
 import { useState } from "react";
+import DonateModal from "../Modals/DonateModal";
 
 interface ImgProps {
   attach: any;
@@ -60,23 +61,25 @@ export default function GalleryImageCard({
 }) {
   const { token } = useToken();
   const [isLoading, setIsLoading] = useState(false);
+  const [isDonateModalOpen, setIsDonateModalOpen] = useState(false);
 
   async function download() {
-    setIsLoading(true);
-    try {
-      const response = await fetch(post.link as string);
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.target = "_blank";
-      link.download = post.title;
-      link.click();
-      URL.revokeObjectURL(blobUrl);
-    } catch (error) {
-      message.error("Error downloading file");
-    }
-    setIsLoading(false);
+    setIsDonateModalOpen(true);
+    // setIsLoading(true);
+    // try {
+    //   const response = await fetch(post.link as string);
+    //   const blob = await response.blob();
+    //   const blobUrl = URL.createObjectURL(blob);
+    //   const link = document.createElement("a");
+    //   link.href = blobUrl;
+    //   link.target = "_blank";
+    //   link.download = post.title;
+    //   link.click();
+    //   URL.revokeObjectURL(blobUrl);
+    // } catch (error) {
+    //   message.error("Error downloading file");
+    // }
+    // setIsLoading(false);
   }
 
   return (
@@ -105,6 +108,10 @@ export default function GalleryImageCard({
                         align="middle"
                         style={{ padding: 8 }}
                       >
+                        <DonateModal
+                          open={isDonateModalOpen}
+                          setOpen={setIsDonateModalOpen}
+                        />
                         <Space>
                           <Avatar size="large" style={{ background: "green" }}>
                             M

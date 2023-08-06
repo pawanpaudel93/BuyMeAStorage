@@ -38,10 +38,12 @@ export default function HomePage() {
   const [stats, setStats] = useState({ earnings: 0, supporters: 0 });
 
   async function fetchAllSupports() {
+    console.log("fetching");
     const transactions = await ardb
       .search("transactions")
       .appName(APP_NAME)
       .to(connectedAddress as string)
+      .limit(100)
       .findAll();
 
     let earnings = 0;
@@ -131,11 +133,11 @@ export default function HomePage() {
   ];
 
   useEffect(() => {
-    if (connectedAddress && stats.earnings === 0 && stats.supporters === 0) {
+    if (connectedAddress) {
       fetchAllSupports();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connectedAddress, stats]);
+  }, [connectedAddress]);
 
   return (
     <div

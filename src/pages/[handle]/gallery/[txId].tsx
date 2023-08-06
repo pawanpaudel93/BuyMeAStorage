@@ -22,6 +22,7 @@ import dayjs from "dayjs";
 import StampButton from "@/components/Stamp/StampButton";
 import { ArAccount } from "arweave-account";
 import UdlPayButton from "@/components/Udl/UdlPayButton";
+import DonateModal from "@/components/Modals/DonateModal";
 
 const { useToken } = theme;
 
@@ -38,6 +39,8 @@ export default function Gallery() {
     amount: 0,
   });
   const [hasPaid, setHasPaid] = useState(false);
+
+  const [isDonateModalOpen, setIsDonateModalOpen] = useState(false);
 
   const { txId, handle } = router.query;
 
@@ -116,6 +119,8 @@ export default function Gallery() {
   }
 
   async function download() {
+    setIsDonateModalOpen(true);
+
     setIsLoading(true);
     try {
       const response = await fetch(post?.link as string);
@@ -162,6 +167,7 @@ export default function Gallery() {
         border: "1px solid #dfdfdf",
       }}
     >
+      <DonateModal open={isDonateModalOpen} setOpen={setIsDonateModalOpen} />
       {post ? (
         <>
           <Row justify="space-between" align="middle" style={{ padding: 8 }}>

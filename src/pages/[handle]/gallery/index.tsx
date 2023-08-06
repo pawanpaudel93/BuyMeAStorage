@@ -49,6 +49,7 @@ export default function Gallery({ address }: { address?: string }) {
         }
 
         const user = await fetchProfile({ address, userHandle });
+        setViewedAccount(user);
 
         // Update favicon & title
         if (title) {
@@ -57,7 +58,6 @@ export default function Gallery({ address }: { address?: string }) {
         if (favicon) {
           favicon.href = user.profile.avatarURL;
         }
-        setViewedAccount(user);
       } catch (error) {
         if (getErrorMessage(error) === "Error: Account not available.") {
           setIsHandlePresent(false);

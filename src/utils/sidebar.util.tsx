@@ -24,13 +24,15 @@ function getItem(
   } as MenuItem;
 }
 
-export const getHomeItems = () => {
+export const getHomeItems = (userHandle: string) => {
   const allItems = [
     getItem("Home", "/home", <WindowsOutlined />),
     getItem("ArProfile", "/profile", <TeamOutlined />),
-    getItem("View page", "/view-page", <TeamOutlined />),
-    getItem("Support", `/${SUPPORT_HANDLE}`, <TeamOutlined />),
   ];
+  if (userHandle) {
+    allItems.push(getItem("View page", `/${userHandle}`, <TeamOutlined />));
+  }
+  allItems.push(getItem("Support", `/${SUPPORT_HANDLE}`, <TeamOutlined />));
   return allItems;
 };
 export const getPublishItems = () => {

@@ -199,7 +199,7 @@ export default function ProfileWithData({
               <Button
                 type="primary"
                 style={{ borderRadius: "999px" }}
-                onClick={() => router.push("/view-page")}
+                onClick={() => router.push(`/${userAccount.handle}`)}
               >
                 Buy Me a Storage Page
               </Button>

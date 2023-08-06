@@ -50,9 +50,8 @@ export default function Stamp({ assetTx }: { assetTx: string }) {
         alignItems: "center",
       }}
     >
-      {stamps}
       {hasStamped ? <AiFillHeart /> : <AiOutlineHeart />}{" "}
-      {isStamping ? "Stamping" : "Stamp"}
+      {isStamping ? "Stamping" : "Stamp"} {stamps}
     </Button>
   );
 }

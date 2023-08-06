@@ -38,10 +38,10 @@ export default function HomePage() {
   const [stats, setStats] = useState({ earnings: 0, supporters: 0 });
 
   async function fetchAllSupports() {
-    console.log("fetching");
     const transactions = await ardb
       .search("transactions")
       .appName(APP_NAME)
+      .tag("Payment-Type", "Support")
       .to(connectedAddress as string)
       .limit(100)
       .findAll();

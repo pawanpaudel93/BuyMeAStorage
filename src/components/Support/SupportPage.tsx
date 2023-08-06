@@ -274,6 +274,7 @@ export default function SupportPage({ address }: { address?: string }) {
       .search("transactions")
       .from(activeAddress as string)
       .tag("Protocol", `${APP_NAME}-Post-v${APP_VERSION}`)
+      .tag("Type", ["blog-post", "image-album"])
       .find();
     const _posts: IPost[] = transactions.map((transaction) => {
       // @ts-ignore

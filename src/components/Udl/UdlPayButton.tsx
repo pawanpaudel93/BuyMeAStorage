@@ -51,6 +51,7 @@ export default function UdlPayButton({
         { name: "Asset-Tx", value: assetTx },
         { name: "Purchased-By", value: connectedAddress as string },
         { name: "License", value: UDL },
+        { name: "Payment-Type", value: "License" },
       ].concat(licenseTags);
       tags.forEach((tag) => {
         tx.addTag(tag.name, tag.value);

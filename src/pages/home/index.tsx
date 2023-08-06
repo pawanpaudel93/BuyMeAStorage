@@ -41,6 +41,7 @@ export default function HomePage() {
     const transactions = await ardb
       .search("transactions")
       .appName(APP_NAME)
+      .tag("Payment-Type", "Support")
       .to(connectedAddress as string)
       .limit(100)
       .findAll();

@@ -179,28 +179,30 @@ export default function Posts() {
           onClick={() => router.push("/posts/new-post")}
         >
           <Col span={24}>
-            <Space
-              direction="vertical"
+            <Card
+              hoverable
               style={{
                 width: "100%",
-                padding: 16,
-                border: "1px solid gray",
+                border: "1px solid #dfdfdf",
                 background: "white",
                 borderRadius: 12,
+                cursor: "pointer",
               }}
             >
-              <Row justify="space-between">
-                <Typography.Text style={{ fontSize: 18, fontWeight: 600 }}>
-                  {draftPost.title}
-                </Typography.Text>
-                <Typography.Text style={{ color: "gray" }}></Typography.Text>
-              </Row>
-              <Row>
-                <Typography.Text style={{ textAlign: "justify" }}>
-                  {draftPost.description}
-                </Typography.Text>
-              </Row>
-            </Space>
+              <Space direction="vertical" style={{ width: "100%" }}>
+                <Row justify="space-between">
+                  <Typography.Text style={{ fontSize: 18, fontWeight: 600 }}>
+                    {draftPost.title}
+                  </Typography.Text>
+                  <Typography.Text style={{ color: "gray" }}></Typography.Text>
+                </Row>
+                <Row>
+                  <Typography.Text style={{ textAlign: "justify" }}>
+                    {draftPost.description}
+                  </Typography.Text>
+                </Row>
+              </Space>
+            </Card>
           </Col>
         </Row>
       ),

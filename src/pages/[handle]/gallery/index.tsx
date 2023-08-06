@@ -113,22 +113,19 @@ export default function Gallery({ address }: { address?: string }) {
       let license: ITag[] = [];
 
       if (licenseTag) {
-        const feeTag = tags.find(
-          (tag) =>
-            tag.name === "Access-Fee" ||
-            tag.name === "Derivation-Fee" ||
-            tag.name === "Commercial-Fee"
-        )!;
+        const feeTag = tags.find((tag) => tag.name === "License-Fee");
         license = [
           {
             name: capitalizeAndFormat(licenseTag.name),
             value: capitalizeAndFormat(licenseTag.value),
           },
-          {
+        ];
+        if (feeTag) {
+          license.push({
             name: capitalizeAndFormat(feeTag.name),
             value: capitalizeAndFormat(feeTag.value),
-          },
-        ];
+          });
+        }
       }
 
       return {

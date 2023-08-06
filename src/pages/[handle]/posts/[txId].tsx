@@ -74,32 +74,34 @@ export default function Post() {
     let license: ITag[] = [];
 
     if (licenseTag) {
-      const feeTag = tags.find(
-        (tag) =>
-          tag.name === "Access-Fee" ||
-          tag.name === "Derivation-Fee" ||
-          tag.name === "Commercial-Fee"
-      )!;
-      setLicenseTags([
-        { name: licenseTag.name, value: licenseTag.value },
-        { name: feeTag?.name, value: feeTag?.value },
-      ]);
+      const feeTag = tags.find((tag) => tag.name === "License-Fee");
+      if (feeTag) {
+        setLicenseTags([
+          { name: licenseTag.name, value: licenseTag.value },
+          { name: feeTag?.name, value: feeTag?.value },
+        ]);
+      } else {
+        setLicenseTags([{ name: licenseTag.name, value: licenseTag.value }]);
+      }
 
       setLicense({
         // @ts-ignore
         seller: transaction.owner.address,
-        amount: parseFloat(feeTag.value.split("-")[2]),
+        amount: feeTag ? parseFloat(feeTag.value.split("-")[2]) : 0,
       });
       license = [
         {
           name: capitalizeAndFormat(licenseTag.name),
           value: capitalizeAndFormat(licenseTag.value),
         },
-        {
+      ];
+
+      if (feeTag) {
+        license.push({
           name: capitalizeAndFormat(feeTag.name),
           value: capitalizeAndFormat(feeTag.value),
-        },
-      ];
+        });
+      }
     }
 
     setPost({

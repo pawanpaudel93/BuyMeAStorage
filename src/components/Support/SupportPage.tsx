@@ -183,6 +183,7 @@ export default function SupportPage({ address }: { address?: string }) {
       transaction.addTag("Description", description);
       transaction.addTag("Storage-Unit", storageUnit);
       transaction.addTag("Storage-Value", storageValue.toString());
+      transaction.addTag("Payment-Type", "Support");
       await walletApi?.sign(transaction);
       const response = await arweave.transactions.post(transaction);
       if (response.status !== 200) {

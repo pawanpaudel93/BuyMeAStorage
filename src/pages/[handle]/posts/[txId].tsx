@@ -23,6 +23,8 @@ import dayjs from "dayjs";
 import StampButton from "@/components/Stamp/StampButton";
 import { MdPreview } from "md-editor-rt";
 import { ArAccount } from "arweave-account";
+import UdlPayButton from "@/components/Udl/UdlPayButton";
+import "md-editor-rt/lib/preview.css";
 
 const { useToken } = theme;
 
@@ -35,6 +37,12 @@ export default function Post() {
   const [urls, setUrls] = useState<string[]>([]);
   const [userAccount, setUserAccount] = useState<ArAccount>();
   const router = useRouter();
+  const [licenseTags, setLicenseTags] = useState<ITag[]>([]);
+  const [license, setLicense] = useState({
+    seller: "",
+    amount: 0,
+  });
+  const [hasPaid, setHasPaid] = useState(false);
 
   const { txId, handle } = router.query;
 
@@ -72,6 +80,16 @@ export default function Post() {
           tag.name === "Derivation-Fee" ||
           tag.name === "Commercial-Fee"
       )!;
+      setLicenseTags([
+        { name: licenseTag.name, value: licenseTag.value },
+        { name: feeTag?.name, value: feeTag?.value },
+      ]);
+
+      setLicense({
+        // @ts-ignore
+        seller: transaction.owner.address,
+        amount: parseFloat(feeTag.value.split("-")[2]),
+      });
       license = [
         {
           name: capitalizeAndFormat(licenseTag.name),
@@ -224,6 +242,16 @@ export default function Post() {
               </Space>
             </Space>
             <Space>
+              {license.amount > 0 && (
+                <UdlPayButton
+                  setHasPaid={setHasPaid}
+                  hasPaid={hasPaid}
+                  target={license.seller}
+                  assetTx={post?.id as string}
+                  quantity={license.amount.toString()}
+                  licenseTags={licenseTags}
+                />
+              )}
               <StampButton assetTx={post.id as string} />
               <Button
                 type="primary"

@@ -36,6 +36,7 @@ export default function Supports({
         txs = await ardb
           .search("transactions")
           .appName(APP_NAME)
+          .tag("Payment-Type", "Support")
           .to(recipient)
           .find();
         checkForNoMore(txs);

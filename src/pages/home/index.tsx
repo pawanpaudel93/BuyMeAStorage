@@ -15,20 +15,62 @@ import {
   QrcodeOutlined,
   FileTextOutlined,
   HeartOutlined,
+  HeartFilled,
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import QrModal from "@/components/QrCode";
 import { useConnectedUserStore } from "@/lib/store";
+import { ardb } from "@/utils";
+import { useActiveAddress } from "arweave-wallet-kit";
+import { APP_NAME } from "@/utils/constants";
+import { ITag } from "@/types";
 
 const { useToken } = theme;
 
 export default function HomePage() {
   const { token } = useToken();
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const connectedAddress = useActiveAddress();
   const { userAccount } = useConnectedUserStore();
   const [myProfileUrl, setMyProfileUrl] = useState(
     `/${userAccount?.handle ?? ""}`
   );
+  const [stats, setStats] = useState({ earnings: 0, supporters: 0 });
+
+  async function fetchAllSupports() {
+    const transactions = await ardb
+      .search("transactions")
+      .appName(APP_NAME)
+      .to(connectedAddress as string)
+      .findAll();
+
+    let earnings = 0;
+    let supporters = 0;
+
+    const supportersSet = new Set<string>();
+
+    transactions.forEach((transaction) => {
+      // @ts-ignore
+      const tags = transaction.tags as ITag[];
+      const storageUnit = tags.find((t) => t.name === "Storage-Unit");
+      const storageValue = tags.find((t) => t.name === "Storage-Value");
+      // @ts-ignore
+      const supporter = transaction.owner.address;
+      if (!supportersSet.has(supporter)) {
+        supportersSet.add(supporter);
+        supporters += 1;
+      }
+
+      if (storageUnit?.value === "MB") {
+        earnings += Number(storageValue?.value);
+      } else if (storageUnit?.value === "GB") {
+        earnings += Number(storageValue?.value) * 1024;
+      } else if (storageUnit?.value === "TB") {
+        earnings += Number(storageValue?.value) * 1024 * 1024;
+      }
+    });
+    setStats({ earnings, supporters });
+  }
 
   const items: MenuProps["items"] = [
     {
@@ -87,6 +129,13 @@ export default function HomePage() {
       earning: "3MB",
     },
   ];
+
+  useEffect(() => {
+    if (connectedAddress && stats.earnings === 0 && stats.supporters === 0) {
+      fetchAllSupports();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connectedAddress, stats]);
 
   return (
     <div
@@ -186,7 +235,10 @@ export default function HomePage() {
               color: "gray",
             }}
           >
-            TOTAL: <span style={{ color: token.colorPrimary }}>10MB</span>
+            TOTAL:{" "}
+            <span style={{ color: token.colorPrimary }}>
+              {stats.earnings}MB
+            </span>
           </Typography.Text>
         </Col>
         <Col span={24}>
@@ -223,15 +275,26 @@ export default function HomePage() {
             size={4}
             style={{ width: "100%", textAlign: "center", padding: 32 }}
           >
-            <HeartOutlined
-              style={{ fontSize: 32, color: token.colorPrimary }}
-            />
-            <Typography.Text style={{ fontWeight: 500, fontSize: 18 }}>
-              You do not have any supporter yet
-            </Typography.Text>
-            <Typography.Text style={{ fontSize: 14, color: "gray" }}>
-              Share your page with your audience to get started.
-            </Typography.Text>
+            {stats.supporters > 0 ? (
+              <>
+                <HeartFilled style={{ fontSize: 32, color: "red" }} />
+                <Typography.Text style={{ fontWeight: 500, fontSize: 18 }}>
+                  You have {stats.supporters} supporters
+                </Typography.Text>
+              </>
+            ) : (
+              <>
+                <HeartOutlined
+                  style={{ fontSize: 32, color: token.colorPrimary }}
+                />
+                <Typography.Text style={{ fontWeight: 500, fontSize: 18 }}>
+                  You do not have any supporter yet
+                </Typography.Text>
+                <Typography.Text style={{ fontSize: 14, color: "gray" }}>
+                  Share your page with your audience to get started.
+                </Typography.Text>
+              </>
+            )}
           </Space>
         </Col>
         {/* <Col span={24} style={{ display: "flex", justifyContent: "center" }}>

@@ -101,12 +101,16 @@ export default function Post() {
   }
 
   async function fetchData() {
-    const _content = await (await fetch(post?.link as string)).text();
-    if (post?.type === "blog-post") {
-      setContent(_content);
-    } else {
-      const transactionIds = JSON.parse(_content) as string[];
-      setUrls(transactionIds.map((id) => `https://arweave.net/${id}`));
+    try {
+      const _content = await (await fetch(post?.link as string)).text();
+      if (post?.type === "blog-post") {
+        setContent(_content);
+      } else {
+        const transactionIds = JSON.parse(_content) as string[];
+        setUrls(transactionIds.map((id) => `https://arweave.net/${id}`));
+      }
+    } catch (error) {
+      console.log(error);
     }
   }
 
@@ -168,10 +172,16 @@ export default function Post() {
   useEffect(() => {
     if (txId) {
       fetchPost();
-      fetchData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [txId]);
+
+  useEffect(() => {
+    if (post?.link) {
+      fetchData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [post?.link]);
 
   return (
     <div

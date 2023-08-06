@@ -21,6 +21,7 @@ import { ardb, capitalizeAndFormat, fetchProfile, getHandle } from "@/utils";
 import dayjs from "dayjs";
 import StampButton from "@/components/Stamp/StampButton";
 import { ArAccount } from "arweave-account";
+import UdlPayButton from "@/components/Udl/UdlPayButton";
 
 const { useToken } = theme;
 
@@ -31,6 +32,12 @@ export default function Gallery() {
   const [loading, setLoading] = useState(false);
   const [userAccount, setUserAccount] = useState<ArAccount>();
   const router = useRouter();
+  const [licenseTags, setLicenseTags] = useState<ITag[]>([]);
+  const [license, setLicense] = useState({
+    seller: "",
+    amount: 0,
+  });
+  const [hasPaid, setHasPaid] = useState(false);
 
   const { txId, handle } = router.query;
 
@@ -68,6 +75,16 @@ export default function Gallery() {
           tag.name === "Derivation-Fee" ||
           tag.name === "Commercial-Fee"
       )!;
+      setLicenseTags([
+        { name: licenseTag.name, value: licenseTag.value },
+        { name: feeTag?.name, value: feeTag?.value },
+      ]);
+
+      setLicense({
+        // @ts-ignore
+        seller: transaction.owner.address,
+        amount: parseFloat(feeTag.value.split("-")[2]),
+      });
       license = [
         {
           name: capitalizeAndFormat(licenseTag.name),
@@ -162,6 +179,16 @@ export default function Gallery() {
               </Space>
             </Space>
             <Space>
+              {license.amount > 0 && (
+                <UdlPayButton
+                  setHasPaid={setHasPaid}
+                  hasPaid={hasPaid}
+                  target={license.seller}
+                  assetTx={post?.id as string}
+                  quantity={license.amount.toString()}
+                  licenseTags={licenseTags}
+                />
+              )}
               <StampButton assetTx={post.id as string} />
               <Button
                 type="primary"

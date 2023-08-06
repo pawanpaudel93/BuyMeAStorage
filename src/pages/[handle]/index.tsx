@@ -1,6 +1,6 @@
 import "@/components/ArProfile/Profile.module.css";
-import SupportPage from "@/components/Support/SupportPage";
+import HandleSupportPage from "@/components/Support/HandleSupportPage";
 
 export default function Handle() {
-  return <SupportPage />;
+  return <HandleSupportPage />;
 }

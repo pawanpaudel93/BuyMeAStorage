@@ -47,7 +47,7 @@ export function AppLayout({ appProps }: { appProps: AppProps }) {
   };
 
   useEffect(() => {
-    redirectToHome();
+    // redirectToHome();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connected]);
 

@@ -43,7 +43,7 @@ export default function ProfileWithData({
   const copyToClipBoard = async () => {
     try {
       await navigator.clipboard.writeText(
-        `${window.location.origin}/${userAccount.handle}`
+        `${window.location.origin}/${userAccount.handle.replace("#", "-")}`
       );
       message.success("Copied!");
     } catch (err) {

@@ -123,3 +123,17 @@ export function capitalizeAndFormat(input: string) {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 }
+
+export function formatHandle(handle: string) {
+  const position = handle.length - 7;
+  return handle.slice(0, position) + "-" + handle.slice(position + 1);
+}
+
+export function getHandle(formattedHandle: string) {
+  const position = formattedHandle.length - 7;
+  return (
+    formattedHandle.slice(0, position) +
+    "#" +
+    formattedHandle.slice(position + 1)
+  );
+}

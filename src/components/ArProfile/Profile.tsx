@@ -3,6 +3,7 @@ import Account, { ArAccount } from "arweave-account";
 import { Spin, Button, Typography } from "antd";
 import ProfileWithData from "./ProfileWithData";
 import "./Profile.module.css";
+import { formatHandle } from "@/utils";
 
 const { Text } = Typography;
 
@@ -42,7 +43,7 @@ function Profile({
           },
         };
       }
-      setUserAccount(user);
+      setUserAccount({ ...user, handle: formatHandle(user.handle) });
     } catch (e) {
       console.log(e);
       setHasFailed(JSON.stringify(e));

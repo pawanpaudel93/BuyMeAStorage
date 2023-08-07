@@ -1,5 +1,5 @@
 // @ts-ignore
-import { WarpFactory, LoggerFactory } from "warp-contracts/web";
+import { WarpFactory, LoggerFactory } from "warp-contracts";
 // @ts-ignore
 import { DeployPlugin } from "warp-contracts-plugin-deploy";
 

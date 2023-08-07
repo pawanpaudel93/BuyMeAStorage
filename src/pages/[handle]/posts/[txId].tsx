@@ -27,6 +27,9 @@ import DonateModal from "@/components/Modals/DonateModal";
 import UdlPayButton from "@/components/Udl/UdlPayButton";
 import "md-editor-rt/lib/preview.css";
 
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
+
 const { useToken } = theme;
 
 export default function Post() {
@@ -136,21 +139,48 @@ export default function Post() {
     }
   }
 
+  console.log({ post, urls });
+
   async function download() {
     setIsDonateModalOpen(true);
     setIsLoading(true);
     try {
-      const response = await fetch(post?.link as string);
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.target = "_blank";
-      link.download = (
-        post?.type === "blog-post" ? `${post?.title}.md` : post?.title
-      ) as string;
-      link.click();
-      URL.revokeObjectURL(blobUrl);
+      if (post?.type === "blog-post") {
+        const response = await fetch(post?.link as string);
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.target = "_blank";
+        link.download = (
+          post?.type === "blog-post" ? `${post?.title}.md` : post?.title
+        ) as string;
+        link.click();
+        URL.revokeObjectURL(blobUrl);
+      } else if (post?.type === "image-album") {
+        if (urls.length === 1) {
+          const response = await fetch(urls[0]);
+          const blob = await response.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = blobUrl;
+          link.target = "_blank";
+          link.download = post?.title as string;
+          link.click();
+          URL.revokeObjectURL(blobUrl);
+        } else {
+          const zip = new JSZip();
+          const promises = urls.map(async (url, index) => {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            zip.file(`image_${index + 1}.jpg`, blob);
+          });
+          await Promise.all(promises);
+          zip.generateAsync({ type: "blob" }).then((content) => {
+            saveAs(content, `${post?.title}.zip`);
+          });
+        }
+      }
     } catch (error) {
       message.error("Error downloading file");
     }
@@ -159,7 +189,6 @@ export default function Post() {
 
   const NextArrow = (props: any) => {
     const { className, style, onClick } = props;
-
     return (
       <div
         className={className}

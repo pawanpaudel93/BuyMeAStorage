@@ -11,6 +11,7 @@
   "dependencies": {
     "@ant-design/cssinjs": "^1.16.1",
     "@permaweb/stampjs": "^0.4.3",
+    "@types/file-saver": "^2.0.5",
     "@types/node": "20.4.5",
     "@types/react": "18.2.17",
     "@types/react-dom": "18.2.7",
@@ -20,6 +21,8 @@
     "dom-to-image": "^2.6.0",
     "eslint": "8.46.0",
     "eslint-config-next": "13.4.12",
+    "file-saver": "^2.0.5",
+    "jszip": "^3.10.1",
     "md-editor-rt": "^4.2.2",
     "next": "13.4.12",
     "nextjs-progressbar": "^0.0.16",

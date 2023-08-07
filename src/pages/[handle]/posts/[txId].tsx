@@ -150,7 +150,9 @@ export default function Post() {
   }
 
   async function download() {
-    setIsDonateModalOpen(true);
+    if (license.amount === 0) {
+      setIsDonateModalOpen(true);
+    }
     setIsLoading(true);
     try {
       const response = await fetch(post?.link as string);
@@ -241,7 +243,12 @@ export default function Post() {
         border: "1px solid #dfdfdf",
       }}
     >
-      <DonateModal open={isDonateModalOpen} setOpen={setIsDonateModalOpen} />
+      <DonateModal
+        open={isDonateModalOpen}
+        setOpen={setIsDonateModalOpen}
+        userAccount={userAccount}
+        post={post}
+      />
       {post ? (
         <>
           <Row justify="space-between" align="middle" style={{ padding: 8 }}>

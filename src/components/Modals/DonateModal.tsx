@@ -1,34 +1,38 @@
 import { useEffect, useState } from "react";
-import {
-  Button,
-  Card,
-  Col,
-  Image,
-  Modal,
-  Row,
-  Space,
-  Tag,
-  Typography,
-  message,
-  theme,
-} from "antd";
+import { Button, Col, Image, Modal, Row, Space, Typography, theme } from "antd";
 import BuyStorageCard from "../Cards/BuyStorageCard";
 import { CopyOutlined } from "@ant-design/icons";
+import { ArAccount } from "arweave-account";
+import { IPost } from "@/types";
 
 const { useToken } = theme;
 
 interface IDonateModalProps {
   open: boolean;
   setOpen: any;
+  userAccount: ArAccount | undefined;
+  post: IPost | undefined;
 }
 
-export default function DonateModal({ open, setOpen }: IDonateModalProps) {
+export default function DonateModal({
+  open,
+  setOpen,
+  userAccount,
+  post,
+}: IDonateModalProps) {
   const { token } = useToken();
   const [tagText, setTagText] = useState("");
+  const type =
+    post?.type === "image"
+      ? "Image"
+      : post?.type === "image-album"
+      ? "Album"
+      : "Blog post";
 
   useEffect(() => {
-    setTagText("Photo by Sri Bala");
-  }, []);
+    setTagText(`${type} by ${userAccount?.profile.name}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userAccount, type]);
 
   const cancelHandler = () => {
     setOpen(false);
@@ -36,10 +40,12 @@ export default function DonateModal({ open, setOpen }: IDonateModalProps) {
 
   const copyToClipBoard = async () => {
     try {
-      await navigator.clipboard.writeText(window.location.href);
+      await navigator.clipboard.writeText(
+        `${type} by ${userAccount?.profile.name}: ${window.location.href}`
+      );
       setTagText("Copied!");
       setTimeout(() => {
-        setTagText("Photo By Sri Bala");
+        setTagText(`${type} by ${userAccount?.profile.name}`);
       }, 2000);
     } catch (err) {
       setTagText("Failed to copy!");
@@ -116,9 +122,9 @@ export default function DonateModal({ open, setOpen }: IDonateModalProps) {
                   color: token.colorPrimary,
                 }}
               >
-                Sri Bala
+                {userAccount?.profile.name ?? ""}
               </span>{" "}
-              by giving them as small storage donation.
+              by giving them as small storage support.
             </Typography.Text>
             <Space
               size={[8, 8]}
@@ -140,7 +146,7 @@ export default function DonateModal({ open, setOpen }: IDonateModalProps) {
           </Space>
         </Col>
         <Col md={10} xs={24}>
-          <BuyStorageCard />
+          <BuyStorageCard userAccount={userAccount} />
         </Col>
       </Row>
     </Modal>

@@ -203,3 +203,12 @@ export async function fetchProfile({
   user = { ...user, handle: formatHandle(user.handle) };
   return user as ArAccount;
 }
+
+export async function getArweavePrice() {
+  const response = await (
+    await fetch(
+      "https://api.coingecko.com/api/v3/simple/price?ids=arweave&vs_currencies=usd"
+    )
+  ).json();
+  return response.arweave.usd;
+}

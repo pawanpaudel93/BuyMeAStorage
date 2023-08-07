@@ -132,7 +132,9 @@ export default function Gallery() {
   }
 
   async function download() {
-    setIsDonateModalOpen(true);
+    if (license.amount === 0) {
+      setIsDonateModalOpen(true);
+    }
 
     setIsLoading(true);
     try {
@@ -180,7 +182,11 @@ export default function Gallery() {
         border: "1px solid #dfdfdf",
       }}
     >
-      <DonateModal open={isDonateModalOpen} setOpen={setIsDonateModalOpen} />
+      <DonateModal
+        open={isDonateModalOpen}
+        setOpen={setIsDonateModalOpen}
+        userAccount={userAccount}
+      />
       {post ? (
         <>
           <Row justify="space-between" align="middle" style={{ padding: 8 }}>

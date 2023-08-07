@@ -55,6 +55,7 @@ export default function UdlPayButton({
         { name: "Purchased-By", value: connectedAddress as string },
         { name: "License", value: UDL },
         { name: "Payment-Type", value: "License" },
+        { name: "Payment-To", value: target },
       ].concat(licenseTags);
 
       if (currency === "AR") {
@@ -71,7 +72,7 @@ export default function UdlPayButton({
           throw new Error("Error purchasing license");
         }
       } else {
-        const response = await transferU(target, uToSubU(quantity), []);
+        const response = await transferU(target, uToSubU(quantity), tags);
         if (!response?.originalTxId) {
           throw new Error("Error purchasing license");
         }

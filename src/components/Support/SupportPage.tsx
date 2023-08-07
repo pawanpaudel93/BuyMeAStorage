@@ -405,7 +405,7 @@ export default function SupportPage({ address }: { address?: string }) {
             defaultActiveKey="1"
             items={items}
             onChange={onTabChange}
-            style={{ padding: "4px 24px" }}
+            style={{ padding: "24px 24px" }}
             tabBarGutter={12}
           />
         </div>

@@ -1,9 +1,12 @@
 import ArProfile from "@/components/ArProfile/Profile";
+import { withPrivateRoutes } from "@/hoc";
 import { Spin } from "antd";
 import { useActiveAddress } from "arweave-wallet-kit";
 
 function Profile() {
   const address = useActiveAddress();
+
+  console.log({ address });
 
   if (!address) {
     return (
@@ -23,4 +26,4 @@ function Profile() {
   return <ArProfile addr={address as string} showEditProfile={true} />;
 }
 
-export default Profile;
+export default withPrivateRoutes(Profile);

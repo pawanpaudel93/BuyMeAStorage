@@ -22,6 +22,8 @@ import "md-editor-rt/lib/preview.css";
 import StampButton from "../Stamp/StampButton";
 import { UDL } from "@/utils/constants";
 import { useConnectedUserStore } from "@/lib/store";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 
 const { useToken } = theme;
 
@@ -51,16 +53,42 @@ const PostModal = ({ open, setOpen, post }: PostModalProps) => {
   async function download() {
     setIsLoading(true);
     try {
-      const response = await fetch(post.link as string);
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.target = "_blank";
-      link.download =
-        post.type === "blog-post" ? `${post.title}.md` : post.title;
-      link.click();
-      URL.revokeObjectURL(blobUrl);
+      if (post?.type === "blog-post") {
+        const response = await fetch(post?.link as string);
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.target = "_blank";
+        link.download = (
+          post?.type === "blog-post" ? `${post?.title}.md` : post?.title
+        ) as string;
+        link.click();
+        URL.revokeObjectURL(blobUrl);
+      } else if (post?.type === "image-album") {
+        if (urls.length === 1) {
+          const response = await fetch(urls[0]);
+          const blob = await response.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = blobUrl;
+          link.target = "_blank";
+          link.download = post?.title as string;
+          link.click();
+          URL.revokeObjectURL(blobUrl);
+        } else {
+          const zip = new JSZip();
+          const promises = urls.map(async (url, index) => {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            zip.file(`image_${index + 1}.jpg`, blob);
+          });
+          await Promise.all(promises);
+          zip.generateAsync({ type: "blob" }).then((content) => {
+            saveAs(content, `${post?.title}.zip`);
+          });
+        }
+      }
     } catch (error) {
       message.error("Error downloading file");
     }
@@ -116,6 +144,7 @@ const PostModal = ({ open, setOpen, post }: PostModalProps) => {
         open={open}
         onOk={() => setOpen(false)}
         onCancel={() => setOpen(false)}
+        footer={null}
         width="auto"
       >
         <ScrollableDiv>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button, Col, Form, Input, Row, Select, Space, Image } from "antd";
 import domtoimage from "dom-to-image";
+import { withPrivateRoutes } from "@/hoc";
 
 const GenerateButtons = () => {
   const [buttonColor, setButtonColor] = useState("#00ff04");
@@ -137,4 +138,4 @@ const GenerateButtons = () => {
   );
 };
 
-export default GenerateButtons;
+export default withPrivateRoutes(GenerateButtons);

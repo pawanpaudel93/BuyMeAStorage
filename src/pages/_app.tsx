@@ -88,7 +88,9 @@ export function AppLayout({ appProps }: { appProps: AppProps }) {
         <Layout>
           <NavBar />
           <NextNProgress color="#a62a22" />
-          <Content style={{ minHeight: "calc(100vh - 54px)" }}>
+          <Content
+          // style={{ minHeight: "calc(100vh - 54px)" }}
+          >
             <Component {...pageProps} />
           </Content>
         </Layout>

@@ -109,7 +109,13 @@ export default function App(appProps: AppProps) {
     <ConfigProvider theme={customTheme}>
       <ArweaveWalletKit
         config={{
-          permissions: ["ACCESS_ADDRESS", "SIGN_TRANSACTION", "DISPATCH"],
+          permissions: [
+            "ACCESS_ADDRESS",
+            "SIGN_TRANSACTION",
+            "DISPATCH",
+            "ACCESS_PUBLIC_KEY",
+            "SIGNATURE",
+          ],
           ensurePermissions: true,
           appInfo: {
             name: "Buy Me a Storage",

@@ -99,6 +99,7 @@ export default function Gallery({ address }: { address?: string }) {
       const publishedTag = tags.find(
         (tag) => tag.name === "Published" || tag.name === "Published-At"
       );
+      const previewTag = tags.find((tag) => tag.name === "Preview");
       const typeTag = tags.find((tag) => tag.name === "Type");
       const topics = tags
         .filter((tag) => tag.name.startsWith("topic:"))
@@ -137,7 +138,9 @@ export default function Gallery({ address }: { address?: string }) {
 
       return {
         id: transaction.id,
-        link: `https://arweave.net/${transaction.id}`,
+        link: `https://arweave.net/${
+          previewTag ? previewTag.value : transaction.id
+        }`,
         title: titleTag?.value ?? "",
         description: descriptionTag?.value ?? "",
         topics,

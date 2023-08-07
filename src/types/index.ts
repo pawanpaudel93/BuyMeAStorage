@@ -35,6 +35,9 @@ export interface IPost {
   content: string;
   topics: string[] | string;
   type?: string;
+  preview?: string;
+  isAccess?: boolean;
+  contentType?: string;
   published?: string;
   license?: ITag[];
 }

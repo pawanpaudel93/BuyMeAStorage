@@ -1,9 +1,9 @@
-import React, { SetStateAction, useRef, useState } from "react";
+import React, { SetStateAction, useEffect, useRef, useState } from "react";
 import {
   Button,
   Col,
   Form,
-  Image,
+  Image as IImage,
   Input,
   Modal,
   Row,
@@ -14,16 +14,26 @@ import {
 import { InboxOutlined } from "@ant-design/icons";
 import type { RcFile, UploadFile, UploadProps } from "antd/es/upload/interface";
 import ImageCard from "../Cards/ImageCard";
-import { arweave, currencyOptions, getMimeType, licenseOptions } from "@/utils";
+import {
+  arweave,
+  currencyOptions,
+  getMimeType,
+  licenseOptionsWithRestriction,
+} from "@/utils";
 import { registerContract } from "@/lib/warp/asset";
 import {
   UDL,
   APP_NAME,
   APP_VERSION,
   ATOMIC_ASSET_SRC,
+  PUBLIC_KEY,
 } from "@/utils/constants";
 import { useActiveAddress, useApi } from "arweave-wallet-kit";
 import { ITag } from "@/types";
+import { addWaterMark } from "@/lib/watermark";
+import { encryptFile } from "@/lib/cryptography";
+import Transaction from "arweave/node/lib/transaction";
+import { useConnectedUserStore } from "@/lib/store";
 
 const { Dragger } = Upload;
 
@@ -34,12 +44,7 @@ export interface IUploadModalProps {
   setFileList: React.Dispatch<SetStateAction<UploadFile<any>[]>>;
 }
 
-export default function UploadModal({
-  open,
-  setOpen,
-  fileList,
-  setFileList,
-}: IUploadModalProps) {
+export default function UploadModal({ open, setOpen }: IUploadModalProps) {
   const lockRef = useRef(false);
   const [uploadForm] = Form.useForm();
   const [temporaryFiles, setTemporaryFiles] = useState<any>([]);
@@ -47,9 +52,24 @@ export default function UploadModal({
   const [isLoading, setIsLoading] = useState(false);
   const activeAddress = useActiveAddress();
   const walletApi = useApi();
+  const { userAccount } = useConnectedUserStore();
+  const [watermarkImage, setWatermarkImage] = useState<ArrayBufferLike>();
+  const [license, setLicense] = useState("");
+  const canvasRef = useRef(null);
+
+  const handleResetCanvas = () => {
+    const canvas = canvasRef.current as unknown as HTMLCanvasElement;
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+  };
 
   const handleLicenseChange = (value: string) => {
     setShowAmountInput(value !== "default");
+    setLicense(value);
   };
 
   const formSubmitHandler = async (image: {
@@ -111,9 +131,19 @@ export default function UploadModal({
         },
       ].concat(topics);
 
-      // if (image.license === "access") {
-      //   tags.push({ name: "Access", value: "Restricted" });
-      // }
+      if (image.license === "access") {
+        const watermarkTx = await arweave.createTransaction({
+          data: watermarkImage,
+        });
+        watermarkTx.addTag("Content-Type", contentType);
+        await walletApi?.sign(watermarkTx);
+        const response = await walletApi?.dispatch(watermarkTx);
+
+        tags = tags.concat([
+          { name: "Access", value: "Restricted" },
+          { name: "Preview", value: response?.id as string },
+        ]);
+      }
 
       if (image.license === "derivative-credit") {
         tags.push({ name: "Derivation", value: "Allowed-with-credit" });
@@ -142,13 +172,22 @@ export default function UploadModal({
         tags.push({ name: "Currency", value: image.currency });
       }
       const data = await new Response(image.files.file).arrayBuffer();
-      const transaction = await arweave.createTransaction({ data });
+      let transaction: Transaction;
+      if (image.license === "access") {
+        const { encryptedData } = await encryptFile(
+          image.files.file,
+          PUBLIC_KEY
+        );
+        transaction = await arweave.createTransaction({ data: encryptedData });
+      } else {
+        transaction = await arweave.createTransaction({ data });
+      }
       tags.forEach((tag) => transaction.addTag(tag.name, tag.value));
 
       await walletApi?.sign(transaction);
       const response = await walletApi?.dispatch(transaction);
       if (response?.id) {
-        const contractTxId = await registerContract(response?.id);
+        await registerContract(response?.id);
         setTemporaryFiles([]);
         message.success("Image uploaded succesfully!");
         uploadForm.resetFields();
@@ -158,7 +197,7 @@ export default function UploadModal({
         throw new Error("Image upload error");
       }
     } catch (error) {
-      console.log(error);
+      console.log("error: ", error);
       message.error({
         content: "Image upload error",
       });
@@ -206,6 +245,23 @@ export default function UploadModal({
     },
   };
 
+  useEffect(() => {
+    if (temporaryFiles.length > 0 && !watermarkImage && license === "access") {
+      (async () => {
+        const bufferData = await addWaterMark(
+          temporaryFiles[0].file.originFileObj,
+          userAccount?.profile.name ?? "BuyMeaStorage"
+        );
+        setWatermarkImage(bufferData);
+      })();
+    } else if (license !== "access") {
+      handleResetCanvas();
+      setWatermarkImage(undefined);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [temporaryFiles.length, license]);
+
   return (
     <Modal
       open={open}
@@ -250,12 +306,25 @@ export default function UploadModal({
               </Dragger>
             </Form.Item>
             <Row gutter={[8, 8]} style={{ padding: 8 }}>
-              <Image.PreviewGroup>
+              <IImage.PreviewGroup>
                 {temporaryFiles?.map((file: any, index: number) => {
                   return <ImageCard key={index} attach={file} />;
                 })}
-              </Image.PreviewGroup>
+              </IImage.PreviewGroup>
             </Row>
+
+            <div
+              style={{
+                width: "160px ",
+                height: "auto",
+              }}
+            >
+              <canvas
+                ref={canvasRef}
+                id="canvas"
+                style={{ maxWidth: "100%" }}
+              ></canvas>
+            </div>
           </Col>
           <Col md={12} xs={24}>
             <Form.Item
@@ -307,7 +376,7 @@ export default function UploadModal({
             >
               <Select
                 placeholder="Select license"
-                options={licenseOptions}
+                options={licenseOptionsWithRestriction}
                 onChange={handleLicenseChange}
               />
             </Form.Item>

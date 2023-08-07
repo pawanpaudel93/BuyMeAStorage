@@ -17,12 +17,20 @@ import { UDL } from "@/utils/constants";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { IPost, ITag } from "@/types";
-import { ardb, capitalizeAndFormat, fetchProfile, getHandle } from "@/utils";
+import {
+  ardb,
+  arweave,
+  capitalizeAndFormat,
+  fetchProfile,
+  getHandle,
+} from "@/utils";
 import dayjs from "dayjs";
 import StampButton from "@/components/Stamp/StampButton";
 import { ArAccount } from "arweave-account";
 import UdlPayButton from "@/components/Udl/UdlPayButton";
 import DonateModal from "@/components/Modals/DonateModal";
+import { useActiveAddress, useApi, usePublicKey } from "arweave-wallet-kit";
+import { uint8ArrayToBase64String } from "@/lib/cryptography/common";
 
 const { useToken } = theme;
 
@@ -34,7 +42,12 @@ export default function Gallery() {
   const [userAccount, setUserAccount] = useState<ArAccount>();
   const router = useRouter();
   const [licenseTags, setLicenseTags] = useState<ITag[]>([]);
+  const connectedAddress = useActiveAddress();
+  const [imageUrl, setImageUrl] = useState("");
+  const walletApi = useApi();
+  const publicKey = usePublicKey();
   const [license, setLicense] = useState({
+    isAccess: false,
     seller: "",
     amount: 0,
     currency: "U",
@@ -44,6 +57,39 @@ export default function Gallery() {
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false);
 
   const { txId, handle } = router.query;
+
+  async function fetchDecryptedImage() {
+    try {
+      const message = new TextEncoder().encode("Address Validation");
+      const signature = uint8ArrayToBase64String(
+        await window.arweaveWallet.signature(message, {
+          name: "RSA-PSS",
+          saltLength: 0,
+        })
+      );
+
+      const response = await fetch("/api/decrypt", {
+        method: "POST",
+        body: JSON.stringify({
+          assetTx: post?.id,
+          address: connectedAddress,
+          message: uint8ArrayToBase64String(message),
+          signature,
+          publicKey,
+        }),
+      });
+      if (response.ok) {
+        const decryptedData = await response.arrayBuffer();
+        if (decryptedData) {
+          const blob = new Blob([decryptedData], { type: post?.contentType });
+          const url = URL.createObjectURL(blob);
+          setImageUrl(url);
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   async function fetchPost() {
     setLoading(true);
@@ -56,10 +102,12 @@ export default function Gallery() {
     const tags = transaction.tags as ITag[];
     const titleTag = tags.find((tag) => tag.name === "Title");
     const descriptionTag = tags.find((tag) => tag.name === "Description");
+    const contentType = tags.find((tag) => tag.name === "Content-Type");
     const publishedTag = tags.find(
       (tag) => tag.name === "Published" || tag.name === "Published-At"
     );
     const typeTag = tags.find((tag) => tag.name === "Type");
+    const previewTag = tags.find((tag) => tag.name === "Preview");
     const topics = tags
       .filter((tag) => tag.name.startsWith("topic:"))
       .map((tag) => tag.value);
@@ -86,6 +134,7 @@ export default function Gallery() {
       const currencyTag = tags.find((tag) => tag.name === "Currency");
 
       setLicense({
+        isAccess: licenseTag.name === "Access",
         // @ts-ignore
         seller: transaction.owner.address,
         amount: feeTag ? parseFloat(feeTag.value.split("-")[2]) : 0,
@@ -118,10 +167,12 @@ export default function Gallery() {
       link: `https://arweave.net/${transaction.id}`,
       title: titleTag?.value ?? "",
       description: descriptionTag?.value ?? "",
+      preview: previewTag ? `https://arweave.net/${previewTag?.value}` : "",
       topics,
       type: typeTag?.value ?? "",
       license,
       content: "",
+      contentType: contentType?.value ?? "image/jpeg",
       published: dayjs(
         new Date(
           parseInt(publishedTag?.value ?? new Date().getTime().toString())
@@ -138,7 +189,7 @@ export default function Gallery() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(post?.link as string);
+      const response = await fetch(imageUrl as string);
       const blob = await response.blob();
       const blobUrl = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -171,6 +222,19 @@ export default function Gallery() {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handle]);
+
+  useEffect(() => {
+    if (license.isAccess && !imageUrl && publicKey) {
+      fetchDecryptedImage();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [license.isAccess, publicKey]);
+
+  useEffect(() => {
+    if (post) {
+      setImageUrl(post.preview ?? (post?.link as string));
+    }
+  }, [post]);
 
   return (
     <div
@@ -238,7 +302,7 @@ export default function Gallery() {
                     // maxHeight: "calc(100vh - 200px)",
                   }}
                   alt={post.title}
-                  src={post.link}
+                  src={imageUrl}
                   preview={false}
                 />
               </Space>

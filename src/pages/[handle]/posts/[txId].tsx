@@ -139,8 +139,6 @@ export default function Post() {
     }
   }
 
-  console.log({ post, urls });
-
   async function download() {
     setIsDonateModalOpen(true);
     setIsLoading(true);

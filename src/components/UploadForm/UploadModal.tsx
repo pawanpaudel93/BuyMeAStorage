@@ -162,6 +162,7 @@ export default function UploadModal({
     name: "file",
     multiple: false,
     fileList: temporaryFiles,
+    accept: "image/*",
     showUploadList: false,
     beforeUpload: () => false,
     onChange: async (info: any) => {

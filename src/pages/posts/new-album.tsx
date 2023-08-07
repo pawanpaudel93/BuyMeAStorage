@@ -181,6 +181,7 @@ export default function NewPhoto() {
     name: "file",
     multiple: true,
     fileList: fileList,
+    accept: "image/*",
     showUploadList: false,
     beforeUpload: () => false,
     onChange: async (info: any) => {

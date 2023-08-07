@@ -41,6 +41,7 @@ export default function Post() {
   const [license, setLicense] = useState({
     seller: "",
     amount: 0,
+    currency: "U",
   });
   const [hasPaid, setHasPaid] = useState(false);
 
@@ -84,10 +85,13 @@ export default function Post() {
         setLicenseTags([{ name: licenseTag.name, value: licenseTag.value }]);
       }
 
+      const currencyTag = tags.find((tag) => tag.name === "Currency");
+
       setLicense({
         // @ts-ignore
         seller: transaction.owner.address,
         amount: feeTag ? parseFloat(feeTag.value.split("-")[2]) : 0,
+        currency: currencyTag ? currencyTag.value : "U",
       });
       license = [
         {
@@ -246,6 +250,7 @@ export default function Post() {
             <Space>
               {license.amount > 0 && (
                 <UdlPayButton
+                  currency={license.currency}
                   setHasPaid={setHasPaid}
                   hasPaid={hasPaid}
                   target={license.seller}

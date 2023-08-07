@@ -4,12 +4,14 @@ import { ardb, arweave, getErrorMessage } from "@/utils";
 import { APP_NAME, APP_VERSION, UDL } from "@/utils/constants";
 import { ITag } from "@/types";
 import { useActiveAddress } from "arweave-wallet-kit";
+import { transferU } from "@/lib/warp/u";
 
 export default function UdlPayButton({
   target,
   quantity,
   assetTx,
   licenseTags,
+  currency,
   hasPaid,
   setHasPaid,
 }: {
@@ -18,10 +20,15 @@ export default function UdlPayButton({
   assetTx: string;
   licenseTags: ITag[];
   hasPaid: boolean;
+  currency: string;
   setHasPaid: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const [loading, setLoading] = useState(false);
   const connectedAddress = useActiveAddress();
+
+  const uToSubU = (quantity: string) => {
+    return parseFloat(quantity) * 1000000;
+  };
 
   const checkHasPaid = async () => {
     const transaction = await ardb
@@ -41,10 +48,6 @@ export default function UdlPayButton({
   const purchaseLicense = async () => {
     setLoading(true);
     try {
-      const tx = await arweave.createTransaction({
-        target,
-        quantity: arweave.ar.arToWinston(quantity),
-      });
       const tags = [
         { name: "App-Name", value: APP_NAME },
         { name: "App-Version", value: APP_VERSION },
@@ -53,14 +56,27 @@ export default function UdlPayButton({
         { name: "License", value: UDL },
         { name: "Payment-Type", value: "License" },
       ].concat(licenseTags);
-      tags.forEach((tag) => {
-        tx.addTag(tag.name, tag.value);
-      });
-      await arweave.transactions.sign(tx);
-      const response = await arweave.transactions.post(tx);
-      if (response.status !== 200) {
-        throw new Error("Error purchasing license");
+
+      if (currency === "AR") {
+        const tx = await arweave.createTransaction({
+          target,
+          quantity: arweave.ar.arToWinston(quantity),
+        });
+        tags.forEach((tag) => {
+          tx.addTag(tag.name, tag.value);
+        });
+        await arweave.transactions.sign(tx);
+        const response = await arweave.transactions.post(tx);
+        if (response.status !== 200) {
+          throw new Error("Error purchasing license");
+        }
+      } else {
+        const response = await transferU(target, uToSubU(quantity), []);
+        if (!response?.originalTxId) {
+          throw new Error("Error purchasing license");
+        }
       }
+      setHasPaid(true);
       message.success("License successfully purchased");
     } catch (err) {
       message.error(getErrorMessage(err));

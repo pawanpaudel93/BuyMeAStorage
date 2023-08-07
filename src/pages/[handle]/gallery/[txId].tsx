@@ -183,6 +183,7 @@ export default function Gallery() {
       }}
     >
       <DonateModal
+        post={post}
         open={isDonateModalOpen}
         setOpen={setIsDonateModalOpen}
         userAccount={userAccount}

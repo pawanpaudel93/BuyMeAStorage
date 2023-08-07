@@ -20,12 +20,16 @@ import {
 import { useEffect, useState } from "react";
 import QrModal from "@/components/QrCode";
 import { useConnectedUserStore } from "@/lib/store";
-import { ardb } from "@/utils";
+import { COLORS, ardb, capitalizeAndFormat } from "@/utils";
 import { useActiveAddress } from "arweave-wallet-kit";
 import { APP_NAME } from "@/utils/constants";
 import { ITag } from "@/types";
 
 const { useToken } = theme;
+
+interface CustomTag {
+  [key: string]: number;
+}
 
 export default function HomePage() {
   const { token } = useToken();
@@ -36,6 +40,11 @@ export default function HomePage() {
     `/${userAccount?.handle ?? ""}`
   );
   const [stats, setStats] = useState({ earnings: 0, supporters: 0 });
+  const [licenseStats, setLicenseStats] = useState<CustomTag>({});
+  const [licenseEarnings, setLicenseEarnings] = useState({
+    U: 0,
+    AR: 0,
+  });
 
   async function fetchAllSupports() {
     const transactions = await ardb
@@ -43,8 +52,10 @@ export default function HomePage() {
       .appName(APP_NAME)
       .tag("Payment-Type", "Support")
       .to(connectedAddress as string)
-      .limit(100)
+      // .limit(100)
       .findAll();
+
+    if (transactions.length === 0) return;
 
     let earnings = 0;
     let supporters = 0;
@@ -71,7 +82,60 @@ export default function HomePage() {
         earnings += Number(storageValue?.value) * 1024 * 1024;
       }
     });
-    setStats({ earnings, supporters });
+    setStats((prevStats) => ({ ...prevStats, earnings, supporters }));
+  }
+
+  async function fetchAllLicensePayments() {
+    const transactions = await ardb
+      .search("transactions")
+      .appName(APP_NAME)
+      .tags([
+        { name: "Payment-Type", values: ["License"] },
+        { name: "Payment-To", values: [connectedAddress as string] },
+      ])
+      // .limit(100)
+      .findAll();
+
+    if (transactions.length === 0) return;
+
+    const stats: CustomTag = {};
+    const earnings = { U: 0, AR: 0 };
+
+    transactions.forEach((transaction) => {
+      // @ts-ignore
+      const tags = transaction.tags as ITag[];
+
+      const licenseTag = tags.find(
+        (tag) =>
+          tag.name === "Access" ||
+          tag.name === "Derivation" ||
+          tag.name === "Commercial-Use"
+      );
+
+      if (licenseTag) {
+        const feeTag = tags.find((tag) => tag.name === "License-Fee");
+        if (feeTag) {
+          const name = capitalizeAndFormat(
+            `${licenseTag.name}-${licenseTag.value}`
+          );
+          if (name in stats) {
+            // @ts-ignore
+            stats[name] += 1;
+          } else {
+            // @ts-ignore
+            stats[name] = 1;
+          }
+          const amount = parseFloat(feeTag.value.split("-")[2]);
+          const currency =
+            tags.find((tag) => tag.name === "Currency")?.value ?? "U";
+
+          // @ts-ignore
+          earnings[currency] += amount;
+        }
+      }
+    });
+    setLicenseStats(stats);
+    setLicenseEarnings(earnings);
   }
 
   const items: MenuProps["items"] = [
@@ -109,32 +173,10 @@ export default function HomePage() {
     }
   };
 
-  const earningTypes = [
-    {
-      title: "UDL Default Public",
-      color: "orange",
-      earning: "2MB",
-    },
-    {
-      title: "UDL Restricted Access",
-      color: "green",
-      earning: "2MB",
-    },
-    {
-      title: "UDL Commercial - One Time Payment",
-      color: "pink",
-      earning: "3MB",
-    },
-    {
-      title: "UDL Derivative Works - One Time Payment",
-      color: "brown",
-      earning: "3MB",
-    },
-  ];
-
   useEffect(() => {
     if (connectedAddress) {
       fetchAllSupports();
+      fetchAllLicensePayments();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connectedAddress]);
@@ -237,25 +279,35 @@ export default function HomePage() {
               color: "gray",
             }}
           >
-            TOTAL:{" "}
+            TOTAL SUPPORTS:{" "}
             <span style={{ color: token.colorPrimary }}>
-              {stats.earnings}MB
+              {stats.earnings} MB
             </span>
           </Typography.Text>
         </Col>
         <Col span={24}>
+          <Typography.Text
+            style={{
+              display: "inline-block",
+              fontSize: 20,
+              transform: "scale(1, 1.1)",
+              fontWeight: 500,
+            }}
+          >
+            License Earnings: ({licenseEarnings.AR} AR, {licenseEarnings.U} U)
+          </Typography.Text>
           <Row gutter={[16, 16]}>
-            {earningTypes.map((type, index) => (
+            {Object.entries(licenseStats).map(([key, value], index) => (
               <Col key={index} xs={24} flex="auto">
                 <Space align="baseline">
                   <div
                     style={{
-                      background: `${type.color}`,
+                      background: COLORS[index],
                       height: "12px",
                       width: "12px",
                     }}
                   ></div>
-                  <Typography.Text>{`${type.earning} ${type.title}`}</Typography.Text>
+                  <Typography.Text>{` ${value} - UDL ${key}`}</Typography.Text>
                 </Space>
               </Col>
             ))}

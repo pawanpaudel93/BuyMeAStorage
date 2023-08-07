@@ -212,3 +212,21 @@ export async function getArweavePrice() {
   ).json();
   return response.arweave.usd;
 }
+
+export const COLORS = [
+  "red",
+  "blue",
+  "green",
+  "purple",
+  "orange",
+  "yellow",
+  "pink",
+  "brown",
+  "teal",
+  "cyan",
+  "magenta",
+  "white",
+  "black",
+  "gray",
+  "silver",
+];

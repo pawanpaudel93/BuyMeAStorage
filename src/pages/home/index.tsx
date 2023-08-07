@@ -41,6 +41,10 @@ export default function HomePage() {
   );
   const [stats, setStats] = useState({ earnings: 0, supporters: 0 });
   const [licenseStats, setLicenseStats] = useState<CustomTag>({});
+  const [licenseEarnings, setLicenseEarnings] = useState({
+    U: 0,
+    AR: 0,
+  });
 
   async function fetchAllSupports() {
     const transactions = await ardb
@@ -78,7 +82,7 @@ export default function HomePage() {
         earnings += Number(storageValue?.value) * 1024 * 1024;
       }
     });
-    setStats({ earnings, supporters });
+    setStats((prevStats) => ({ ...prevStats, earnings, supporters }));
   }
 
   async function fetchAllLicensePayments() {
@@ -92,7 +96,10 @@ export default function HomePage() {
       // .limit(100)
       .findAll();
 
+    if (transactions.length === 0) return;
+
     const stats: CustomTag = {};
+    const earnings = { U: 0, AR: 0 };
 
     transactions.forEach((transaction) => {
       // @ts-ignore
@@ -118,11 +125,17 @@ export default function HomePage() {
             // @ts-ignore
             stats[name] = 1;
           }
+          const amount = parseFloat(feeTag.value.split("-")[2]);
+          const currency =
+            tags.find((tag) => tag.name === "Currency")?.value ?? "U";
+
+          // @ts-ignore
+          earnings[currency] += amount;
         }
       }
     });
-    console.log(stats);
     setLicenseStats(stats);
+    setLicenseEarnings(earnings);
   }
 
   const items: MenuProps["items"] = [
@@ -266,9 +279,9 @@ export default function HomePage() {
               color: "gray",
             }}
           >
-            TOTAL:{" "}
+            TOTAL SUPPORTS:{" "}
             <span style={{ color: token.colorPrimary }}>
-              {stats.earnings}MB
+              {stats.earnings} MB
             </span>
           </Typography.Text>
         </Col>
@@ -281,7 +294,7 @@ export default function HomePage() {
               fontWeight: 500,
             }}
           >
-            Licenses
+            License Earnings: ({licenseEarnings.AR} AR, {licenseEarnings.U} U)
           </Typography.Text>
           <Row gutter={[16, 16]}>
             {Object.entries(licenseStats).map(([key, value], index) => (

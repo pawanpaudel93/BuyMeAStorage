@@ -71,10 +71,17 @@ export default function Posts() {
         ];
 
         if (feeTag) {
-          license.push({
-            name: capitalizeAndFormat(feeTag.name),
-            value: capitalizeAndFormat(feeTag.value),
-          });
+          const currencyTag = tags.find((tag) => tag.name === "Currency");
+          license = license = license.concat([
+            {
+              name: capitalizeAndFormat(feeTag.name),
+              value: capitalizeAndFormat(feeTag.value),
+            },
+            {
+              name: "Currency",
+              value: currencyTag ? currencyTag.value : "U",
+            },
+          ]);
         }
       }
 

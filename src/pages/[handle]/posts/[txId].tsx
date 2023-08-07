@@ -46,6 +46,7 @@ export default function Post() {
   const [license, setLicense] = useState({
     seller: "",
     amount: 0,
+    currency: "U",
   });
   const [hasPaid, setHasPaid] = useState(false);
 
@@ -79,32 +80,44 @@ export default function Post() {
     let license: ITag[] = [];
 
     if (licenseTag) {
-      const feeTag = tags.find(
-        (tag) =>
-          tag.name === "Access-Fee" ||
-          tag.name === "Derivation-Fee" ||
-          tag.name === "Commercial-Fee"
-      )!;
-      setLicenseTags([
-        { name: licenseTag.name, value: licenseTag.value },
-        { name: feeTag?.name, value: feeTag?.value },
-      ]);
+      const feeTag = tags.find((tag) => tag.name === "License-Fee");
+      if (feeTag) {
+        setLicenseTags([
+          { name: licenseTag.name, value: licenseTag.value },
+          { name: feeTag?.name, value: feeTag?.value },
+        ]);
+      } else {
+        setLicenseTags([{ name: licenseTag.name, value: licenseTag.value }]);
+      }
+
+      const currencyTag = tags.find((tag) => tag.name === "Currency");
 
       setLicense({
         // @ts-ignore
         seller: transaction.owner.address,
-        amount: parseFloat(feeTag.value.split("-")[2]),
+        amount: feeTag ? parseFloat(feeTag.value.split("-")[2]) : 0,
+        currency: currencyTag ? currencyTag.value : "U",
       });
       license = [
         {
           name: capitalizeAndFormat(licenseTag.name),
           value: capitalizeAndFormat(licenseTag.value),
         },
-        {
-          name: capitalizeAndFormat(feeTag.name),
-          value: capitalizeAndFormat(feeTag.value),
-        },
       ];
+
+      if (feeTag) {
+        const currencyTag = tags.find((tag) => tag.name === "Currency");
+        license = license.concat([
+          {
+            name: capitalizeAndFormat(feeTag.name),
+            value: capitalizeAndFormat(feeTag.value),
+          },
+          {
+            name: "Currency",
+            value: currencyTag ? currencyTag.value : "U",
+          },
+        ]);
+      }
     }
 
     setPost({
@@ -140,7 +153,9 @@ export default function Post() {
   }
 
   async function download() {
-    setIsDonateModalOpen(true);
+    if (license.amount === 0) {
+      setIsDonateModalOpen(true);
+    }
     setIsLoading(true);
     try {
       if (post?.type === "blog-post") {
@@ -255,7 +270,12 @@ export default function Post() {
         border: "1px solid #dfdfdf",
       }}
     >
-      <DonateModal open={isDonateModalOpen} setOpen={setIsDonateModalOpen} />
+      <DonateModal
+        open={isDonateModalOpen}
+        setOpen={setIsDonateModalOpen}
+        userAccount={userAccount}
+        post={post}
+      />
       {post ? (
         <>
           <Row justify="space-between" align="middle" style={{ padding: 8 }}>
@@ -275,6 +295,7 @@ export default function Post() {
             <Space>
               {license.amount > 0 && (
                 <UdlPayButton
+                  currency={license.currency}
                   setHasPaid={setHasPaid}
                   hasPaid={hasPaid}
                   target={license.seller}

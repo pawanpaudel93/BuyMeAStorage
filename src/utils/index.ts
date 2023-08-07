@@ -33,17 +33,36 @@ export const licenseOptions = [
     label: "UDL Default Public",
     value: "default",
   },
+  // {
+  //   label: "UDL Restricted Access",
+  //   value: "access",
+  // },
   {
-    label: "UDL Restricted Access",
-    value: "access",
-  },
-  {
-    label: "UDL Commercial Use - One Time",
+    label: "UDL Commercial Use - Allowed",
     value: "commercial",
   },
   {
-    label: "UDL Derivative Works - One Time Payment",
-    value: "derivative",
+    label: "UDL Commercial Use - Allowed With Credit",
+    value: "commercial-credit",
+  },
+  {
+    label: "UDL Derivative Works - Allowed With Credit",
+    value: "derivative-credit",
+  },
+  {
+    label: "UDL Derivative Works - Allowed With Indication",
+    value: "derivative-indication",
+  },
+];
+
+export const currencyOptions = [
+  {
+    label: "U",
+    value: "U",
+  },
+  {
+    label: "AR",
+    value: "AR",
   },
 ];
 
@@ -183,4 +202,13 @@ export async function fetchProfile({
 
   user = { ...user, handle: formatHandle(user.handle) };
   return user as ArAccount;
+}
+
+export async function getArweavePrice() {
+  const response = await (
+    await fetch(
+      "https://api.coingecko.com/api/v3/simple/price?ids=arweave&vs_currencies=usd"
+    )
+  ).json();
+  return response.arweave.usd;
 }

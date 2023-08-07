@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Card,
   Image,
   Input,
-  Modal,
   Radio,
   Select,
   Space,
@@ -14,29 +13,34 @@ import {
   theme,
 } from "antd";
 import { RxCross1 } from "react-icons/rx";
-import { ISupport } from "@/types";
 import { useActiveAddress, useApi, useConnection } from "arweave-wallet-kit";
 import { ArAccount } from "arweave-account";
-import { arweave, getErrorMessage } from "@/utils";
+import {
+  arweave,
+  fetchProfile,
+  getArweavePrice,
+  getErrorMessage,
+} from "@/utils";
 import { APP_NAME, APP_VERSION } from "@/utils/constants";
 
 const { Text, Title } = Typography;
 const { useToken } = theme;
 
-export default function BuyStorageCard() {
+interface BuyStorageCardProps {
+  userAccount: ArAccount | undefined;
+}
+
+export default function BuyStorageCard({ userAccount }: BuyStorageCardProps) {
   const { token } = useToken();
   const walletApi = useApi();
-  const [supports, setSupports] = useState<ISupport[]>([]);
   const [storageUnit, setStorageUnit] = useState("MB");
   const [storageValue, setStorageValue] = useState(1);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const { connected, connect } = useConnection();
   const connectedAddress = useActiveAddress();
-
-  const [loading, setLoading] = useState(false);
+  const [arweavePrice, setArweavePrice] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [userAccount, setUserAccount] = useState<ArAccount>();
 
   const [supportValue, setSupportValue] = useState({
     winston: "0",
@@ -80,16 +84,6 @@ export default function BuyStorageCard() {
           response?.data?.error ?? "Support failed. Retry again!"
         );
       }
-      setSupports((prev) => [
-        {
-          name,
-          description,
-          storageUnit,
-          storageValue,
-          supporter: connectedAddress,
-        } as ISupport,
-        ...prev,
-      ]);
       message.success({
         content: "Thank you for your support.",
         duration: 5,
@@ -103,6 +97,72 @@ export default function BuyStorageCard() {
     setIsLoading(false);
   }
 
+  useEffect(() => {
+    (async () => {
+      try {
+        setArweavePrice(await getArweavePrice());
+      } catch (e) {
+        //
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (arweavePrice) {
+      (async () => {
+        if (!Number.isNaN(storageValue)) {
+          const bytes =
+            storageValue *
+            Math.pow(
+              1024,
+              storageUnit === "MB" ? 2 : storageUnit === "GB" ? 3 : 4
+            );
+          const winstonValue = (await arweave.api.get(`price/${bytes}`)).data;
+          const arValue = parseFloat(arweave.ar.winstonToAr(winstonValue));
+          setSupportValue((prev) => ({
+            ...prev,
+            winston: winstonValue,
+            ar: arValue,
+            usd: arValue * arweavePrice,
+          }));
+        } else {
+          setSupportValue((prev) => ({
+            ...prev,
+            winston: "0",
+            ar: 0,
+            usd: 0,
+          }));
+        }
+      })();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storageValue, storageUnit, arweavePrice]);
+
+  useEffect(() => {
+    if (connectedAddress) {
+      (async () => {
+        try {
+          if (userAccount) {
+            if (
+              userAccount.handle &&
+              /^@[\w\d]+-\w{6}$/.test(userAccount.handle)
+            ) {
+              setName(userAccount.handle);
+            }
+          } else {
+            const user = await fetchProfile({ address: connectedAddress });
+            if (user.handle && /^@[\w\d]+-\w{6}$/.test(user.handle)) {
+              setName(user.handle);
+            }
+          }
+        } catch (error) {
+          //
+        }
+      })();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connectedAddress]);
+
   return (
     <Card
       bordered={false}
@@ -111,7 +171,6 @@ export default function BuyStorageCard() {
           Buy{" "}
           <Text style={{ color: token.colorPrimary, fontSize: 24 }}>
             {userAccount?.profile.name}
-            ProfileName
           </Text>{" "}
           a Storage
         </Title>

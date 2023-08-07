@@ -6,6 +6,7 @@ import { customTheme } from "@/config";
 import NextLink, { LinkProps } from "next/link";
 import React from "react";
 import { withPublicRoutes } from "@/hoc";
+import { SUPPORT_HANDLE } from "@/utils/constants";
 
 const { getDesignToken } = theme;
 
@@ -36,6 +37,12 @@ const NavItems: Array<NavItem> = [
     key: 0,
     label: "Home",
     href: "/",
+    isAuthentionRequired: false,
+  },
+  {
+    key: 0,
+    label: "Support",
+    href: `/${SUPPORT_HANDLE}`,
     isAuthentionRequired: false,
   },
 ];

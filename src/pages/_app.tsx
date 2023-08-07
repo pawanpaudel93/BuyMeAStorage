@@ -14,6 +14,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { fetchProfile } from "@/utils";
 import { useConnectedUserStore } from "@/lib/store";
+import Script from "next/script";
 
 const { Content } = Layout;
 
@@ -77,6 +78,7 @@ export function AppLayout({ appProps }: { appProps: AppProps }) {
 
   return (
     <>
+      <Script src="/warp.min.js"></Script>
       {connected ? (
         <PrivateLayout>
           <NextNProgress color="#a62a22" />

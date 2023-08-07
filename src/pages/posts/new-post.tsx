@@ -2,7 +2,12 @@ import { MdEditor, ToolbarNames } from "md-editor-rt";
 import "md-editor-rt/lib/style.css";
 
 import { useActiveAddress, useApi } from "arweave-wallet-kit";
-import { getErrorMessage, getMimeType, licenseOptions } from "@/utils";
+import {
+  currencyOptions,
+  getErrorMessage,
+  getMimeType,
+  licenseOptions,
+} from "@/utils";
 import { arweave } from "@/utils";
 import { useState } from "react";
 import {
@@ -79,7 +84,11 @@ export default function NewPost() {
     }
   };
 
-  async function publish(value: { license: string; payment: string }) {
+  async function publish(value: {
+    license: string;
+    payment: string;
+    currency: string;
+  }) {
     setIsLoading(true);
     try {
       const topics = (post.topics as string).split(",").map((topic) => {
@@ -126,23 +135,35 @@ export default function NewPost() {
         },
       ].concat(topics);
 
-      if (value.license === "access") {
-        tags = tags.concat([
-          { name: "Access", value: "Restricted" },
-          { name: "Access-Fee", value: "One-Time-" + value.payment },
-        ]);
+      // if (value.license === "access") {
+      //   tags.push({ name: "Access", value: "Restricted" });
+      // }
+
+      if (value.license === "derivative-credit") {
+        tags.push({ name: "Derivation", value: "Allowed-with-credit" });
       }
-      if (value.license === "derivative") {
-        tags = tags.concat([
-          { name: "Derivation", value: "Allowed-with-license-fee" },
-          { name: "Derivation-Fee", value: "One-Time-" + value.payment },
-        ]);
+
+      if (value.license === "derivative-indication") {
+        tags.push({
+          name: "Derivation",
+          value: "Allowed-with-indication",
+        });
       }
+
       if (value.license === "commercial") {
-        tags = tags.concat([
-          { name: "Commercial-Use", value: "Allowed" },
-          { name: "Commercial-Fee", value: "One-Time-" + value.payment },
-        ]);
+        tags.push({ name: "Commercial-Use", value: "Allowed" });
+      }
+
+      if (value.license === "commercial-credit") {
+        tags.push({ name: "Commercial-Use", value: "Allowed-with-credit" });
+      }
+
+      if (value.payment) {
+        tags.push({ name: "License-Fee", value: "One-Time-" + value.payment });
+      }
+
+      if (value.currency && value.currency !== "U") {
+        tags.push({ name: "Currency", value: value.currency });
       }
 
       const transaction = await arweave.createTransaction({
@@ -257,13 +278,23 @@ export default function NewPost() {
         </Form.Item>
 
         {showAmountInput && (
-          <Form.Item
-            label="Payment"
-            name="payment"
-            rules={[{ required: showAmountInput }]}
-          >
-            <Input placeholder="Amount in $AR" type="number" />
-          </Form.Item>
+          <>
+            <Form.Item
+              label="Currency"
+              name="currency"
+              rules={[{ required: showAmountInput }]}
+              initialValue="U"
+            >
+              <Select placeholder="Select currency" options={currencyOptions} />
+            </Form.Item>
+            <Form.Item
+              label="Payment"
+              name="payment"
+              rules={[{ required: showAmountInput }]}
+            >
+              <Input placeholder="Amount in AR or U" type="number" />
+            </Form.Item>
+          </>
         )}
 
         <Form.Item style={{ textAlign: "end" }}>

@@ -62,22 +62,27 @@ export default function Posts() {
       let license: ITag[] = [];
 
       if (licenseTag) {
-        const feeTag = tags.find(
-          (tag) =>
-            tag.name === "Access-Fee" ||
-            tag.name === "Derivation-Fee" ||
-            tag.name === "Commercial-Fee"
-        )!;
+        const feeTag = tags.find((tag) => tag.name === "License-Fee");
         license = [
           {
             name: capitalizeAndFormat(licenseTag.name),
             value: capitalizeAndFormat(licenseTag.value),
           },
-          {
-            name: capitalizeAndFormat(feeTag.name),
-            value: capitalizeAndFormat(feeTag.value),
-          },
         ];
+
+        if (feeTag) {
+          const currencyTag = tags.find((tag) => tag.name === "Currency");
+          license = license = license.concat([
+            {
+              name: capitalizeAndFormat(feeTag.name),
+              value: capitalizeAndFormat(feeTag.value),
+            },
+            {
+              name: "Currency",
+              value: currencyTag ? currencyTag.value : "U",
+            },
+          ]);
+        }
       }
 
       return {

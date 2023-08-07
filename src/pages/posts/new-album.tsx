@@ -15,7 +15,7 @@ import { InboxOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import type { RcFile, UploadFile, UploadProps } from "antd/es/upload/interface";
 import ImageCard from "@/components/Cards/ImageCard";
 import { useRouter } from "next/router";
-import { arweave, getMimeType, licenseOptions } from "@/utils";
+import { arweave, currencyOptions, getMimeType, licenseOptions } from "@/utils";
 import { registerContract } from "@/lib/warp/asset";
 import {
   UDL,
@@ -44,6 +44,7 @@ export default function NewPhoto() {
     topics: string;
     description: string;
     license: string;
+    currency: string;
     payment?: string;
     files: { file: File; fileList: { file: { originFileObj: File } }[] };
   }) => {
@@ -126,23 +127,35 @@ export default function NewPhoto() {
         },
       ].concat(topics);
 
-      if (image.license === "access") {
-        tags = tags.concat([
-          { name: "Access", value: "Restricted" },
-          { name: "Access-Fee", value: "One-Time-" + image.payment },
-        ]);
+      // if (image.license === "access") {
+      //   tags.push({ name: "Access", value: "Restricted" });
+      // }
+
+      if (image.license === "derivative-credit") {
+        tags.push({ name: "Derivation", value: "Allowed-with-credit" });
       }
-      if (image.license === "derivative") {
-        tags = tags.concat([
-          { name: "Derivation", value: "Allowed-with-license-fee" },
-          { name: "Derivation-Fee", value: "One-Time-" + image.payment },
-        ]);
+
+      if (image.license === "derivative-indication") {
+        tags.push({
+          name: "Derivation",
+          value: "Allowed-with-indication",
+        });
       }
+
       if (image.license === "commercial") {
-        tags = tags.concat([
-          { name: "Commercial-Use", value: "Allowed" },
-          { name: "Commercial-Fee", value: "One-Time-" + image.payment },
-        ]);
+        tags.push({ name: "Commercial-Use", value: "Allowed" });
+      }
+
+      if (image.license === "commercial-credit") {
+        tags.push({ name: "Commercial-Use", value: "Allowed-with-credit" });
+      }
+
+      if (image.payment) {
+        tags.push({ name: "License-Fee", value: "One-Time-" + image.payment });
+      }
+
+      if (image.currency && image.currency !== "U") {
+        tags.push({ name: "Currency", value: image.currency });
       }
       const data = JSON.stringify(transactionIds);
       const transaction = await arweave.createTransaction({ data });
@@ -324,13 +337,26 @@ export default function NewPhoto() {
               />
             </Form.Item>
             {showAmountInput && (
-              <Form.Item
-                label="Payment"
-                name="payment"
-                rules={[{ required: showAmountInput }]}
-              >
-                <Input placeholder="Amount in $AR" type="number" />
-              </Form.Item>
+              <>
+                <Form.Item
+                  label="Currency"
+                  name="currency"
+                  rules={[{ required: showAmountInput }]}
+                  initialValue="U"
+                >
+                  <Select
+                    placeholder="Select currency"
+                    options={currencyOptions}
+                  />
+                </Form.Item>
+                <Form.Item
+                  label="Payment"
+                  name="payment"
+                  rules={[{ required: showAmountInput }]}
+                >
+                  <Input placeholder="Amount in AR or U" type="number" />
+                </Form.Item>
+              </>
             )}
           </Col>
         </Row>

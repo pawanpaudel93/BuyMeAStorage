@@ -60,6 +60,7 @@ export default async function handler(
       ])
       .findOne();
 
+    // @ts-ignore
     if (transaction || assetTransaction.owner.address === address) {
       const bufferData = await (
         await fetch(`https://arweave.net/${assetTx}`)

@@ -96,7 +96,7 @@ const NavBar = () => {
           <NextLink href="/">
             <Image
               width="38px"
-              src="/logo.svg"
+              src="/icon.svg"
               alt="logo"
               style={{ borderRadius: "50%" }}
               preview={false}

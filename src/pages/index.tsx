@@ -4,11 +4,12 @@ import Illustration from "@/components/HomePage/Illustration";
 import CreateMyProfile from "@/components/HomePage/CreateMyProfile";
 import { useRouter } from "next/router";
 import { useConnection } from "arweave-wallet-kit";
+import { withPublicRoutes } from "@/hoc";
 
 const { Title, Text } = Typography;
 const { useToken } = theme;
 
-export default function Home() {
+const Home = () => {
   const { token } = useToken();
 
   const router = useRouter();
@@ -103,4 +104,5 @@ export default function Home() {
       <Illustration />
     </div>
   );
-}
+};
+export default withPublicRoutes(Home);

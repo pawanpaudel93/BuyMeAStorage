@@ -19,10 +19,11 @@ import { IPost, ITag } from "@/types";
 import dayjs from "dayjs";
 import usePersistStore from "@/lib/store/persist";
 import PostModal from "@/components/Modals/PostModal";
+import { withPrivateRoutes } from "@/hoc";
 
 const { Text } = Typography;
 
-export default function Posts() {
+function Posts() {
   const router = useRouter();
   const activeAddress = useActiveAddress();
   const [posts, setPosts] = useState<IPost[]>([]);
@@ -285,3 +286,4 @@ export default function Posts() {
     </>
   );
 }
+export default withPrivateRoutes(Posts);

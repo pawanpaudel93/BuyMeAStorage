@@ -24,6 +24,7 @@ import { COLORS, ardb, capitalizeAndFormat } from "@/utils";
 import { useActiveAddress } from "arweave-wallet-kit";
 import { APP_NAME } from "@/utils/constants";
 import { ITag } from "@/types";
+import { withPrivateRoutes } from "@/hoc";
 
 const { useToken } = theme;
 
@@ -31,7 +32,7 @@ interface CustomTag {
   [key: string]: number;
 }
 
-export default function HomePage() {
+function HomePage() {
   const { token } = useToken();
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const connectedAddress = useActiveAddress();
@@ -378,3 +379,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+export default withPrivateRoutes(HomePage);

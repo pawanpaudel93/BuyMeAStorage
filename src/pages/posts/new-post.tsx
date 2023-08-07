@@ -19,8 +19,9 @@ import {
 import { Button, Form, Input, Row, Select, Space, message } from "antd";
 import usePersistStore from "@/lib/store/persist";
 import { registerContract } from "@/lib/warp/asset";
+import { withPrivateRoutes } from "@/hoc";
 
-export default function NewPost() {
+function NewPost() {
   const [postForm] = Form.useForm();
   const { post, setPost } = usePersistStore();
   const walletApi = useApi();
@@ -313,3 +314,4 @@ export default function NewPost() {
     </Row>
   );
 }
+export default withPrivateRoutes(NewPost);

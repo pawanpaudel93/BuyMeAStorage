@@ -25,10 +25,11 @@ import {
 } from "@/utils/constants";
 import { useActiveAddress, useApi } from "arweave-wallet-kit";
 import { ITag } from "@/types";
+import { withPrivateRoutes } from "@/hoc";
 
 const { Dragger } = Upload;
 
-export default function NewPhoto() {
+function NewPhoto() {
   const [photoForm] = Form.useForm();
   const lockRef = useRef(false);
   const router = useRouter();
@@ -377,3 +378,4 @@ export default function NewPhoto() {
     </Row>
   );
 }
+export default withPrivateRoutes(NewPhoto);

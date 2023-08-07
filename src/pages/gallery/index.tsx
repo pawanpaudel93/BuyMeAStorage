@@ -13,8 +13,9 @@ import { ardb, capitalizeAndFormat } from "@/utils";
 import { APP_NAME, APP_VERSION } from "@/utils/constants";
 import { useActiveAddress } from "arweave-wallet-kit";
 import GalleryImageCard from "@/components/Cards/GalleryImageCard";
+import { withPrivateRoutes } from "@/hoc";
 
-export default function Gallery() {
+function Gallery() {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [fileList, setFileList] = useState<UploadFile<any>[]>([]);
   const activeAddress = useActiveAddress();
@@ -198,3 +199,5 @@ export default function Gallery() {
     </>
   );
 }
+
+export default withPrivateRoutes(Gallery);

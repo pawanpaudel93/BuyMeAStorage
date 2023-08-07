@@ -122,4 +122,4 @@ const NavBar = () => {
   );
 };
 
-export default withPublicRoutes(NavBar);
+export default NavBar;

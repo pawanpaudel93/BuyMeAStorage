@@ -144,6 +144,7 @@ const PostModal = ({ open, setOpen, post }: PostModalProps) => {
         open={open}
         onOk={() => setOpen(false)}
         onCancel={() => setOpen(false)}
+        footer={null}
         width="auto"
       >
         <ScrollableDiv>

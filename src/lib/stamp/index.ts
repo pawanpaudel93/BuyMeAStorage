@@ -1,8 +1,8 @@
 import Stamps, { StampJS } from "@permaweb/stampjs";
 // @ts-ignore
 import { WarpFactory, LoggerFactory } from "warp-contracts";
-import { arweave } from "@/utils";
 import { APP_NAME } from "@/utils/constants";
+import Arweave from "arweave";
 
 LoggerFactory.INST.logLevel("error");
 
@@ -11,24 +11,31 @@ let stamps: StampJS;
 export const initStamps = () => {
   if (stamps) return stamps;
   const warp = WarpFactory.forMainnet() as any;
+  const arweave = Arweave.init({
+    host: "arweave.net", // Hostname or IP address for a Arweave host
+    port: 443, // Port
+    protocol: "https", // Network protocol http or https
+    timeout: 20000, // Network request timeouts in milliseconds
+    logging: false,
+  });
   // @ts-ignore
   stamps = Stamps.init({ warp, arweave });
   return stamps;
 };
 
 export const getStampCount = async (assetTx: string) => {
-  initStamps();
+  const stamps = initStamps();
   const { total } = await stamps.count(assetTx);
   return total;
 };
 
 export const hasStampedAsset = async (assetTx: string) => {
-  initStamps();
+  const stamps = initStamps();
   return await stamps.hasStamped(assetTx);
 };
 
 export const stampAsset = async (assetTx: string) => {
-  initStamps();
+  const stamps = initStamps();
   const hasStamped = await stamps.hasStamped(assetTx);
   if (!hasStamped) {
     const result = await stamps.stamp(assetTx, 1, [

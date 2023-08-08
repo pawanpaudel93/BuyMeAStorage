@@ -29,6 +29,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 ## ⛏️ Built Using <a name = "built_using"></a>
 
 - [Arweave](https://arweave.org/) - Decentralized on-chain Storage
+- [UDL](https://arwiki.wiki/#/en/Universal-Data-License-How-to-use-it) - Universal Data License
 - [Wallet Kit](https://docs.arweavekit.com/wallets/wallet-kit/) - Facilitate interaction between different Arweave wallets and dApps
 - [ArConnect](https://www.arconnect.io/) - A non-custodial Arweave-native wallet with extensive features.
 - [Warp](https://warp.cc/) - Fast, Secure and Convenient Smart contracts on Arweave

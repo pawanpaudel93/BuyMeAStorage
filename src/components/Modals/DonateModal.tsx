@@ -146,7 +146,7 @@ export default function DonateModal({
           </Space>
         </Col>
         <Col md={13} xs={24}>
-          <BuyStorageCard userAccount={userAccount} />
+          <BuyStorageCard creatorAccount={userAccount} />
         </Col>
       </Row>
     </Modal>

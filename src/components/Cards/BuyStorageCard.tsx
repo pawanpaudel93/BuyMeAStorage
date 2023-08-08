@@ -22,15 +22,18 @@ import {
   getErrorMessage,
 } from "@/utils";
 import { APP_NAME, APP_VERSION } from "@/utils/constants";
+import { useConnectedUserStore } from "@/lib/store";
 
 const { Text, Title } = Typography;
 const { useToken } = theme;
 
 interface BuyStorageCardProps {
-  userAccount: ArAccount | undefined;
+  creatorAccount: ArAccount | undefined;
 }
 
-export default function BuyStorageCard({ userAccount }: BuyStorageCardProps) {
+export default function BuyStorageCard({
+  creatorAccount,
+}: BuyStorageCardProps) {
   const { token } = useToken();
   const walletApi = useApi();
   const [storageUnit, setStorageUnit] = useState("MB");
@@ -41,6 +44,7 @@ export default function BuyStorageCard({ userAccount }: BuyStorageCardProps) {
   const connectedAddress = useActiveAddress();
   const [arweavePrice, setArweavePrice] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const { userAccount } = useConnectedUserStore();
 
   const [supportValue, setSupportValue] = useState({
     winston: "0",
@@ -61,14 +65,14 @@ export default function BuyStorageCard({ userAccount }: BuyStorageCardProps) {
       if (!connected) {
         await connect();
       }
-      if (userAccount?.addr === connectedAddress) {
+      if (creatorAccount?.addr === connectedAddress) {
         throw new Error("You cannot support yourself.");
       }
-      if (!userAccount?.addr) {
+      if (!creatorAccount?.addr) {
         throw new Error("No receiver address available.");
       }
       const transaction = await arweave.createTransaction({
-        target: userAccount?.addr,
+        target: creatorAccount?.addr,
         quantity: supportValue.winston,
       });
       transaction.addTag("App-Name", APP_NAME);
@@ -77,6 +81,7 @@ export default function BuyStorageCard({ userAccount }: BuyStorageCardProps) {
       transaction.addTag("Description", description);
       transaction.addTag("Storage-Unit", storageUnit);
       transaction.addTag("Storage-Value", storageValue.toString());
+      transaction.addTag("Payment-Type", "Support");
       await walletApi?.sign(transaction);
       const response = await arweave.transactions.post(transaction);
       if (response.status !== 200) {
@@ -170,7 +175,7 @@ export default function BuyStorageCard({ userAccount }: BuyStorageCardProps) {
         <Text style={{ fontSize: 22 }}>
           Buy{" "}
           <span style={{ color: token.colorPrimary }}>
-            {userAccount?.profile.name}
+            {creatorAccount?.profile.name}
           </span>{" "}
           a Storage
         </Text>
@@ -247,7 +252,7 @@ export default function BuyStorageCard({ userAccount }: BuyStorageCardProps) {
           type="primary"
           onClick={support}
           loading={isLoading}
-          disabled={userAccount?.addr === connectedAddress}
+          disabled={creatorAccount?.addr === connectedAddress}
           shape="round"
           size="large"
           block

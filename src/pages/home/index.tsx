@@ -54,103 +54,111 @@ function HomePage() {
 
   async function fetchAllSupports() {
     setIsSupportCountLoading(true);
-    const transactions = await ardb
-      .search("transactions")
-      .appName(APP_NAME)
-      .tag("Payment-Type", "Support")
-      .to(connectedAddress as string)
-      // .limit(100)
-      .findAll();
+    try {
+      const transactions = await ardb
+        .search("transactions")
+        .appName(APP_NAME)
+        .tag("Payment-Type", "Support")
+        .to(connectedAddress as string)
+        // .limit(100)
+        .findAll();
 
-    if (transactions.length === 0) {
-      setIsSupportCountLoading(false);
-      return;
+      if (transactions.length === 0) {
+        setIsSupportCountLoading(false);
+        return;
+      }
+
+      let earnings = 0;
+      let supporters = 0;
+
+      const supportersSet = new Set<string>();
+
+      transactions.forEach((transaction) => {
+        // @ts-ignore
+        const tags = transaction.tags as ITag[];
+        const storageUnit = tags.find((t) => t.name === "Storage-Unit");
+        const storageValue = tags.find((t) => t.name === "Storage-Value");
+        // @ts-ignore
+        const supporter = transaction.owner.address;
+        if (!supportersSet.has(supporter)) {
+          supportersSet.add(supporter);
+          supporters += 1;
+        }
+
+        if (storageUnit?.value === "MB") {
+          earnings += Number(storageValue?.value);
+        } else if (storageUnit?.value === "GB") {
+          earnings += Number(storageValue?.value) * 1024;
+        } else if (storageUnit?.value === "TB") {
+          earnings += Number(storageValue?.value) * 1024 * 1024;
+        }
+      });
+      setStats((prevStats) => ({ ...prevStats, earnings, supporters }));
+    } catch (err) {
+      //
     }
-
-    let earnings = 0;
-    let supporters = 0;
-
-    const supportersSet = new Set<string>();
-
-    transactions.forEach((transaction) => {
-      // @ts-ignore
-      const tags = transaction.tags as ITag[];
-      const storageUnit = tags.find((t) => t.name === "Storage-Unit");
-      const storageValue = tags.find((t) => t.name === "Storage-Value");
-      // @ts-ignore
-      const supporter = transaction.owner.address;
-      if (!supportersSet.has(supporter)) {
-        supportersSet.add(supporter);
-        supporters += 1;
-      }
-
-      if (storageUnit?.value === "MB") {
-        earnings += Number(storageValue?.value);
-      } else if (storageUnit?.value === "GB") {
-        earnings += Number(storageValue?.value) * 1024;
-      } else if (storageUnit?.value === "TB") {
-        earnings += Number(storageValue?.value) * 1024 * 1024;
-      }
-    });
-    setStats((prevStats) => ({ ...prevStats, earnings, supporters }));
     setIsSupportCountLoading(false);
   }
 
   async function fetchAllLicensePayments() {
     setIsLicenseLoading(true);
-    const transactions = await ardb
-      .search("transactions")
-      .appName(APP_NAME)
-      .tags([
-        { name: "Payment-Type", values: ["License"] },
-        { name: "Payment-To", values: [connectedAddress as string] },
-      ])
-      // .limit(100)
-      .findAll();
+    try {
+      const transactions = await ardb
+        .search("transactions")
+        .appName(APP_NAME)
+        .tags([
+          { name: "Payment-Type", values: ["License"] },
+          { name: "Payment-To", values: [connectedAddress as string] },
+        ])
+        // .limit(100)
+        .findAll();
 
-    if (transactions.length === 0) {
-      setIsLicenseLoading(false);
-      return;
-    }
-
-    const stats: CustomTag = {};
-    const earnings = { U: 0, AR: 0 };
-
-    transactions.forEach((transaction) => {
-      // @ts-ignore
-      const tags = transaction.tags as ITag[];
-
-      const licenseTag = tags.find(
-        (tag) =>
-          tag.name === "Access" ||
-          tag.name === "Derivation" ||
-          tag.name === "Commercial-Use"
-      );
-
-      if (licenseTag) {
-        const feeTag = tags.find((tag) => tag.name === "License-Fee");
-        if (feeTag) {
-          const name = capitalizeAndFormat(
-            `${licenseTag.name}-${licenseTag.value}`
-          );
-          if (name in stats) {
-            // @ts-ignore
-            stats[name] += 1;
-          } else {
-            // @ts-ignore
-            stats[name] = 1;
-          }
-          const amount = parseFloat(feeTag.value.split("-")[2]);
-          const currency =
-            tags.find((tag) => tag.name === "Currency")?.value ?? "U";
-
-          // @ts-ignore
-          earnings[currency] += amount;
-        }
+      if (transactions.length === 0) {
+        setIsLicenseLoading(false);
+        return;
       }
-    });
-    setLicenseStats(stats);
-    setLicenseEarnings(earnings);
+
+      const stats: CustomTag = {};
+      const earnings = { U: 0, AR: 0 };
+
+      transactions.forEach((transaction) => {
+        // @ts-ignore
+        const tags = transaction.tags as ITag[];
+
+        const licenseTag = tags.find(
+          (tag) =>
+            tag.name === "Access" ||
+            tag.name === "Derivation" ||
+            tag.name === "Commercial-Use"
+        );
+
+        if (licenseTag) {
+          const feeTag = tags.find((tag) => tag.name === "License-Fee");
+          if (feeTag) {
+            const name = capitalizeAndFormat(
+              `${licenseTag.name}-${licenseTag.value}`
+            );
+            if (name in stats) {
+              // @ts-ignore
+              stats[name] += 1;
+            } else {
+              // @ts-ignore
+              stats[name] = 1;
+            }
+            const amount = parseFloat(feeTag.value.split("-")[2]);
+            const currency =
+              tags.find((tag) => tag.name === "Currency")?.value ?? "U";
+
+            // @ts-ignore
+            earnings[currency] += amount;
+          }
+        }
+      });
+      setLicenseStats(stats);
+      setLicenseEarnings(earnings);
+    } catch (err) {
+      //
+    }
     setIsLicenseLoading(false);
   }
 

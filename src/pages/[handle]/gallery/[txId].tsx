@@ -93,92 +93,96 @@ export default function Gallery() {
 
   async function fetchPost() {
     setLoading(true);
-    const transaction = await ardb
-      .search("transactions")
-      .id(txId as string)
-      .findOne();
+    try {
+      const transaction = await ardb
+        .search("transactions")
+        .id(txId as string)
+        .findOne();
 
-    // @ts-ignore
-    const tags = transaction.tags as ITag[];
-    const titleTag = tags.find((tag) => tag.name === "Title");
-    const descriptionTag = tags.find((tag) => tag.name === "Description");
-    const contentType = tags.find((tag) => tag.name === "Content-Type");
-    const publishedTag = tags.find(
-      (tag) => tag.name === "Published" || tag.name === "Published-At"
-    );
-    const typeTag = tags.find((tag) => tag.name === "Type");
-    const previewTag = tags.find((tag) => tag.name === "Preview");
-    const topics = tags
-      .filter((tag) => tag.name.startsWith("topic:"))
-      .map((tag) => tag.value);
-    const licenseTag = tags.find(
-      (tag) =>
-        tag.name === "Access" ||
-        tag.name === "Derivation" ||
-        tag.name === "Commercial-Use"
-    );
+      // @ts-ignore
+      const tags = transaction.tags as ITag[];
+      const titleTag = tags.find((tag) => tag.name === "Title");
+      const descriptionTag = tags.find((tag) => tag.name === "Description");
+      const contentType = tags.find((tag) => tag.name === "Content-Type");
+      const publishedTag = tags.find(
+        (tag) => tag.name === "Published" || tag.name === "Published-At"
+      );
+      const typeTag = tags.find((tag) => tag.name === "Type");
+      const previewTag = tags.find((tag) => tag.name === "Preview");
+      const topics = tags
+        .filter((tag) => tag.name.startsWith("topic:"))
+        .map((tag) => tag.value);
+      const licenseTag = tags.find(
+        (tag) =>
+          tag.name === "Access" ||
+          tag.name === "Derivation" ||
+          tag.name === "Commercial-Use"
+      );
 
-    let license: ITag[] = [];
+      let license: ITag[] = [];
 
-    if (licenseTag) {
-      const feeTag = tags.find((tag) => tag.name === "License-Fee");
-      if (feeTag) {
-        setLicenseTags([
-          { name: licenseTag.name, value: licenseTag.value },
-          { name: feeTag?.name, value: feeTag?.value },
-        ]);
-      } else {
-        setLicenseTags([{ name: licenseTag.name, value: licenseTag.value }]);
-      }
+      if (licenseTag) {
+        const feeTag = tags.find((tag) => tag.name === "License-Fee");
+        if (feeTag) {
+          setLicenseTags([
+            { name: licenseTag.name, value: licenseTag.value },
+            { name: feeTag?.name, value: feeTag?.value },
+          ]);
+        } else {
+          setLicenseTags([{ name: licenseTag.name, value: licenseTag.value }]);
+        }
 
-      const currencyTag = tags.find((tag) => tag.name === "Currency");
-
-      setLicense({
-        isAccess: licenseTag.name === "Access",
-        // @ts-ignore
-        seller: transaction.owner.address,
-        amount: feeTag ? parseFloat(feeTag.value.split("-")[2]) : 0,
-        currency: currencyTag ? currencyTag.value : "U",
-      });
-      license = [
-        {
-          name: capitalizeAndFormat(licenseTag.name),
-          value: capitalizeAndFormat(licenseTag.value),
-        },
-      ];
-
-      if (feeTag) {
         const currencyTag = tags.find((tag) => tag.name === "Currency");
-        license = license.concat([
-          {
-            name: capitalizeAndFormat(feeTag.name),
-            value: capitalizeAndFormat(feeTag.value),
-          },
-          {
-            name: "Currency",
-            value: currencyTag ? currencyTag.value : "U",
-          },
-        ]);
-      }
-    }
 
-    setPost({
-      id: transaction.id,
-      link: `https://arweave.net/${transaction.id}`,
-      title: titleTag?.value ?? "",
-      description: descriptionTag?.value ?? "",
-      preview: previewTag ? `https://arweave.net/${previewTag?.value}` : "",
-      topics,
-      type: typeTag?.value ?? "",
-      license,
-      content: "",
-      contentType: contentType?.value ?? "image/jpeg",
-      published: dayjs(
-        new Date(
-          parseInt(publishedTag?.value ?? new Date().getTime().toString())
-        )
-      ).format("MMM DD, YYYY [at] HH:mmA"),
-    });
+        setLicense({
+          isAccess: licenseTag.name === "Access",
+          // @ts-ignore
+          seller: transaction.owner.address,
+          amount: feeTag ? parseFloat(feeTag.value.split("-")[2]) : 0,
+          currency: currencyTag ? currencyTag.value : "U",
+        });
+        license = [
+          {
+            name: capitalizeAndFormat(licenseTag.name),
+            value: capitalizeAndFormat(licenseTag.value),
+          },
+        ];
+
+        if (feeTag) {
+          const currencyTag = tags.find((tag) => tag.name === "Currency");
+          license = license.concat([
+            {
+              name: capitalizeAndFormat(feeTag.name),
+              value: capitalizeAndFormat(feeTag.value),
+            },
+            {
+              name: "Currency",
+              value: currencyTag ? currencyTag.value : "U",
+            },
+          ]);
+        }
+      }
+
+      setPost({
+        id: transaction.id,
+        link: `https://arweave.net/${transaction.id}`,
+        title: titleTag?.value ?? "",
+        description: descriptionTag?.value ?? "",
+        preview: previewTag ? `https://arweave.net/${previewTag?.value}` : "",
+        topics,
+        type: typeTag?.value ?? "",
+        license,
+        content: "",
+        contentType: contentType?.value ?? "image/jpeg",
+        published: dayjs(
+          new Date(
+            parseInt(publishedTag?.value ?? new Date().getTime().toString())
+          )
+        ).format("MMM DD, YYYY [at] HH:mmA"),
+      });
+    } catch (error) {
+      //
+    }
     setLoading(false);
   }
 

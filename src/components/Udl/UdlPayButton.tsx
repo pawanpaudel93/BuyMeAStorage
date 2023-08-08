@@ -31,17 +31,21 @@ export default function UdlPayButton({
   };
 
   const checkHasPaid = async () => {
-    const transaction = await ardb
-      .search("transactions")
-      .appName(APP_NAME)
-      .tags([
-        { name: "Asset-Tx", values: [assetTx] },
-        { name: "Purchased-By", values: [connectedAddress as string] },
-      ])
-      .findOne();
+    try {
+      const transaction = await ardb
+        .search("transactions")
+        .appName(APP_NAME)
+        .tags([
+          { name: "Asset-Tx", values: [assetTx] },
+          { name: "Purchased-By", values: [connectedAddress as string] },
+        ])
+        .findOne();
 
-    if (transaction) {
-      setHasPaid(true);
+      if (transaction) {
+        setHasPaid(true);
+      }
+    } catch (err) {
+      //
     }
   };
 

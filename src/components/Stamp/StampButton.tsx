@@ -11,12 +11,16 @@ export default function Stamp({ assetTx }: { assetTx: string }) {
 
   const updateStamps = async () => {
     setLoading(true);
-    const [count, stamped] = await Promise.all([
-      getStampCount(assetTx),
-      hasStampedAsset(assetTx),
-    ]);
-    setStamps(count);
-    setHasStamped(stamped);
+    try {
+      const [count, stamped] = await Promise.all([
+        getStampCount(assetTx),
+        hasStampedAsset(assetTx),
+      ]);
+      setStamps(count);
+      setHasStamped(stamped);
+    } catch (error) {
+      //
+    }
     setLoading(false);
   };
 

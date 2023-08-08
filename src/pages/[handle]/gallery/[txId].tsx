@@ -309,7 +309,7 @@ export default function Gallery() {
             </Col>
             <Col xs={24} md={10}>
               <Card
-                title="Asset Rights"
+                title="License Information"
                 type="inner"
                 hoverable
                 headStyle={{
@@ -341,7 +341,7 @@ export default function Gallery() {
                       />
                     </Space>
                     <a href={`https://arweave.net/${UDL}`} target="_blank">
-                      License Information
+                      License Details
                     </a>
                   </Row>
                   {post.license?.length === 0 ? (

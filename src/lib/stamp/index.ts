@@ -1,8 +1,12 @@
 import Stamps, { StampJS } from "@permaweb/stampjs";
+import {
+  InjectedArweaveSigner,
+  // @ts-ignore
+} from "warp-contracts-plugin-deploy";
 // @ts-ignore
 import { WarpFactory, LoggerFactory } from "warp-contracts";
 import { APP_NAME } from "@/utils/constants";
-import Arweave from "arweave";
+import { arweave } from "@/utils";
 
 LoggerFactory.INST.logLevel("error");
 
@@ -10,16 +14,12 @@ let stamps: StampJS;
 
 export const initStamps = () => {
   if (stamps) return stamps;
-  const warp = WarpFactory.forMainnet() as any;
-  const arweave = Arweave.init({
-    host: "arweave.net", // Hostname or IP address for a Arweave host
-    port: 443, // Port
-    protocol: "https", // Network protocol http or https
-    timeout: 20000, // Network request timeouts in milliseconds
-    logging: false,
-  });
   // @ts-ignore
-  stamps = Stamps.init({ warp, arweave });
+  stamps = Stamps.init({
+    warp: WarpFactory.forMainnet(),
+    arweave,
+    wallet: new InjectedArweaveSigner(window.arweaveWallet),
+  });
   return stamps;
 };
 

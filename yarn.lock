@@ -3377,9 +3377,9 @@ aptos@^1.3.13:
     tweetnacl "1.0.3"
 
 ar-gql@^1.2.1:
-  version "1.2.2"
-  resolved "https://registry.npmjs.org/ar-gql/-/ar-gql-1.2.2.tgz#120174758dda6dde638d6df01b7536068cb85755"
-  integrity sha512-km54Oh3PsoMcsFrQ+3Eec89lDHcoxhoY5eo7asguo7rBt7HHYkbHZQRuH2R15BxYGy/DrmNj0Z1TtQJwypPgSw==
+  version "1.2.4"
+  resolved "https://registry.npmjs.org/ar-gql/-/ar-gql-1.2.4.tgz#1c4f38a862358c1b2996c283fd0a4f0ebd1dfbb4"
+  integrity sha512-ououP34tR8UFjfYDEooojxZhlvwsrr54/pRKTD1K9dq2REeuYgxpcwSlLEIsqkVESDobRm7DtzmrMQSrLiGuFw==
 
 arbundles@^0.6.19:
   version "0.6.22"

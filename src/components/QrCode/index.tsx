@@ -15,28 +15,25 @@ export default function QrModal({ qrValue, open, setOpen }: IQrModalProps) {
     setIsDownloading(true);
     try {
       await new Promise<void>((resolve) => {
-        requestAnimationFrame(() => {
-          const canvas = document
-            .getElementById("myqrcode")
-            ?.querySelector<HTMLCanvasElement>("canvas");
+        const canvas = document
+          .getElementById("myqrcode")
+          ?.querySelector<HTMLCanvasElement>("canvas");
 
-          if (canvas) {
-            const url = canvas.toDataURL();
-            const a = document.createElement("a");
-            a.download = "QRCode.png";
-            a.href = url;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-          }
-          resolve();
-        });
+        if (canvas) {
+          const url = canvas.toDataURL();
+          const a = document.createElement("a");
+          a.download = "QRCode.png";
+          a.href = url;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        }
+        resolve();
       });
     } catch (error) {
       console.error("Error while downloading QR code:", error);
-    } finally {
-      setIsDownloading(false);
     }
+    setIsDownloading(false);
   };
 
   return (
@@ -60,8 +57,7 @@ export default function QrModal({ qrValue, open, setOpen }: IQrModalProps) {
           <QRCode
             value={qrValue}
             style={{ marginBottom: 16 }}
-            type="svg"
-            icon="/logo.svg"
+            icon="/icon.svg"
           />
           <Button
             type="primary"

@@ -21,18 +21,11 @@ import {
   licenseOptionsWithRestriction,
 } from "@/utils";
 import { uploadAtomicAsset } from "@/lib/warp/asset";
-import {
-  UDL,
-  APP_NAME,
-  APP_VERSION,
-  ATOMIC_ASSET_SRC,
-  PUBLIC_KEY,
-} from "@/utils/constants";
+import { UDL, APP_NAME, APP_VERSION, PUBLIC_KEY } from "@/utils/constants";
 import { useActiveAddress, useApi } from "arweave-wallet-kit";
-import { ITag } from "@/types";
+import { IPost, ITag } from "@/types";
 import { addWaterMark } from "@/lib/watermark";
 import { encryptFile } from "@/lib/cryptography";
-import Transaction from "arweave/node/lib/transaction";
 import { useConnectedUserStore } from "@/lib/store";
 import { dispatchTransaction } from "@/lib/arconnect";
 
@@ -41,11 +34,14 @@ const { Dragger } = Upload;
 export interface IUploadModalProps {
   open: boolean;
   setOpen: React.Dispatch<SetStateAction<boolean>>;
-  fileList: UploadFile<any>[];
-  setFileList: React.Dispatch<SetStateAction<UploadFile<any>[]>>;
+  fetchPosts: () => Promise<void>;
 }
 
-export default function UploadModal({ open, setOpen }: IUploadModalProps) {
+export default function UploadModal({
+  open,
+  setOpen,
+  fetchPosts,
+}: IUploadModalProps) {
   const lockRef = useRef(false);
   const [uploadForm] = Form.useForm();
   const [temporaryFiles, setTemporaryFiles] = useState<any>([]);
@@ -104,12 +100,16 @@ export default function UploadModal({ open, setOpen }: IUploadModalProps) {
         { name: "Published", value: published.toString() },
       ].concat(topics);
 
+      let watermarkTxId: any;
+
       if (image.license === "access") {
         const watermarkTx = await arweave.createTransaction({
           data: watermarkImage,
         });
         watermarkTx.addTag("Content-Type", contentType);
         const response = await dispatchTransaction(watermarkTx, walletApi);
+
+        watermarkTxId = response?.id;
 
         tags = tags.concat([
           { name: "Access", value: "Restricted" },
@@ -173,6 +173,7 @@ export default function UploadModal({ open, setOpen }: IUploadModalProps) {
         { "Content-Type": contentType, body: data }
       );
       if (response?.id) {
+        await fetchPosts();
         setTemporaryFiles([]);
         message.success("Image uploaded succesfully!");
         uploadForm.resetFields();

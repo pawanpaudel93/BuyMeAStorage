@@ -7,7 +7,6 @@ import UploadModal from "@/components/UploadForm/UploadModal";
 import Masonry from "react-masonry-css";
 
 import type { TabsProps } from "antd";
-import type { UploadFile } from "antd/es/upload/interface";
 import { IPost, ITag } from "@/types";
 import { ardb, capitalizeAndFormat } from "@/utils";
 import { APP_NAME, APP_VERSION } from "@/utils/constants";
@@ -17,7 +16,6 @@ import { withPrivateRoutes } from "@/hoc";
 
 function Gallery() {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const [fileList, setFileList] = useState<UploadFile<any>[]>([]);
   const activeAddress = useActiveAddress();
   const [posts, setPosts] = useState<IPost[]>([]);
   const [loading, setLoading] = useState(false);
@@ -191,8 +189,7 @@ function Gallery() {
       <UploadModal
         open={isUploadModalOpen}
         setOpen={setIsUploadModalOpen}
-        fileList={fileList}
-        setFileList={setFileList}
+        fetchPosts={fetchPosts}
       />
 
       <Tabs

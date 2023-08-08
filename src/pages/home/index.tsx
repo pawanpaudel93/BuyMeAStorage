@@ -62,7 +62,10 @@ function HomePage() {
       // .limit(100)
       .findAll();
 
-    if (transactions.length === 0) return;
+    if (transactions.length === 0) {
+      setIsSupportCountLoading(false);
+      return;
+    }
 
     let earnings = 0;
     let supporters = 0;
@@ -105,7 +108,10 @@ function HomePage() {
       // .limit(100)
       .findAll();
 
-    if (transactions.length === 0) return;
+    if (transactions.length === 0) {
+      setIsLicenseLoading(false);
+      return;
+    }
 
     const stats: CustomTag = {};
     const earnings = { U: 0, AR: 0 };

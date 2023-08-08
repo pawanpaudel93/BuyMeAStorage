@@ -25,6 +25,7 @@ import { MdPreview } from "md-editor-rt";
 import { ArAccount } from "arweave-account";
 import DonateModal from "@/components/Modals/DonateModal";
 import UdlPayButton from "@/components/Udl/UdlPayButton";
+import NextLink from "next/link";
 import "md-editor-rt/lib/preview.css";
 
 import JSZip from "jszip";
@@ -279,19 +280,21 @@ export default function Post() {
       {post ? (
         <>
           <Row justify="space-between" align="middle" style={{ padding: 8 }}>
-            <Space>
-              <Avatar size="large" style={{ background: "green" }}>
-                {userAccount?.profile?.name.slice(0, 1) ?? ""}
-              </Avatar>
-              <Space direction="vertical" size={0}>
-                <Typography.Text>
-                  {userAccount?.profile?.name ?? ""}
-                </Typography.Text>
-                <Typography.Text style={{ fontSize: 14, color: "gray" }}>
-                  Creator
-                </Typography.Text>
+            <NextLink href={`/${userAccount?.handle}`}>
+              <Space>
+                <Avatar size="large" style={{ background: "green" }}>
+                  {userAccount?.profile?.name.slice(0, 1) ?? ""}
+                </Avatar>
+                <Space direction="vertical" size={0}>
+                  <Typography.Text>
+                    {userAccount?.profile?.name ?? ""}
+                  </Typography.Text>
+                  <Typography.Text style={{ fontSize: 14, color: "gray" }}>
+                    Creator
+                  </Typography.Text>
+                </Space>
               </Space>
-            </Space>
+            </NextLink>
             <Space>
               {license.amount > 0 && (
                 <UdlPayButton

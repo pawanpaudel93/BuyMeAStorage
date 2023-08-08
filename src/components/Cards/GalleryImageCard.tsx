@@ -21,6 +21,7 @@ import { useEffect, useState } from "react";
 import { useConnectedUserStore } from "@/lib/store";
 import { useActiveAddress, usePublicKey } from "arweave-wallet-kit";
 import { uint8ArrayToBase64String } from "@/lib/cryptography/common";
+import NextLink from "next/link";
 
 interface ImgProps {
   attach: any;
@@ -125,19 +126,21 @@ const ImageRenderComponent = ({ post }: { post: IPost }) => {
   return (
     <ScrollableDiv>
       <Row justify="space-between" align="middle" style={{ padding: 8 }}>
-        <Space>
-          <Avatar size="large" style={{ background: "green" }}>
-            {userAccount?.profile?.name.slice(0, 1) ?? ""}
-          </Avatar>
-          <Space direction="vertical" size={0}>
-            <Typography.Text>
-              {userAccount?.profile?.name ?? ""}
-            </Typography.Text>
-            <Typography.Text style={{ fontSize: 14, color: "gray" }}>
-              Creator
-            </Typography.Text>
+        <NextLink href={`/${userAccount?.handle}`}>
+          <Space>
+            <Avatar size="large" style={{ background: "green" }}>
+              {userAccount?.profile?.name.slice(0, 1) ?? ""}
+            </Avatar>
+            <Space direction="vertical" size={0}>
+              <Typography.Text>
+                {userAccount?.profile?.name ?? ""}
+              </Typography.Text>
+              <Typography.Text style={{ fontSize: 14, color: "gray" }}>
+                Creator
+              </Typography.Text>
+            </Space>
           </Space>
-        </Space>
+        </NextLink>
         <Space>
           <StampButton assetTx={post.id as string} />
           <Button

@@ -25,6 +25,7 @@ import { UDL } from "@/utils/constants";
 import { useConnectedUserStore } from "@/lib/store";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
+import NextLink from "next/link";
 
 const { useToken } = theme;
 
@@ -160,19 +161,21 @@ const PostModal = ({ open, setOpen, post }: PostModalProps) => {
         <Spin spinning={isLoadingContents}>
           <ScrollableDiv>
             <Row justify="space-between" align="middle" style={{ padding: 8 }}>
-              <Space>
-                <Avatar size="large" style={{ background: "green" }}>
-                  {userAccount?.profile?.name.slice(0, 1) ?? ""}
-                </Avatar>
-                <Space direction="vertical" size={0}>
-                  <Typography.Text>
-                    {userAccount?.profile?.name ?? ""}
-                  </Typography.Text>
-                  <Typography.Text style={{ fontSize: 14, color: "gray" }}>
-                    Creator
-                  </Typography.Text>
+              <NextLink href={`/${userAccount?.handle}`}>
+                <Space>
+                  <Avatar size="large" style={{ background: "green" }}>
+                    {userAccount?.profile?.name.slice(0, 1) ?? ""}
+                  </Avatar>
+                  <Space direction="vertical" size={0}>
+                    <Typography.Text>
+                      {userAccount?.profile?.name ?? ""}
+                    </Typography.Text>
+                    <Typography.Text style={{ fontSize: 14, color: "gray" }}>
+                      Creator
+                    </Typography.Text>
+                  </Space>
                 </Space>
-              </Space>
+              </NextLink>
               <Space>
                 <StampButton assetTx={post.id as string} />
                 <Button

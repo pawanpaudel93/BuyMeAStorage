@@ -256,3 +256,9 @@ export const COLORS = [
   "gray",
   "silver",
 ];
+
+export const getArrayBufferSizeInKB = (data: ArrayBuffer) => {
+  const arrayBufferSizeInBytes = data.byteLength;
+  const arrayBufferSizeInKB = arrayBufferSizeInBytes / 1024;
+  return arrayBufferSizeInKB;
+};

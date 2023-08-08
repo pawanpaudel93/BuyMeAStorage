@@ -98,6 +98,7 @@ export default function SupportPage({ address }: { address?: string }) {
       .from(address ?? (viewedAccount?.addr as string))
       .tag("Protocol", `${APP_NAME}-Post-v${APP_VERSION}`)
       .tag("Type", ["blog-post", "image-album"])
+      .limit(100)
       .find();
     const _posts: IPost[] = transactions.map((transaction) => {
       // @ts-ignore

@@ -277,7 +277,6 @@ export default function SupportPage({ address }: { address?: string }) {
                     a Storage
                   </Typography.Text>
                 }
-                style={{ flex: 1, maxWidth: "600px" }}
                 headStyle={{
                   display: "grid",
                   placeItems: "center",

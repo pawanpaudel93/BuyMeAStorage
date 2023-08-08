@@ -1,6 +1,6 @@
 <p align="center"><img src="/public/icon.svg" alt="original" width="400" height="300"></p>
 
-<h1 align="center">Welcome to Buy Me a Storage</h1>
+<h1 align="center">Buy Me a Storage</h1>
 
 BuyMeAStorage is a user-friendly platform designed to empower content creators built on top of [Arweave](https://arweave.org/). It offers a space where creators can share their work, such as images, and express their thoughts on various topics, both related and unrelated to their creations and the creations are saved permanently on the Arweave blockchain.
 
@@ -25,6 +25,16 @@ pnpm install && pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## ⛏️ Built Using <a name = "built_using"></a>
+
+- [Arweave](https://arweave.org/) - Decentralized on-chain Storage
+- [Wallet Kit](https://docs.arweavekit.com/wallets/wallet-kit/) - Facilitate interaction between different Arweave wallets and dApps
+- [ArConnect](https://www.arconnect.io/) - A non-custodial Arweave-native wallet with extensive features.
+- [Warp](https://warp.cc/) - Fast, Secure and Convenient Smart contracts on Arweave
+- [Arweave Account](https://github.com/MetaweaveTeam/arweave-account) - A composible and customizable profile protocol (DID) on Arweave
+- [Nextjs](https://nextjs.org/) - Reactjs Web Development Framework
+- [Ant Design](https://ant.design/) - A react UI library.
 
 ## Project By
 

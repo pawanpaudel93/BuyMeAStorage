@@ -26,6 +26,7 @@ import {
 import { useActiveAddress, useApi } from "arweave-wallet-kit";
 import { ITag } from "@/types";
 import { withPrivateRoutes } from "@/hoc";
+import { dispatchTransaction } from "@/lib/arconnect";
 
 const { Dragger } = Upload;
 
@@ -77,12 +78,8 @@ function NewPhoto() {
           const data = await originFileObj.arrayBuffer();
           const tx = await arweave.createTransaction({ data });
           tags.forEach((tag) => tx.addTag(tag.name, tag.value));
-
-          if (walletApi) {
-            await walletApi.sign(tx);
-            const res = await walletApi.dispatch(tx);
-            transactionIds.push(res?.id as string);
-          }
+          const res = await dispatchTransaction(tx, walletApi);
+          transactionIds.push(res?.id as string);
         } catch (err) {
           console.log(originFileObj.name, err);
         }
@@ -162,8 +159,7 @@ function NewPhoto() {
       const transaction = await arweave.createTransaction({ data });
       tags.forEach((tag) => transaction.addTag(tag.name, tag.value));
 
-      await walletApi?.sign(transaction);
-      const response = await walletApi?.dispatch(transaction);
+      const response = await dispatchTransaction(transaction, walletApi);
       if (response?.id) {
         const contractTxId = await registerContract(response?.id);
         setFileList([]);

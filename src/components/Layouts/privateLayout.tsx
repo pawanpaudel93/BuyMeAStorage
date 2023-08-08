@@ -96,7 +96,7 @@ function PrivateLayout({ children }: { children: React.ReactNode }) {
               {!collapsed && (
                 <Image
                   width="32px"
-                  src="/logo.svg"
+                  src="/icon.svg"
                   alt="logo"
                   style={{ borderRadius: "50%" }}
                   preview={false}
@@ -182,7 +182,7 @@ function PrivateLayout({ children }: { children: React.ReactNode }) {
                 />
                 <Image
                   width="32px"
-                  src="/logo.svg"
+                  src="/icon.svg"
                   alt="logo"
                   style={{ borderRadius: "50%" }}
                   preview={false}

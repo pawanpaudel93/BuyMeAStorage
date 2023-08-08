@@ -55,6 +55,33 @@ export const licenseOptions = [
   },
 ];
 
+export const licenseOptionsWithRestriction = [
+  {
+    label: "UDL Default Public",
+    value: "default",
+  },
+  {
+    label: "UDL Restricted Access",
+    value: "access",
+  },
+  {
+    label: "UDL Commercial Use - Allowed",
+    value: "commercial",
+  },
+  {
+    label: "UDL Commercial Use - Allowed With Credit",
+    value: "commercial-credit",
+  },
+  {
+    label: "UDL Derivative Works - Allowed With Credit",
+    value: "derivative-credit",
+  },
+  {
+    label: "UDL Derivative Works - Allowed With Indication",
+    value: "derivative-indication",
+  },
+];
+
 export const currencyOptions = [
   {
     label: "U",
@@ -194,8 +221,7 @@ export async function fetchProfile({
       ...user,
       profile: {
         ...user.profile,
-        avatarURL:
-          "https://arweave.net/4eJ0svoPeMtU0VyYODTPDYFrDKGALIt8Js25tUERLPw",
+        avatarURL: "/avatar.svg",
       },
     };
   }
@@ -229,3 +255,9 @@ export const COLORS = [
   "gray",
   "silver",
 ];
+
+export const getArrayBufferSizeInKB = (data: ArrayBuffer) => {
+  const arrayBufferSizeInBytes = data.byteLength;
+  const arrayBufferSizeInKB = arrayBufferSizeInBytes / 1024;
+  return arrayBufferSizeInKB;
+};

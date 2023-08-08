@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Empty, Row, Space, Spin, Tabs, Typography } from "antd";
+import { Button, Empty, Row, Spin, Tabs, Typography } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import UploadModal from "@/components/UploadForm/UploadModal";
@@ -29,6 +29,7 @@ function Gallery() {
       .from(activeAddress as string)
       .tag("Protocol", `${APP_NAME}-Post-v${APP_VERSION}`)
       .tag("Type", "image")
+      .limit(100)
       .find();
 
     const _posts: IPost[] = transactions.map((transaction) => {
@@ -43,6 +44,7 @@ function Gallery() {
       const topics = tags
         .filter((tag) => tag.name.startsWith("topic:"))
         .map((tag) => tag.value);
+      const previewTag = tags.find((tag) => tag.name === "Preview");
       const licenseTag = tags.find(
         (tag) =>
           tag.name === "Access" ||
@@ -51,8 +53,9 @@ function Gallery() {
       );
 
       let license: ITag[] = [];
-
+      let isAccess = false;
       if (licenseTag) {
+        isAccess = licenseTag.name === "Access";
         const feeTag = tags.find((tag) => tag.name === "License-Fee");
         license = [
           {
@@ -78,13 +81,16 @@ function Gallery() {
 
       return {
         id: transaction.id,
-        link: `https://arweave.net/${transaction.id}`,
+        link: `https://arweave.net/${
+          previewTag ? previewTag.value : transaction.id
+        }`,
         title: titleTag?.value ?? "",
         description: descriptionTag?.value ?? "",
         topics,
         type: typeTag?.value ?? "",
         license,
         content: "",
+        isAccess,
         published: dayjs(
           new Date(
             parseInt(publishedTag?.value ?? new Date().getTime().toString())
@@ -188,6 +194,7 @@ function Gallery() {
         fileList={fileList}
         setFileList={setFileList}
       />
+
       <Tabs
         style={{ padding: "16px 24px", borderRadius: 8 }}
         defaultActiveKey="1"

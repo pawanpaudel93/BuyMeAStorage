@@ -5,6 +5,8 @@ import { ConnectButton } from "arweave-wallet-kit";
 import { customTheme } from "@/config";
 import NextLink, { LinkProps } from "next/link";
 import React from "react";
+import { withPublicRoutes } from "@/hoc";
+import { SUPPORT_HANDLE } from "@/utils/constants";
 
 const { getDesignToken } = theme;
 
@@ -35,6 +37,12 @@ const NavItems: Array<NavItem> = [
     key: 0,
     label: "Home",
     href: "/",
+    isAuthentionRequired: false,
+  },
+  {
+    key: 0,
+    label: "Support",
+    href: `/${SUPPORT_HANDLE}`,
     isAuthentionRequired: false,
   },
 ];
@@ -88,7 +96,7 @@ const NavBar = () => {
           <NextLink href="/">
             <Image
               width="38px"
-              src="/logo.svg"
+              src="/icon.svg"
               alt="logo"
               style={{ borderRadius: "50%" }}
               preview={false}

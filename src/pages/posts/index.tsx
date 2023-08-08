@@ -39,6 +39,7 @@ function Posts() {
       .from(activeAddress as string)
       .tag("Protocol", `${APP_NAME}-Post-v${APP_VERSION}`)
       .tag("Type", ["blog-post", "image-album"])
+      .limit(100)
       .find();
 
     const _posts: IPost[] = transactions.map((transaction) => {

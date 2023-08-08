@@ -1,7 +1,22 @@
 export const APP_NAME = "BuyMeAStorage";
 export const APP_VERSION = "1.0.0";
-export const SUPPORT_ADDRESS = "C8UwFdQHmOKece-5ierveUlN9mdK7uAXBUTY4tQdBoU";
-export const SUPPORT_HANDLE = "@BuyMeAStorage-C8UBoU";
+export const SUPPORT_ADDRESS = "zbZx09KR76a--wo5zYWkXyC2BpBKXp55hPIZq2MjIz8";
+export const SUPPORT_HANDLE = "@BuyMeaStorage-zbZIz8";
 export const ATOMIC_ASSET_SRC = "Of9pi--Gj7hCTawhgxOwbuWnFI1h24TTgO5pw8ENJNQ";
 export const UDL = "yRj4a5KMctX_uOmKWCFJIjmY8DeJcusVk6-HzLiM_t8";
 export const U_CONTRACT_ID = "KTzTXT_ANmF84fWEKHzWURD1LWd9QaFR9yfYUwH2Lxw";
+export const PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAthTdWh688b8j/gEzFLX/
+UAEGfdsoXQKD+zkBj+VE857NgOUU+lm0NSdUgxMcNcY+9uDSFPOxCcMLgCv0ff7o
+6girKyA/Gsz82h8t9ws5QoSkhdSAhVQtdJTXDdSzBwLChuZCLfBlqIXvT6fwkDsa
+r7DZJnv1E3yFbbb4pdhrOlaA6yGAEEK29w/Mpy39IZYQCeua8g7khUO78lp+zN/H
+qx6/klIVG5puD8QH8Bh/XsltZiPbsUUfRA0BiCn9U1T+l4rwL7pcFTutnSuf9IKW
+P9RN1D1+cUzJCrJ2DHG9Z6GcFseZDoijX437UJ74s5teez6UXerjTEn0Dq2+khVo
+WNW94J16AFsw/yCWXZCfqdn6A7+ilcHyeecG0iqPrJQox7M/KIUB544eQkBflHRl
+gupzp02iL+0Q4gVFWNWsImF0h6b7BLFVf1It/Ci7blU2q3CJyxmnQh4DyaIMzrRN
+ATSZcbjUYY8mMzre8iHvGCCqYc3jy5WCnC/uf5ZY6y65+AdyXJiuk64vzPL7vwvO
+jzdlIxFDGXXrYyOlbtvCS3jZveKa4cUmCjL9pdD++30lpL2p58ru81AU9A9DV3IE
+CwAV2Fv9Cd2iLNr4p+rqTLQNsH9pnZ1NLWZkcSmbUIH8B+SQQ8qaaS9rkEPE1yvp
+kxXrG2JmLADcK7SOtpcWlVUCAwEAAQ==
+-----END PUBLIC KEY-----
+`;

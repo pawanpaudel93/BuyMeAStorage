@@ -269,33 +269,45 @@ export default function SupportPage({ address }: { address?: string }) {
             >
               <Card
                 title={
-                  <Title level={3} style={{ textAlign: "center" }}>
+                  <Typography.Text style={{ fontSize: 24 }}>
                     Buy{" "}
-                    <Text style={{ color: token.colorPrimary, fontSize: 24 }}>
+                    <span style={{ color: token.colorPrimary }}>
                       {viewedAccount?.profile.name}
-                    </Text>{" "}
+                    </span>{" "}
                     a Storage
-                  </Title>
+                  </Typography.Text>
                 }
                 style={{ flex: 1, maxWidth: "600px" }}
+                headStyle={{
+                  display: "grid",
+                  placeItems: "center",
+                }}
               >
-                <Space
-                  direction="vertical"
-                  size={16}
-                  style={{ width: "100%", marginBottom: 16 }}
-                >
-                  <Select
-                    placeholder="Select storage"
-                    defaultValue={storageUnit}
-                    onChange={(value) => setStorageUnit(value)}
-                    style={{ width: "100%" }}
+                <Space direction="vertical">
+                  <Space
+                    direction="vertical"
+                    style={{ width: "100%", marginBottom: 16 }}
                   >
-                    <Select.Option value="MB">MB</Select.Option>
-                    <Select.Option value="GB">GB</Select.Option>
-                    <Select.Option value="TB">TB</Select.Option>
-                  </Select>
+                    <Select
+                      placeholder="Select storage"
+                      defaultValue={storageUnit}
+                      onChange={(value) => setStorageUnit(value)}
+                      style={{ width: "100%" }}
+                    >
+                      <Select.Option value="MB">MB</Select.Option>
+                      <Select.Option value="GB">GB</Select.Option>
+                      <Select.Option value="TB">TB</Select.Option>
+                    </Select>
+                  </Space>
 
-                  <Space direction="horizontal" style={{ width: "100%" }}>
+                  <Space
+                    direction="horizontal"
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      justifyContent: "space-between",
+                    }}
+                  >
                     <Image src="/icon.svg" height={40} alt="" />
                     <RxCross1 style={{ fontSize: "1.5em" }} />
                     <Radio.Group
@@ -316,43 +328,46 @@ export default function SupportPage({ address }: { address?: string }) {
                       style={{ width: "100%" }}
                     />
                   </Space>
-                </Space>
-                <Space direction="vertical" style={{ width: "100%" }} size={16}>
-                  <Input
-                    type="text"
-                    placeholder="Name (optional)"
-                    onChange={(e) => setName(e.target.value)}
-                    value={name}
-                    style={{ width: "100%" }}
-                  />
-
-                  <Input.TextArea
-                    placeholder="Say something nice... (optional)"
-                    onChange={(e) => setDescription(e.target.value)}
-                    value={description}
-                    style={{ width: "100%" }}
-                  />
-
-                  {supportValue.ar && (
-                    <Space
-                      style={{ display: "flex", justifyContent: "center" }}
+                  <Space direction="vertical" style={{ width: "100%" }}>
+                    <Input
+                      type="text"
+                      placeholder="Name (optional)"
+                      onChange={(e) => setName(e.target.value)}
+                      value={name}
+                      style={{ width: "100%" }}
+                    />
+                  </Space>
+                  <Space direction="vertical" style={{ width: "100%" }}>
+                    <Input.TextArea
+                      placeholder="Say something nice... (optional)"
+                      onChange={(e) => setDescription(e.target.value)}
+                      value={description}
+                      style={{ width: "100%" }}
+                    />
+                  </Space>
+                  <Space direction="vertical" style={{ width: "100%" }}>
+                    {supportValue.ar && (
+                      <Space
+                        style={{ display: "flex", justifyContent: "center" }}
+                      >
+                        <Tag color="green">{supportValue.ar} AR</Tag>
+                        <Tag color="green">~${supportValue.usd}</Tag>
+                      </Space>
+                    )}
+                  </Space>
+                  <Space direction="vertical" style={{ width: "100%" }}>
+                    <Button
+                      type="primary"
+                      onClick={support}
+                      loading={isLoading}
+                      disabled={viewedAccount?.addr === connectedAddress}
+                      shape="round"
+                      size="large"
+                      block
                     >
-                      <Tag color="green">{supportValue.ar} AR</Tag>
-                      <Tag color="green">~${supportValue.usd}</Tag>
-                    </Space>
-                  )}
-
-                  <Button
-                    type="primary"
-                    onClick={support}
-                    loading={isLoading}
-                    disabled={viewedAccount?.addr === connectedAddress}
-                    shape="round"
-                    size="large"
-                    block
-                  >
-                    Support
-                  </Button>
+                      Support
+                    </Button>
+                  </Space>
                 </Space>
               </Card>
             </div>

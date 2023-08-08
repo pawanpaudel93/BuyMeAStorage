@@ -194,14 +194,7 @@ export default function Gallery({ address }: { address?: string }) {
       children: (
         <>
           <Spin spinning={images.length === 0 && loading}>
-            <Row
-              gutter={[16, 16]}
-              style={{
-                height: "calc(100vh - 170px)",
-                // minHeight: "160px",
-                overflowY: "auto",
-              }}
-            >
+            <Row gutter={[16, 16]}>
               {images.length > 0 ? (
                 <Masonry
                   breakpointCols={breakpointColumnsObj}

@@ -240,15 +240,14 @@ export async function getArweavePrice() {
 }
 
 export const COLORS = [
-  "red",
-  "blue",
+  "brown",
+  "teal",
   "green",
+  "blue",
   "purple",
   "orange",
   "yellow",
   "pink",
-  "brown",
-  "teal",
   "cyan",
   "magenta",
   "white",

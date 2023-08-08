@@ -13,6 +13,7 @@ import {
   theme,
   message,
   Carousel,
+  Spin,
 } from "antd";
 import { IPost } from "@/types";
 import { ScrollableDiv } from "../Cards/ImageCard";
@@ -40,13 +41,22 @@ const PostModal = ({ open, setOpen, post }: PostModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { userAccount } = useConnectedUserStore();
 
+  const [isLoadingContents, setIsLoadingContents] = useState(false);
+
   async function fetchData() {
-    const _content = await (await fetch(post.link as string)).text();
-    if (post.type === "blog-post") {
-      setContent(_content);
-    } else {
-      const transactionIds = JSON.parse(_content) as string[];
-      setUrls(transactionIds.map((id) => `https://arweave.net/${id}`));
+    try {
+      setIsLoadingContents(true);
+      const _content = await (await fetch(post.link as string)).text();
+      if (post.type === "blog-post") {
+        setContent(_content);
+      } else {
+        const transactionIds = JSON.parse(_content) as string[];
+        setUrls(transactionIds.map((id) => `https://arweave.net/${id}`));
+      }
+    } catch (err) {
+      console.log("error fetching contents");
+    } finally {
+      setIsLoadingContents(false);
     }
   }
 
@@ -147,166 +157,172 @@ const PostModal = ({ open, setOpen, post }: PostModalProps) => {
         footer={null}
         width="auto"
       >
-        <ScrollableDiv>
-          <Row justify="space-between" align="middle" style={{ padding: 8 }}>
-            <Space>
-              <Avatar size="large" style={{ background: "green" }}>
-                {userAccount?.profile?.name.slice(0, 1) ?? ""}
-              </Avatar>
-              <Space direction="vertical" size={0}>
-                <Typography.Text>
-                  {userAccount?.profile?.name ?? ""}
-                </Typography.Text>
-                <Typography.Text style={{ fontSize: 14, color: "gray" }}>
-                  Creator
-                </Typography.Text>
+        <Spin spinning={isLoadingContents}>
+          <ScrollableDiv>
+            <Row justify="space-between" align="middle" style={{ padding: 8 }}>
+              <Space>
+                <Avatar size="large" style={{ background: "green" }}>
+                  {userAccount?.profile?.name.slice(0, 1) ?? ""}
+                </Avatar>
+                <Space direction="vertical" size={0}>
+                  <Typography.Text>
+                    {userAccount?.profile?.name ?? ""}
+                  </Typography.Text>
+                  <Typography.Text style={{ fontSize: 14, color: "gray" }}>
+                    Creator
+                  </Typography.Text>
+                </Space>
               </Space>
-            </Space>
-            <Space>
-              <StampButton assetTx={post.id as string} />
-              <Button
-                type="primary"
-                icon={<DownloadOutlined />}
-                onClick={download}
-                loading={isLoading}
-              >
-                Download
-              </Button>
-            </Space>
-          </Row>
-          <Row style={{ padding: 16 }} gutter={[16, 16]}>
-            <Col xs={24} md={14}>
-              {post.type === "image-album" ? (
-                <Carousel
-                  autoplay={false}
-                  prevArrow={<PrevArrow />}
-                  nextArrow={<NextArrow />}
-                  arrows
+              <Space>
+                <StampButton assetTx={post.id as string} />
+                <Button
+                  type="primary"
+                  icon={<DownloadOutlined />}
+                  onClick={download}
+                  loading={isLoading}
                 >
-                  {urls.map((url, index) => (
-                    <div key={index}>
-                      <Image
-                        // width="100%"
-                        height="calc(100vh - 200px)"
-                        style={{
-                          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.4)",
-                          // maxHeight: "calc(100vh - 200px)",
-                        }}
-                        alt={post.title}
-                        src={url}
-                        preview={false}
-                      />
-                    </div>
-                  ))}
-                </Carousel>
-              ) : (
-                <MdPreview
-                  language="en-US"
-                  modelValue={content}
-                  previewTheme="github"
-                  codeTheme="github"
-                />
-              )}
-            </Col>
-            <Col xs={24} md={10}>
-              <Card
-                title="Asset Rights"
-                type="inner"
-                hoverable
-                headStyle={{
-                  textAlign: "start",
-                }}
-                style={{
-                  marginBottom: 8,
-                }}
-              >
-                <Space
-                  size={2}
-                  direction="vertical"
+                  Download
+                </Button>
+              </Space>
+            </Row>
+            <Row style={{ padding: 16 }} gutter={[16, 16]}>
+              <Col xs={24} md={14}>
+                {post.type === "image-album" ? (
+                  <Carousel
+                    autoplay={false}
+                    prevArrow={<PrevArrow />}
+                    nextArrow={<NextArrow />}
+                    arrows
+                  >
+                    {urls.map((url, index) => (
+                      <div key={index}>
+                        <Image
+                          width="100%"
+                          // height="calc(100vh - 200px)"
+                          style={{
+                            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.4)",
+                            maxHeight: "calc(100vh - 245px)",
+                          }}
+                          alt={post.title}
+                          src={url}
+                          preview={false}
+                        />
+                      </div>
+                    ))}
+                  </Carousel>
+                ) : (
+                  <MdPreview
+                    language="en-US"
+                    modelValue={content}
+                    previewTheme="github"
+                    codeTheme="github"
+                  />
+                )}
+              </Col>
+              <Col xs={24} md={10}>
+                <Card
+                  title="Asset Rights"
+                  type="inner"
+                  hoverable
+                  headStyle={{
+                    textAlign: "start",
+                  }}
                   style={{
-                    width: "100%",
+                    marginBottom: 8,
                   }}
                 >
-                  <Row justify="space-between" align="middle" gutter={[16, 16]}>
-                    <Space
-                      style={{
-                        border: "1px solid black",
-                        padding: 8,
-                        borderRadius: 8,
-                      }}
+                  <Space
+                    size={2}
+                    direction="vertical"
+                    style={{
+                      width: "100%",
+                    }}
+                  >
+                    <Row
+                      justify="space-between"
+                      align="middle"
+                      gutter={[16, 16]}
                     >
-                      <Image
-                        alt="licenselogo"
-                        src="/udllicense.svg"
-                        preview={false}
-                      />
-                    </Space>
-                    <a href={`https://arweave.net/${UDL}`} target="_blank">
-                      License Information
-                    </a>
-                  </Row>
-                  {post.license?.length === 0 ? (
-                    <Row justify="space-between" gutter={[16, 16]}>
-                      <Typography.Text>Access</Typography.Text>
-                      <Typography.Text>Public</Typography.Text>
-                    </Row>
-                  ) : (
-                    post.license?.map((license, index) => (
-                      <Row
-                        justify="space-between"
-                        gutter={[16, 16]}
-                        key={index}
-                      >
-                        <Typography.Text>{license.name}</Typography.Text>
-                        <Typography.Text>{license.value}</Typography.Text>
-                      </Row>
-                    ))
-                  )}
-
-                  <Row justify="space-between" gutter={[16, 16]}>
-                    <Typography.Text>Payment-Mode</Typography.Text>
-                    <Typography.Text>Global Distribution</Typography.Text>
-                  </Row>
-                </Space>
-              </Card>
-              <Card hoverable>
-                <Space direction="vertical">
-                  <Row justify="center">
-                    <Typography.Text
-                      style={{
-                        color: token.colorPrimary,
-                        fontSize: 16,
-                        fontWeight: 500,
-                        borderBottom: `1px solid ${token.colorPrimary}`,
-                      }}
-                    >
-                      {post.title}
-                    </Typography.Text>
-                  </Row>
-                  <Row justify="center">
-                    <Typography.Text>{post.description}</Typography.Text>
-                  </Row>
-                  <Row>
-                    {(post.topics as string[]).map((tag, index) => (
-                      <Tag
-                        key={index}
+                      <Space
                         style={{
-                          background: "transparent",
+                          border: "1px solid black",
+                          padding: 8,
                           borderRadius: 8,
-                          boxShadow: " 0 3px 10px rgb(0 0 0 / 0.2)",
-                          padding: "1px 6px",
-                          color: "GrayText",
                         }}
                       >
-                        {tag}
-                      </Tag>
-                    ))}
-                  </Row>
-                </Space>
-              </Card>
-            </Col>
-          </Row>
-        </ScrollableDiv>
+                        <Image
+                          alt="licenselogo"
+                          src="/udllicense.svg"
+                          preview={false}
+                        />
+                      </Space>
+                      <a href={`https://arweave.net/${UDL}`} target="_blank">
+                        License Information
+                      </a>
+                    </Row>
+                    {post.license?.length === 0 ? (
+                      <Row justify="space-between" gutter={[16, 16]}>
+                        <Typography.Text>Access</Typography.Text>
+                        <Typography.Text>Public</Typography.Text>
+                      </Row>
+                    ) : (
+                      post.license?.map((license, index) => (
+                        <Row
+                          justify="space-between"
+                          gutter={[16, 16]}
+                          key={index}
+                        >
+                          <Typography.Text>{license.name}</Typography.Text>
+                          <Typography.Text>{license.value}</Typography.Text>
+                        </Row>
+                      ))
+                    )}
+
+                    <Row justify="space-between" gutter={[16, 16]}>
+                      <Typography.Text>Payment-Mode</Typography.Text>
+                      <Typography.Text>Global Distribution</Typography.Text>
+                    </Row>
+                  </Space>
+                </Card>
+                <Card hoverable>
+                  <Space direction="vertical">
+                    <Row justify="center">
+                      <Typography.Text
+                        style={{
+                          color: token.colorPrimary,
+                          fontSize: 16,
+                          fontWeight: 500,
+                          borderBottom: `1px solid ${token.colorPrimary}`,
+                        }}
+                      >
+                        {post.title}
+                      </Typography.Text>
+                    </Row>
+                    <Row justify="center">
+                      <Typography.Text>{post.description}</Typography.Text>
+                    </Row>
+                    <Row>
+                      {(post.topics as string[]).map((tag, index) => (
+                        <Tag
+                          key={index}
+                          style={{
+                            background: "transparent",
+                            borderRadius: 8,
+                            boxShadow: " 0 3px 10px rgb(0 0 0 / 0.2)",
+                            padding: "1px 6px",
+                            color: "GrayText",
+                          }}
+                        >
+                          {tag}
+                        </Tag>
+                      ))}
+                    </Row>
+                  </Space>
+                </Card>
+              </Col>
+            </Row>
+          </ScrollableDiv>
+        </Spin>
       </Modal>
     </>
   );

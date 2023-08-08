@@ -209,9 +209,10 @@ function EditProfileModal({
         title="Edit profile information"
         open={isOpen}
         onCancel={onClose}
+        style={{ top: 30 }}
         footer={
           <Space direction="horizontal">
-            <Button type="primary" danger onClick={onClose} shape="round">
+            <Button onClick={onClose} shape="round">
               Cancel
             </Button>
             <Button

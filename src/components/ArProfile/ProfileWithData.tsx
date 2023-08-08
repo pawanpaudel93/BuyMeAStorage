@@ -1,21 +1,41 @@
 import React, { useState } from "react";
-import { Avatar, Button, Tooltip, Typography, message, theme } from "antd";
+import {
+  Avatar,
+  Button,
+  Image,
+  Tooltip,
+  Typography,
+  message,
+  theme,
+} from "antd";
 import {
   TwitterOutlined,
   GithubOutlined,
   InstagramOutlined,
   FacebookOutlined,
   ToolOutlined,
+  ShoppingCartOutlined,
+  CheckOutlined,
 } from "@ant-design/icons";
 import { FaDiscord } from "react-icons/fa";
 import { ArAccount } from "arweave-account";
 import EditProfileModal from "./EditProfileModal";
 import { useRouter } from "next/router";
 import { AiOutlineCopy } from "react-icons/ai";
+import { styled } from "styled-components";
+import { customTheme } from "@/config";
 
 const { Text } = Typography;
 
-const { useToken } = theme;
+const { useToken, getDesignToken } = theme;
+
+const globalToken = getDesignToken(customTheme);
+
+const StyledButton = styled(Button)`
+  &:hover {
+    color: ${globalToken.colorPrimary} !important;
+  }
+`;
 
 export default function ProfileWithData({
   userAccount,
@@ -31,6 +51,7 @@ export default function ProfileWithData({
   const router = useRouter();
   const { token } = useToken();
   const [isOpen, setIsOpen] = useState(false);
+  const [isCopying, setIsCopying] = useState(false);
 
   const onClose = () => {
     setIsOpen(false);
@@ -42,12 +63,19 @@ export default function ProfileWithData({
 
   const copyToClipBoard = async () => {
     try {
+      setIsCopying(true);
       await navigator.clipboard.writeText(
         `${window.location.origin}/${userAccount.handle.replace("#", "-")}`
       );
       message.success("Copied!");
+      setTimeout(() => {
+        setIsCopying(false);
+      }, 2000);
     } catch (err) {
       message.error("Failed to copy!");
+      setTimeout(() => {
+        setIsCopying(false);
+      }, 2000);
     }
   };
 
@@ -88,13 +116,13 @@ export default function ProfileWithData({
         />
       </div>
 
-      <div style={{ padding: "24px 16px 8px 16px" }}>
+      <div style={{ padding: "12px 16px 16px 16px" }}>
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: "4px",
+            gap: "3px",
           }}
         >
           <Text style={{ fontSize: "1.5rem", fontWeight: 500 }}>
@@ -114,7 +142,9 @@ export default function ProfileWithData({
             <Button
               size="small"
               style={{ padding: 2 }}
-              icon={<AiOutlineCopy size="auto" />}
+              icon={
+                isCopying ? <CheckOutlined /> : <AiOutlineCopy size="auto" />
+              }
               onClick={copyToClipBoard}
             ></Button>
           </div>
@@ -136,7 +166,14 @@ export default function ProfileWithData({
               target="_blank"
               rel="noreferrer"
             >
-              <TwitterOutlined style={{ fontSize: 25 }} />
+              <StyledButton
+                icon={<TwitterOutlined style={{ fontSize: 25 }} />}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "#00acee",
+                }}
+              />
             </a>
           )}
           {userAccount.profile.links.github && (
@@ -145,7 +182,14 @@ export default function ProfileWithData({
               target="_blank"
               rel="noreferrer"
             >
-              <GithubOutlined style={{ fontSize: 25 }} />
+              <StyledButton
+                icon={<GithubOutlined style={{ fontSize: 25 }} />}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "#161b21",
+                }}
+              />
             </a>
           )}
           {userAccount.profile.links.instagram && (
@@ -154,7 +198,14 @@ export default function ProfileWithData({
               target="_blank"
               rel="noreferrer"
             >
-              <InstagramOutlined style={{ fontSize: 25 }} />
+              <StyledButton
+                icon={<InstagramOutlined style={{ fontSize: 25 }} />}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "#f6a4c8",
+                }}
+              />
             </a>
           )}
           {userAccount.profile.links.facebook && (
@@ -163,7 +214,14 @@ export default function ProfileWithData({
               target="_blank"
               rel="noreferrer"
             >
-              <FacebookOutlined style={{ fontSize: 25 }} />
+              <StyledButton
+                icon={<FacebookOutlined style={{ fontSize: 25 }} />}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "#3b5998",
+                }}
+              />
             </a>
           )}
           {userAccount.profile.links.discord && (
@@ -172,7 +230,14 @@ export default function ProfileWithData({
               placement="bottom"
             >
               <span>
-                <FaDiscord style={{ fontSize: 25, color: "purple" }} />
+                <StyledButton
+                  icon={<FaDiscord style={{ fontSize: 25 }} />}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    color: "#738adb",
+                  }}
+                />
               </span>
             </Tooltip>
           )}
@@ -190,7 +255,6 @@ export default function ProfileWithData({
             <Button
               onClick={() => onOpen()}
               icon={<ToolOutlined style={{ fontSize: 18 }} />}
-              type="primary"
               style={{ borderRadius: "999px" }}
             >
               Edit Profile
@@ -199,6 +263,7 @@ export default function ProfileWithData({
               <Button
                 type="primary"
                 style={{ borderRadius: "999px" }}
+                icon={<ShoppingCartOutlined style={{ fontSize: 18 }} />}
                 onClick={() => router.push(`/${userAccount.handle}`)}
               >
                 Buy Me a Storage Page

@@ -32,6 +32,12 @@ const MenuWrapper = styled.div`
     background-color: #fae7e6 !important;
     color: #a62a22;
   }
+  .ant-menu-item {
+    &:hover {
+      background-color: #fae7e6 !important;
+      color: #a62a22;
+    }
+  }
 `;
 
 const siderStyle: React.CSSProperties = {

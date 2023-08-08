@@ -327,11 +327,11 @@ export default function Post() {
                   {urls.map((url, index) => (
                     <div key={index}>
                       <Image
-                        // width="100%"
-                        height="calc(100vh - 200px)"
+                        width="100%"
+                        // height="calc(100vh - 200px)"
                         style={{
                           boxShadow: "0 2px 4px rgba(0, 0, 0, 0.4)",
-                          // maxHeight: "calc(100vh - 200px)",
+                          maxHeight: "calc(100vh - 245px)",
                         }}
                         alt={post.title}
                         src={url}

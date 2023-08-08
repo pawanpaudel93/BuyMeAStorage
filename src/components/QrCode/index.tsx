@@ -10,22 +10,33 @@ interface IQrModalProps {
 
 export default function QrModal({ qrValue, open, setOpen }: IQrModalProps) {
   const [isDownloading, setIsDownloading] = useState(false);
-  const downloadQRCode = () => {
+
+  const downloadQRCode = async () => {
     setIsDownloading(true);
-    const canvas = document
-      .getElementById("myqrcode")
-      ?.querySelector<HTMLCanvasElement>("canvas");
-    if (canvas) {
-      const url = canvas.toDataURL();
-      console.log({ url });
-      const a = document.createElement("a");
-      a.download = "QRCode.png";
-      a.href = url;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+    try {
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => {
+          const canvas = document
+            .getElementById("myqrcode")
+            ?.querySelector<HTMLCanvasElement>("canvas");
+
+          if (canvas) {
+            const url = canvas.toDataURL();
+            const a = document.createElement("a");
+            a.download = "QRCode.png";
+            a.href = url;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          }
+          resolve();
+        });
+      });
+    } catch (error) {
+      console.error("Error while downloading QR code:", error);
+    } finally {
+      setIsDownloading(false);
     }
-    setIsDownloading(false);
   };
 
   return (
@@ -46,7 +57,12 @@ export default function QrModal({ qrValue, open, setOpen }: IQrModalProps) {
       </Row>
       <Row id="myqrcode" justify="center" style={{ padding: 12 }}>
         <Space direction="vertical" size={2}>
-          <QRCode value={qrValue} style={{ marginBottom: 16 }} />
+          <QRCode
+            value={qrValue}
+            style={{ marginBottom: 16 }}
+            type="svg"
+            icon="/logo.svg"
+          />
           <Button
             type="primary"
             icon={<DownloadOutlined />}

@@ -17,12 +17,15 @@ import {
   UDL,
 } from "@/utils/constants";
 import { Button, Form, Input, Row, Select, Space, message } from "antd";
+import { ArrowLeftOutlined } from "@ant-design/icons";
 import usePersistStore from "@/lib/store/persist";
 import { registerContract } from "@/lib/warp/asset";
 import { withPrivateRoutes } from "@/hoc";
+import { useRouter } from "next/router";
 import { dispatchTransaction } from "@/lib/arconnect";
 
 function NewPost() {
+  const router = useRouter();
   const [postForm] = Form.useForm();
   const { post, setPost } = usePersistStore();
   const walletApi = useApi();
@@ -208,6 +211,14 @@ function NewPost() {
         onFinish={publish}
         style={{ width: "100%" }}
       >
+        <Form.Item style={{ textAlign: "start", marginBottom: 4 }}>
+          <Button
+            icon={<ArrowLeftOutlined />}
+            onClick={() => router.push("/posts")}
+          >
+            Go Back
+          </Button>
+        </Form.Item>
         <Form.Item label="Title" name="title" rules={[{ required: true }]}>
           <Input
             placeholder="Title"
@@ -222,7 +233,7 @@ function NewPost() {
           name="description"
           rules={[{ required: true }]}
         >
-          <Input
+          <Input.TextArea
             placeholder="Description"
             maxLength={150}
             value={post.description}
@@ -242,7 +253,7 @@ function NewPost() {
             onUploadImg={onUploadImg}
             style={{
               padding: "25px",
-              height: "85vh",
+              // height: "85vh",
             }}
             previewTheme="github"
             codeTheme="github"

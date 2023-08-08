@@ -18,7 +18,7 @@ function Profile() {
           minHeight: "calc(100vh - 54px)",
         }}
       >
-        <Spin size="large" />
+        <Spin />
       </div>
     );
   }

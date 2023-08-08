@@ -29,6 +29,7 @@ function Gallery() {
       .from(activeAddress as string)
       .tag("Protocol", `${APP_NAME}-Post-v${APP_VERSION}`)
       .tag("Type", "image")
+      .limit(100)
       .find();
 
     const _posts: IPost[] = transactions.map((transaction) => {

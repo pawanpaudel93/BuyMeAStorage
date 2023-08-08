@@ -20,7 +20,7 @@ import {
   getMimeType,
   licenseOptionsWithRestriction,
 } from "@/utils";
-import { registerContract } from "@/lib/warp/asset";
+import { uploadAtomicAsset } from "@/lib/warp/asset";
 import {
   UDL,
   APP_NAME,
@@ -94,9 +94,6 @@ export default function UploadModal({ open, setOpen }: IUploadModalProps) {
       const published = new Date().getTime();
       const contentType = await getMimeType(image.files.file);
       let tags = [
-        { name: "App-Name", value: "SmartWeaveContract" },
-        { name: "App-Version", value: "0.3.0" },
-        { name: "Content-Type", value: contentType },
         { name: "Indexed-By", value: "ucm" },
         { name: "License", value: UDL },
         { name: "Payment-Mode", value: "Global-Distribution" },
@@ -105,31 +102,6 @@ export default function UploadModal({ open, setOpen }: IUploadModalProps) {
         { name: "Type", value: "image" },
         { name: "Protocol", value: `${APP_NAME}-Post-v${APP_VERSION}` },
         { name: "Published", value: published.toString() },
-        {
-          name: "Contract-Manifest",
-          value:
-            '{"evaluationOptions":{"sourceType":"redstone-sequencer","allowBigInt":true,"internalWrites":true,"unsafeClient":"skip","useConstructor":true}}',
-        },
-        { name: "Contract-Src", value: ATOMIC_ASSET_SRC },
-        {
-          name: "Init-State",
-          value: JSON.stringify({
-            title: image.title,
-            description: image.description,
-            creator: activeAddress,
-            claimable: [],
-            ticker: "ATOMIC-POST",
-            name: image.title,
-            balances: {
-              [activeAddress as string]: 100,
-            },
-            emergencyHaltWallet: activeAddress as string,
-            contentType,
-            published,
-            settings: [["isTradeable", true]],
-            transferable: true,
-          }),
-        },
       ].concat(topics);
 
       if (image.license === "access") {
@@ -171,21 +143,36 @@ export default function UploadModal({ open, setOpen }: IUploadModalProps) {
       if (image.currency && image.currency !== "U") {
         tags.push({ name: "Currency", value: image.currency });
       }
-      const data = await new Response(image.files.file).arrayBuffer();
-      let transaction: Transaction;
+      let data = await new Response(image.files.file).arrayBuffer();
+
       if (image.license === "access") {
         const { encryptedData } = await encryptFile(
           image.files.file,
           PUBLIC_KEY
         );
-        transaction = await arweave.createTransaction({ data: encryptedData });
-      } else {
-        transaction = await arweave.createTransaction({ data });
+        data = encryptedData;
       }
-      tags.forEach((tag) => transaction.addTag(tag.name, tag.value));
-      const response = await dispatchTransaction(transaction, walletApi);
+      const response = await uploadAtomicAsset(
+        tags,
+        JSON.stringify({
+          title: image.title,
+          description: image.description,
+          creator: activeAddress,
+          claimable: [],
+          ticker: "ATOMIC-POST",
+          name: image.title,
+          balances: {
+            [activeAddress as string]: 100,
+          },
+          emergencyHaltWallet: activeAddress as string,
+          contentType,
+          published,
+          settings: [["isTradeable", true]],
+          transferable: true,
+        }),
+        { "Content-Type": contentType, body: data }
+      );
       if (response?.id) {
-        await registerContract(response?.id);
         setTemporaryFiles([]);
         message.success("Image uploaded succesfully!");
         uploadForm.resetFields();

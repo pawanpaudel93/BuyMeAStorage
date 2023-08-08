@@ -89,6 +89,7 @@ export default function Gallery({ address }: { address?: string }) {
       .from(address ?? (viewedAccount?.addr as string))
       .tag("Protocol", `${APP_NAME}-Post-v${APP_VERSION}`)
       .tag("Type", "image")
+      .limit(100)
       .find();
 
     const _posts: IPost[] = transactions.map((transaction) => {

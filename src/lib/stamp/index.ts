@@ -1,4 +1,4 @@
-import Stamps, { StampJS } from "@permaweb/stampjs";
+import Stamps, { StampJS } from "../stampjs";
 import {
   InjectedArweaveSigner,
   // @ts-ignore

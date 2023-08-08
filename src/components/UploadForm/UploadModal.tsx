@@ -34,6 +34,7 @@ import { addWaterMark } from "@/lib/watermark";
 import { encryptFile } from "@/lib/cryptography";
 import Transaction from "arweave/node/lib/transaction";
 import { useConnectedUserStore } from "@/lib/store";
+import { dispatchTransaction } from "@/lib/arconnect";
 
 const { Dragger } = Upload;
 
@@ -136,8 +137,7 @@ export default function UploadModal({ open, setOpen }: IUploadModalProps) {
           data: watermarkImage,
         });
         watermarkTx.addTag("Content-Type", contentType);
-        await walletApi?.sign(watermarkTx);
-        const response = await walletApi?.dispatch(watermarkTx);
+        const response = await dispatchTransaction(watermarkTx, walletApi);
 
         tags = tags.concat([
           { name: "Access", value: "Restricted" },
@@ -183,9 +183,7 @@ export default function UploadModal({ open, setOpen }: IUploadModalProps) {
         transaction = await arweave.createTransaction({ data });
       }
       tags.forEach((tag) => transaction.addTag(tag.name, tag.value));
-
-      await walletApi?.sign(transaction);
-      const response = await walletApi?.dispatch(transaction);
+      const response = await dispatchTransaction(transaction, walletApi);
       if (response?.id) {
         await registerContract(response?.id);
         setTemporaryFiles([]);

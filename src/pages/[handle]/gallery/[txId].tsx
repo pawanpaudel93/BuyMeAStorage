@@ -232,7 +232,7 @@ export default function Gallery() {
 
   useEffect(() => {
     if (post) {
-      setImageUrl(post.preview ?? (post?.link as string));
+      setImageUrl(post.preview || (post?.link as string));
     }
   }, [post]);
 

@@ -221,8 +221,7 @@ export async function fetchProfile({
       ...user,
       profile: {
         ...user.profile,
-        avatarURL:
-          "https://arweave.net/4eJ0svoPeMtU0VyYODTPDYFrDKGALIt8Js25tUERLPw",
+        avatarURL: "/avatar.svg",
       },
     };
   }

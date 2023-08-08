@@ -20,6 +20,7 @@ import { Button, Form, Input, Row, Select, Space, message } from "antd";
 import usePersistStore from "@/lib/store/persist";
 import { registerContract } from "@/lib/warp/asset";
 import { withPrivateRoutes } from "@/hoc";
+import { dispatchTransaction } from "@/lib/arconnect";
 
 function NewPost() {
   const [postForm] = Form.useForm();
@@ -71,8 +72,7 @@ function NewPost() {
             });
             const mimeType = file.type ?? (await getMimeType(file));
             transaction.addTag("Content-Type", mimeType);
-            await walletApi?.sign(transaction);
-            const response = await walletApi?.dispatch(transaction);
+            const response = await dispatchTransaction(transaction, walletApi);
             return `https://arweave.net/${response?.id}`;
           })
         );
@@ -172,8 +172,7 @@ function NewPost() {
       });
       tags.forEach((tag) => transaction.addTag(tag.name, tag.value));
 
-      await walletApi?.sign(transaction);
-      const response = await walletApi?.dispatch(transaction);
+      const response = await dispatchTransaction(transaction, walletApi);
       if (response?.id) {
         const contractTxId = await registerContract(response?.id);
         setPost({

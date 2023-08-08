@@ -53,13 +53,13 @@ export default function DonateModal({
   };
 
   return (
-    <Modal open={open} onCancel={cancelHandler} footer={null} width="77vw">
+    <Modal open={open} onCancel={cancelHandler} footer={null} width="65vw">
       <Row gutter={[16, 16]}>
-        <Col md={7} xs={12}>
-          {/* when modal opened from gallery */}
-          <Image src="/magic.jpg" alt="image" width="100%" height="100%" />
-          {/* when modal opened from posts */}
-          {/* <Card hoverable>
+        {/* <Col md={7} xs={12}> */}
+        {/* when modal opened from gallery */}
+        {/* <Image src="/magic.jpg" alt="image" width="100%" height="100%" /> */}
+        {/* when modal opened from posts */}
+        {/* <Card hoverable>
             <Space direction="vertical" style={{ width: "100%" }}>
               <Row justify="center">
                 <Typography.Text
@@ -104,8 +104,8 @@ export default function DonateModal({
               </Row>
             </Space>
           </Card> */}
-        </Col>
-        <Col md={7} xs={12}>
+        {/* </Col> */}
+        <Col md={11} xs={24}>
           <Space
             direction="vertical"
             style={{ width: "100%", textAlign: "center" }}
@@ -145,7 +145,7 @@ export default function DonateModal({
             </Space>
           </Space>
         </Col>
-        <Col md={10} xs={24}>
+        <Col md={13} xs={24}>
           <BuyStorageCard userAccount={userAccount} />
         </Col>
       </Row>

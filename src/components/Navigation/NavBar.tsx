@@ -5,7 +5,6 @@ import { ConnectButton } from "arweave-wallet-kit";
 import { customTheme } from "@/config";
 import NextLink, { LinkProps } from "next/link";
 import React from "react";
-import { withPublicRoutes } from "@/hoc";
 
 const { getDesignToken } = theme;
 
@@ -115,4 +114,4 @@ const NavBar = () => {
   );
 };
 
-export default withPublicRoutes(NavBar);
+export default NavBar;

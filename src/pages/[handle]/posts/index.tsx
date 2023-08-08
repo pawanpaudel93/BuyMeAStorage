@@ -221,6 +221,11 @@ export default function SupportPage({ address }: { address?: string }) {
             ))
           ) : (
             <Empty
+              style={{
+                width: "100%",
+                display: "grid",
+                placeItems: "center",
+              }}
               description={
                 <Typography.Text style={{ fontSize: 14, color: "gray" }}>
                   No post published yet!

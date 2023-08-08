@@ -2,10 +2,12 @@ import {
   Avatar,
   Button,
   Col,
+  Divider,
   Dropdown,
   MenuProps,
   Row,
   Space,
+  Spin,
   Typography,
   message,
   theme,
@@ -47,7 +49,11 @@ function HomePage() {
     AR: 0,
   });
 
+  const [isLicenseLoading, setIsLicenseLoading] = useState(false);
+  const [isSupportCountLoading, setIsSupportCountLoading] = useState(false);
+
   async function fetchAllSupports() {
+    setIsSupportCountLoading(true);
     const transactions = await ardb
       .search("transactions")
       .appName(APP_NAME)
@@ -84,9 +90,11 @@ function HomePage() {
       }
     });
     setStats((prevStats) => ({ ...prevStats, earnings, supporters }));
+    setIsSupportCountLoading(false);
   }
 
   async function fetchAllLicensePayments() {
+    setIsLicenseLoading(true);
     const transactions = await ardb
       .search("transactions")
       .appName(APP_NAME)
@@ -137,6 +145,7 @@ function HomePage() {
     });
     setLicenseStats(stats);
     setLicenseEarnings(earnings);
+    setIsLicenseLoading(false);
   }
 
   const items: MenuProps["items"] = [
@@ -192,101 +201,132 @@ function HomePage() {
         padding: "12px 32px",
       }}
     >
-      <QrModal
-        qrValue={myProfileUrl}
-        open={isQrModalOpen}
-        setOpen={setIsQrModalOpen}
-      />
-      <Row
-        style={{
-          borderBottom: "1px solid #dfdfdf",
-          padding: 12,
-        }}
-        justify="space-between"
-        align="middle"
-      >
-        <Col xs={24} md={21}>
-          <Space size={10}>
-            {
-              <Avatar
-                style={{
-                  width: 54,
-                  height: 54,
-                  fontSize: 28,
-                  display: "grid",
-                  placeItems: "center",
-                  background: token.colorPrimary,
-                }}
-              >
-                {userAccount?.profile.name.slice(0, 1)}
-              </Avatar>
-            }
-            <Space direction="vertical" size={1}>
-              <Typography.Text
-                style={{
-                  display: "inline-block",
-                  fontSize: 22,
-                  transform: "scale(1, 1.1)",
-                  fontWeight: 600,
-                }}
-              >
-                Welcome, {userAccount?.profile.name}
-              </Typography.Text>
-              <Typography.Text style={{ color: "gray" }}>
-                {myProfileUrl.replace(/^https?:\/\//, "")}
-              </Typography.Text>
+      <Spin spinning={isLicenseLoading || isSupportCountLoading}>
+        <QrModal
+          qrValue={myProfileUrl}
+          open={isQrModalOpen}
+          setOpen={setIsQrModalOpen}
+        />
+        <Row
+          style={{
+            borderBottom: "1px solid #dfdfdf",
+            padding: 12,
+          }}
+          justify="space-between"
+          align="middle"
+        >
+          <Col xs={24} md={20}>
+            <Space size={10}>
+              {
+                <Avatar
+                  style={{
+                    width: 54,
+                    height: 54,
+                    fontSize: 28,
+                    display: "grid",
+                    placeItems: "center",
+                    background: token.colorPrimary,
+                  }}
+                >
+                  {userAccount?.profile.name.slice(0, 1)}
+                </Avatar>
+              }
+              <Space direction="vertical" size={1}>
+                <Typography.Text
+                  style={{
+                    display: "inline-block",
+                    fontSize: 22,
+                    transform: "scale(1, 1.1)",
+                    fontWeight: 600,
+                  }}
+                >
+                  Welcome, {userAccount?.profile.name}
+                </Typography.Text>
+                <Typography.Text style={{ color: "gray" }}>
+                  {myProfileUrl.replace(/^https?:\/\//, "")}
+                </Typography.Text>
+              </Space>
             </Space>
-          </Space>
-        </Col>
-        <Col xs={24} md={3}>
-          <Dropdown
-            menu={{ items, onClick: handleMenuClick }}
-            trigger={["click"]}
-          >
-            <Button
-              size="large"
-              icon={<UploadOutlined />}
-              style={{ borderRadius: 18, width: "100%" }}
+          </Col>
+          <Col xs={24} md={4}>
+            <Dropdown
+              menu={{ items, onClick: handleMenuClick }}
+              trigger={["click"]}
             >
-              Share Profile
-            </Button>
-          </Dropdown>
-        </Col>
-      </Row>
-      <Row
-        style={{
-          borderBottom: "1px solid #dfdfdf",
-          padding: 12,
-        }}
-        gutter={[16, 8]}
-      >
-        <Col span={24}>
-          <Typography.Text
-            style={{
-              display: "inline-block",
-              fontSize: 20,
-              transform: "scale(1, 1.1)",
-              fontWeight: 500,
-            }}
-          >
-            Earnings
-          </Typography.Text>
-        </Col>
-        <Col span={24}>
-          <Typography.Text
-            style={{
-              fontSize: 28,
-              fontWeight: 600,
-              color: "gray",
-            }}
-          >
-            TOTAL SUPPORTS:{" "}
-            <span style={{ color: token.colorPrimary }}>
-              {stats.earnings} MB
-            </span>
-          </Typography.Text>
-        </Col>
-        <Col span={24}>
+              <Button
+                size="large"
+                icon={<UploadOutlined />}
+                style={{ borderRadius: 18, width: "100%" }}
+              >
+                Share Profile
+              </Button>
+            </Dropdown>
+          </Col>
+        </Row>
+        <Row
+          style={{
+            borderBottom: "1px solid #dfdfdf",
+            padding: 12,
+          }}
+          gutter={[16, 8]}
+        >
+          <Col span={24} style={{ textAlign: "center" }}>
+            <Typography.Text
+              style={{
+                display: "inline-block",
+                fontSize: 20,
+                transform: "scale(1, 1.1)",
+                fontWeight: 500,
+                color: token.colorPrimary,
+                borderBottom: "1px solid #dfdfdf",
+              }}
+            >
+              Earnings
+            </Typography.Text>
+          </Col>
+          <Col xs={24} md={8} style={{ textAlign: "center" }}>
+            <Typography.Text
+              style={{
+                fontSize: 18,
+                fontWeight: 500,
+                color: "gray",
+              }}
+            >
+              TOTAL STORAGE SUPPORTS:{" "}
+              <span style={{ color: token.colorPrimary }}>
+                {stats.earnings} MB
+              </span>
+            </Typography.Text>
+          </Col>
+          <Col xs={24} md={8} style={{ textAlign: "center" }}>
+            <Typography.Text
+              style={{
+                fontSize: 18,
+                fontWeight: 500,
+                color: "gray",
+              }}
+            >
+              AR LICENSE EARNINGS:{" "}
+              <span style={{ color: token.colorPrimary }}>
+                {licenseEarnings.AR} AR
+              </span>
+            </Typography.Text>
+          </Col>
+          <Col xs={24} md={8} style={{ textAlign: "center" }}>
+            <Typography.Text
+              style={{
+                fontSize: 18,
+                fontWeight: 500,
+                color: "gray",
+              }}
+            >
+              U LICENSE EARNINGS:{" "}
+              <span style={{ color: token.colorPrimary }}>
+                {licenseEarnings.U} U
+              </span>
+            </Typography.Text>
+          </Col>
+          {/* <Col span={24}>
           <Typography.Text
             style={{
               display: "inline-block",
@@ -297,85 +337,74 @@ function HomePage() {
           >
             License Earnings: ({licenseEarnings.AR} AR, {licenseEarnings.U} U)
           </Typography.Text>
-          <Row gutter={[16, 16]}>
-            {Object.entries(licenseStats).map(([key, value], index) => (
-              <Col key={index} xs={24} flex="auto">
-                <Space align="baseline">
+        </Col> */}
+          <Col span={24}>
+            <Space wrap>
+              {Object.entries(licenseStats).map(([key, value], index) => (
+                <Space key={index}>
                   <div
                     style={{
-                      background: COLORS[index],
+                      // background: COLORS[index],
+                      background: token.colorPrimary,
                       height: "12px",
                       width: "12px",
                     }}
                   ></div>
-                  <Typography.Text>{` ${value} - UDL ${key}`}</Typography.Text>
+                  <Typography.Text
+                    style={{
+                      fontSize: 20,
+                      color: token.colorPrimary,
+                    }}
+                  >{` ${value}`}</Typography.Text>
+                  <Typography.Text
+                    style={{ fontSize: 18 }}
+                  >{`- UDL ${key}`}</Typography.Text>
                 </Space>
-              </Col>
-            ))}
-          </Row>
-        </Col>
-      </Row>
-      <Row
-        gutter={[16, 16]}
-        style={{
-          marginTop: 24,
-          border: "1px solid #dfdfdf",
-          borderRadius: 12,
-          padding: 12,
-        }}
-      >
-        <Col span={24}>
-          <Space
-            direction="vertical"
-            size={4}
-            style={{ width: "100%", textAlign: "center", padding: 32 }}
-          >
-            {stats.supporters > 0 ? (
-              <>
-                <HeartFilled style={{ fontSize: 32, color: "red" }} />
-                <Typography.Text style={{ fontWeight: 500, fontSize: 18 }}>
-                  You have {stats.supporters} supporters
-                </Typography.Text>
-              </>
-            ) : (
-              <>
-                <HeartOutlined
-                  style={{ fontSize: 32, color: token.colorPrimary }}
-                />
-                <Typography.Text style={{ fontWeight: 500, fontSize: 18 }}>
-                  You do not have any supporter yet
-                </Typography.Text>
-                <Typography.Text style={{ fontSize: 14, color: "gray" }}>
-                  Share your page with your audience to get started.
-                </Typography.Text>
-              </>
-            )}
-          </Space>
-        </Col>
-        {/* <Col span={24} style={{ display: "flex", justifyContent: "center" }}>
-          <Typography.Text
-            style={{
-              fontSize: 20,
-              transform: "scale(1, 1.1)",
-              fontWeight: 500,
-            }}
-          >
-            Supporter Count
-          </Typography.Text>
-        </Col> */}
-        {/* <Col span={24}>
-          <Typography.Text
-            style={{
-              fontSize: 28,
-              fontWeight: 600,
-              color: "gray",
-            }}
-          >
-            TOTAL:{" "}
-            <span style={{ color: token.colorPrimary }}>20 Supporters</span>
-          </Typography.Text>
-        </Col> */}
-      </Row>
+              ))}
+            </Space>
+          </Col>
+        </Row>
+        <Row
+          gutter={[16, 16]}
+          style={{
+            marginTop: 24,
+            border: "1px solid #dfdfdf",
+            borderRadius: 12,
+            padding: 12,
+          }}
+        >
+          <Col span={24}>
+            <Space
+              direction="vertical"
+              size={4}
+              style={{ width: "100%", textAlign: "center", padding: 32 }}
+            >
+              {stats.supporters > 0 ? (
+                <>
+                  <HeartFilled
+                    style={{ fontSize: 32, color: token.colorPrimary }}
+                  />
+                  <Typography.Text style={{ fontWeight: 500, fontSize: 18 }}>
+                    You have {stats.supporters} supporters
+                  </Typography.Text>
+                </>
+              ) : (
+                <>
+                  <HeartOutlined
+                    style={{ fontSize: 32, color: token.colorPrimary }}
+                  />
+                  <Typography.Text style={{ fontWeight: 500, fontSize: 18 }}>
+                    You do not have any supporter yet
+                  </Typography.Text>
+                  <Typography.Text style={{ fontSize: 14, color: "gray" }}>
+                    Share your page with your audience to get started.
+                  </Typography.Text>
+                </>
+              )}
+            </Space>
+          </Col>
+        </Row>
+      </Spin>
     </div>
   );
 }

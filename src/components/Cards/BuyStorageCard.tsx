@@ -167,15 +167,16 @@ export default function BuyStorageCard({ userAccount }: BuyStorageCardProps) {
     <Card
       bordered={false}
       title={
-        <Title level={3} style={{ textAlign: "center" }}>
+        <Text style={{ fontSize: 22 }}>
           Buy{" "}
-          <Text style={{ color: token.colorPrimary, fontSize: 24 }}>
+          <span style={{ color: token.colorPrimary }}>
             {userAccount?.profile.name}
-          </Text>{" "}
+          </span>{" "}
           a Storage
-        </Title>
+        </Text>
       }
       style={{ flex: 1, maxWidth: "600px" }}
+      headStyle={{ display: "grid", placeItems: "center" }}
     >
       <Space
         direction="vertical"

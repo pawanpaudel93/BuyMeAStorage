@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Button, Col, Form, Input, Row, Select, Space, Image } from "antd";
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  Row,
+  Select,
+  Space,
+  Image,
+  Card,
+} from "antd";
 import domtoimage from "dom-to-image";
 import { withPrivateRoutes } from "@/hoc";
 
@@ -47,41 +57,32 @@ const GenerateButtons = () => {
   ];
 
   return (
-    <Space
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        width: "100%",
-        marginTop: "50px",
-      }}
-    >
-      <Button
-        style={{
-          backgroundColor: buttonColor,
-          color: buttonFontColor,
-          fontFamily: buttonFontFamily,
-          fontSize: buttonFontSize,
-          height: "153px",
-          width: "auto",
-          borderRadius: "4px",
-          display: "flex",
-          flexDirection: "row",
-          gap: "12px",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-        id="buttonToDownload"
-        onClick={() => {}}
-        loading={isLoading}
-      >
-        <Image src="/icon.svg" preview={false} height={100} alt="" />
-        <span>{buttonText}</span>
-      </Button>
-      <Row justify="center" align="middle">
-        <Col span={24} style={{ marginTop: 20 }}>
-          <Form>
+    <Row style={{ padding: 40 }} justify="center">
+      <Card hoverable style={{ boxShadow: "0px 3px 15px rgba(0,0,0,0.2)" }}>
+        <Space direction="vertical" style={{ width: "100%" }}>
+          <Button
+            style={{
+              backgroundColor: buttonColor,
+              color: buttonFontColor,
+              fontFamily: buttonFontFamily,
+              fontSize: buttonFontSize,
+              height: "145px",
+              width: "auto",
+              borderRadius: "4px",
+              display: "flex",
+              flexDirection: "row",
+              gap: "12px",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            id="buttonToDownload"
+            onClick={() => {}}
+            loading={isLoading}
+          >
+            <Image src="/icon.svg" preview={false} height={100} alt="" />
+            <span>{buttonText}</span>
+          </Button>
+          <Form labelCol={{ span: 7 }} wrapperCol={{ span: 17 }}>
             <Form.Item label="Button Text">
               <Input
                 placeholder="Enter button text"
@@ -109,7 +110,7 @@ const GenerateButtons = () => {
               />
             </Form.Item>
 
-            <Form.Item label="Button Font Family">
+            <Form.Item label="Button Font Family" style={{ marginBottom: 6 }}>
               <Select
                 value={buttonFontFamily}
                 onChange={(value) => setButtonFontFamily(value)}
@@ -122,19 +123,18 @@ const GenerateButtons = () => {
               </Select>
             </Form.Item>
           </Form>
-        </Col>
-
-        <Col span={24} style={{ marginTop: 20, textAlign: "center" }}>
-          <Button
-            type="primary"
-            onClick={handleDownloadClick}
-            loading={isLoading}
-          >
-            Download
-          </Button>
-        </Col>
-      </Row>
-    </Space>
+          <div style={{ textAlign: "end" }}>
+            <Button
+              type="primary"
+              onClick={handleDownloadClick}
+              loading={isLoading}
+            >
+              Download
+            </Button>
+          </div>
+        </Space>
+      </Card>
+    </Row>
   );
 };
 

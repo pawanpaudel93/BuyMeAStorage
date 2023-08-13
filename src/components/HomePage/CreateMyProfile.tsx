@@ -37,7 +37,7 @@ export default function CreateMyProfile() {
           style={{ marginBottom: "12px" }}
         >
           <Form.Item name="handle" noStyle>
-            <Input.Group compact>
+            <Space.Compact style={{ marginTop: 12 }}>
               <Tooltip title="https://buymeastorage.xyz/" placement="topLeft">
                 <span
                   style={{ border: "1px solid #EDF2F7", padding: "4px 8px" }}
@@ -55,7 +55,7 @@ export default function CreateMyProfile() {
                   style={{ border: "1px solid #EDF2F7", width: "234px" }}
                 />
               </Form.Item>
-            </Input.Group>
+            </Space.Compact>
           </Form.Item>
         </Space>
         <Form.Item style={{ textAlign: "center" }}>

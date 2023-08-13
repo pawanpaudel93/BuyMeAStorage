@@ -1,17 +1,14 @@
 // @ts-expect-error no type check
-import { generateKeyPair } from "human-crypto-keys";
-// @ts-expect-error no type check
 import * as crypto from "crypto-browserify";
 // @ts-expect-error no type check
 import { Readable } from "stream-browserify";
 import { Buffer } from "buffer";
-
-const symmetricKeyLength = 32;
-const encryptedKeyLength = 512;
-const ivLength = 12;
-const encryptedKeyIvLength = encryptedKeyLength + ivLength;
-const authTagLength = 16;
-const algorithm = "aes-256-gcm";
+import {
+  symmetricKeyLength,
+  ivLength,
+  algorithm,
+  authTagLength,
+} from "./common";
 
 export async function encryptFile(
   sourceData: File,
@@ -59,65 +56,6 @@ export async function encryptFile(
   };
 }
 
-export async function decryptFile(
-  encryptedData: ArrayBuffer,
-  privateKey: string
-): Promise<ArrayBuffer> {
-  const encryptedBuffer = Buffer.from(encryptedData);
-
-  // Extract the encryptedKey, iv, encryptedContent, and authTag from the encrypted data
-  const encryptedKey = encryptedBuffer.slice(0, encryptedKeyLength);
-  const iv = encryptedBuffer.slice(
-    encryptedKeyLength,
-    encryptedKeyLength + ivLength
-  );
-  const encryptedContent = encryptedBuffer.slice(
-    encryptedKeyIvLength,
-    -authTagLength
-  );
-  const authTag = encryptedBuffer.slice(-authTagLength);
-
-  // Decrypt the symmetric key using the private key
-  const symmetricKey = crypto.privateDecrypt(
-    {
-      key: privateKey,
-      padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
-    },
-    encryptedKey
-  );
-
-  // Create a new decipher object with GCM mode and set the IV and authentication tag
-  const decipher = crypto.createDecipheriv(algorithm, symmetricKey, iv, {
-    authTagLength: authTagLength,
-  });
-  decipher.setAuthTag(authTag);
-
-  // Decrypt the content
-  const decryptedContent = await decryptBuffer(encryptedContent, decipher);
-
-  return decryptedContent.buffer;
-}
-
-function decryptBuffer(
-  encryptedData: ArrayBuffer,
-  decipher: crypto.Decipher
-): Promise<Buffer> {
-  return new Promise((resolve) => {
-    const encryptedBuffer = Buffer.from(encryptedData);
-    const decryptedChunks: Buffer[] = [];
-
-    decipher.on("data", (chunk: Buffer) => {
-      decryptedChunks.push(chunk);
-    });
-
-    decipher.on("end", () => {
-      resolve(Buffer.concat(decryptedChunks));
-    });
-
-    decipher.end(encryptedBuffer);
-  });
-}
-
 function encryptBuffer(
   data: ArrayBuffer,
   cipher: crypto.Cipher
@@ -145,15 +83,6 @@ function encryptBuffer(
   });
 }
 
-export async function createKeyPair() {
-  const keys = await generateKeyPair(
-    { id: "rsa", modulusLength: 4096 },
-    { privateKeyFormat: "pkcs1-pem" }
-  );
-
-  return keys;
-}
-
 function bufferToBase64(buf: ArrayBuffer) {
   const binstr = Array.prototype.map
     .call(new Uint8Array(buf), function (ch) {
@@ -161,15 +90,6 @@ function bufferToBase64(buf: ArrayBuffer) {
     })
     .join("");
   return btoa(binstr);
-}
-
-function base64ToBuffer(base64: string) {
-  const binstr = atob(base64);
-  const buf = new Uint8Array(binstr.length);
-  for (let i = 0; i < binstr.length; i++) {
-    buf[i] = binstr.charCodeAt(i);
-  }
-  return buf.buffer;
 }
 
 function readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {

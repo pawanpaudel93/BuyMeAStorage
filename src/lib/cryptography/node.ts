@@ -1,10 +1,11 @@
 import crypto from "crypto";
-
-const encryptedKeyLength = 512;
-const ivLength = 12;
-const encryptedKeyIvLength = encryptedKeyLength + ivLength;
-const authTagLength = 16;
-const algorithm = "aes-256-gcm";
+import {
+  encryptedKeyLength,
+  ivLength,
+  encryptedKeyIvLength,
+  authTagLength,
+  algorithm,
+} from "./common";
 
 export async function decryptFile(
   encryptedData: ArrayBuffer,

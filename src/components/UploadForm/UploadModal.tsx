@@ -25,7 +25,7 @@ import { UDL, APP_NAME, APP_VERSION, PUBLIC_KEY } from "@/utils/constants";
 import { useActiveAddress, useApi } from "arweave-wallet-kit";
 import { IPost, ITag } from "@/types";
 import { addWaterMark } from "@/lib/watermark";
-import { encryptFile } from "@/lib/cryptography";
+import { encryptFile } from "@/lib/cryptography/web";
 import { useConnectedUserStore } from "@/lib/store";
 import { dispatchTransaction } from "@/lib/arconnect";
 

@@ -23,7 +23,6 @@
     "eslint": "8.46.0",
     "eslint-config-next": "13.4.12",
     "file-saver": "^2.0.5",
-    "human-crypto-keys": "^0.1.4",
     "jszip": "^3.10.1",
     "md-editor-rt": "^4.2.2",
     "next": "13.4.12",

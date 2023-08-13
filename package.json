@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@ant-design/cssinjs": "^1.16.1",
-    "@permaweb/stampjs": "^0.4.3",
+    "@permaweb/stampjs": "^0.5.1",
     "@types/file-saver": "^2.0.5",
     "@types/node": "20.4.5",
     "@types/react": "18.2.17",

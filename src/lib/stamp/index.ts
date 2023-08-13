@@ -1,4 +1,4 @@
-import Stamps, { StampJS } from "../stampjs";
+import Stamps, { StampJS } from "@permaweb/stampjs";
 import {
   InjectedArweaveSigner,
   // @ts-ignore
@@ -15,10 +15,12 @@ let stamps: StampJS;
 export const initStamps = () => {
   if (stamps) return stamps;
   // @ts-ignore
+  const { host, port, protocol } = arweave.api.config;
   stamps = Stamps.init({
     warp: WarpFactory.forMainnet(),
     arweave,
     wallet: new InjectedArweaveSigner(window.arweaveWallet),
+    graphql: `${protocol}://${host}${port ? `:${port}` : ""}/graphql`,
   });
   return stamps;
 };

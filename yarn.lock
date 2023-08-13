@@ -2509,10 +2509,10 @@
     mkdirp "^1.0.4"
     rimraf "^3.0.2"
 
-"@permaweb/stampjs@^0.4.3":
-  version "0.4.3"
-  resolved "https://registry.npmjs.org/@permaweb/stampjs/-/stampjs-0.4.3.tgz#e5d02bd34416bcb51978bcd969cdecf913925b23"
-  integrity sha512-tJBwXb6qboH9Kb8ORtsGUELblJFcAbSgyUy7RsM4vZOC8jX5H6xQdzac+YG+UVQRxeyIz3m7znL7fgjasl5qHg==
+"@permaweb/stampjs@^0.5.1":
+  version "0.5.1"
+  resolved "https://registry.npmjs.org/@permaweb/stampjs/-/stampjs-0.5.1.tgz#b734c6b00a9b4f041f3262350d4bf55e69d8412e"
+  integrity sha512-F66sJ+ouc6gPgBoy/c2+682iRzTln6MY4Ff4/JXTj5mcqpNXTr3Lam6yvskjmplsAHXPq9rtKSukC4K+85cbcQ==
   dependencies:
     ar-gql "^1.2.1"
     ramda "^0.29.0"

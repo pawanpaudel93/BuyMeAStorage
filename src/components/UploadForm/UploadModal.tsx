@@ -170,7 +170,7 @@ export default function UploadModal({
           settings: [["isTradeable", true]],
           transferable: true,
         }),
-        { "Content-Type": contentType, body: data }
+        { "Content-Type": contentType, body: Buffer.from(data) }
       );
       if (response?.id) {
         await fetchPosts();

@@ -9330,6 +9330,13 @@ underscore@>=1.3.1:
   resolved "https://registry.npmjs.org/underscore/-/underscore-1.13.6.tgz#04786a1f589dc6c09f761fc5f45b89e935136441"
   integrity sha512-+A5Sja4HP1M08MaXya7p5LvjuM7K6q/2EaC0+iovj/wOcMsTzMvDFbasi/oSapiwOlt252IqsKqPjCl7huKS0A==
 
+undici@^5.19.1:
+  version "5.23.0"
+  resolved "https://registry.npmjs.org/undici/-/undici-5.23.0.tgz#e7bdb0ed42cebe7b7aca87ced53e6eaafb8f8ca0"
+  integrity sha512-1D7w+fvRsqlQ9GscLBwcAJinqcZGHUKjbOmXdlE/v8BvEGXjeWAax+341q44EuTcHXXnfyKNbKRq4Lg7OzhMmg==
+  dependencies:
+    busboy "^1.6.0"
+
 undici@^5.8.0:
   version "5.22.1"
   resolved "https://registry.npmjs.org/undici/-/undici-5.22.1.tgz#877d512effef2ac8be65e695f3586922e1a57d7b"
@@ -9475,15 +9482,15 @@ w3c-keyname@^2.2.4:
   resolved "https://registry.yarnpkg.com/w3c-keyname/-/w3c-keyname-2.2.8.tgz#7b17c8c6883d4e8b86ac8aba79d39e880f8869c5"
   integrity sha512-dpojBhNsCNN7T82Tm7k26A6G9ML3NkhDsnw9n/eoxSRlVBB4CEtIQ/KTCLI2Fwf3ataSXRhYFkQi3SlnFwPvPQ==
 
-warp-arbundles@1.0.1:
-  version "1.0.1"
-  resolved "https://registry.npmjs.org/warp-arbundles/-/warp-arbundles-1.0.1.tgz#c816ee44aacd90e0214b1b7db8028c6d5b468770"
-  integrity sha512-bWyF8PoS5D2M8yk7YAT/DFi4pzoPxfXaS1o9eEelcD5SU42PW/wVxwzrvn6pLaHFIK5Zys15V2eGd+8X1Ty62Q==
+warp-arbundles@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.npmjs.org/warp-arbundles/-/warp-arbundles-1.0.4.tgz#10c0cd662ab41b0dabad9159c7110f43425cc5cc"
+  integrity sha512-KeRac/EJ7VOK+v5+PSMh2SrzpCKOAFnJICLlqZWt6qPkDCzVwcrNE5wFxOlEk5U170ewMDAB3e86UHUblevXpw==
   dependencies:
     arweave "^1.13.7"
     base64url "^3.0.1"
     buffer "^6.0.3"
-    warp-isomorphic "^1.0.4"
+    warp-isomorphic "^1.0.7"
 
 warp-contracts-plugin-deploy@^1.0.9:
   version "1.0.9"
@@ -9494,10 +9501,10 @@ warp-contracts-plugin-deploy@^1.0.9:
     arlocal "^1.1.59"
     node-stdlib-browser "^1.2.0"
 
-warp-contracts@^1.4.14:
-  version "1.4.14"
-  resolved "https://registry.npmjs.org/warp-contracts/-/warp-contracts-1.4.14.tgz#0a14428229736f568cdd54723dfa903dfe86ccfc"
-  integrity sha512-5tJzD1biarpXLJRxneEB7thWCqRdZXYhPr77XJxY9oveLANryibYJSEtUbrycHcLurSAQ+Vyd2qd5JHq8TAC4A==
+warp-contracts@^1.4.16:
+  version "1.4.16"
+  resolved "https://registry.npmjs.org/warp-contracts/-/warp-contracts-1.4.16.tgz#e21c7f664c1540efd4362c735507f1f6dc37fe92"
+  integrity sha512-LSCQOThN9jj5c3SERmXa9tgIvNo0miF+Bn/yVCtXwXLGlmEmjGl5PCpGngDE93Dr5bKnilXqmO16TFHnCJbuwg==
   dependencies:
     archiver "^5.3.0"
     arweave "1.13.7"
@@ -9510,8 +9517,8 @@ warp-contracts@^1.4.14:
     safe-stable-stringify "2.4.1"
     stream-buffers "^3.0.2"
     unzipit "^1.4.0"
-    warp-arbundles "1.0.1"
-    warp-isomorphic "1.0.4"
+    warp-arbundles "^1.0.4"
+    warp-isomorphic "^1.0.7"
     warp-wasm-metering "1.0.1"
 
 warp-isomorphic@1.0.0:
@@ -9522,13 +9529,13 @@ warp-isomorphic@1.0.0:
     buffer "^6.0.3"
     undici "^5.8.0"
 
-warp-isomorphic@1.0.4, warp-isomorphic@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.npmjs.org/warp-isomorphic/-/warp-isomorphic-1.0.4.tgz#1017eba260e0f0228b33b94b9e36a1afe54e09d8"
-  integrity sha512-W77IoLjq/eu5bY1uRrlmVt5lLDoIHeZ0ozJ/j67FTnxvZRXu887biEnom1nx8q1UgOKyJh8eQYFQaE2FLlKhFg==
+warp-isomorphic@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.npmjs.org/warp-isomorphic/-/warp-isomorphic-1.0.7.tgz#abf1ee7bce44bec7c6b97547859e614876869aa7"
+  integrity sha512-fXHbUXwdYqPm9fRPz8mjv5ndPco09aMQuTe4kXfymzOq8V6F3DLsg9cIafxvjms9/mc6eijzkLBJ63yjEENEjA==
   dependencies:
     buffer "^6.0.3"
-    undici "^5.8.0"
+    undici "^5.19.1"
 
 warp-wasm-json-toolkit@1.0.2:
   version "1.0.2"

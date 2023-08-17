@@ -3645,10 +3645,10 @@ arweave-wallet-connector@^0.0.31:
     mitt "^3.0.0"
     typescript-is "^0.19.0"
 
-arweave-wallet-kit@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.npmjs.org/arweave-wallet-kit/-/arweave-wallet-kit-1.0.1.tgz#aa1083b6c903a5b463fdef0b83f74b4a0860115a"
-  integrity sha512-EXspFZiGEHijYYKdBZD1bQmcXYAHTDTwJx+Tzsq0Yb/bsMMlJt4AknwBqoEmgUuxOY/WWk+X2gKDcj5GFUZ92g==
+arweave-wallet-kit@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.npmjs.org/arweave-wallet-kit/-/arweave-wallet-kit-1.0.2.tgz#9815549498a226db2d0c4ed10d0655c25d21841e"
+  integrity sha512-vp9uANU0EAD2PvDet7DhSiQATwrIWNPXSsy+m5njNmdaiIAASpVLate2mM45gKRuR8kZJ93J/blQV1qWy8EGyA==
   dependencies:
     "@callstack/react-theme-provider" "^3.0.8"
     "@iconicicons/react" "^1.5.1"

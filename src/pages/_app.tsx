@@ -134,8 +134,9 @@ export default function App(appProps: AppProps) {
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link rel="icon" href="/icon.svg" />
           {process.env.NODE_ENV !== "production" && (
-            <script
+            <Script
               dangerouslySetInnerHTML={{ __html: noOverlayWorkaroundScript }}
+              id="noOverlayWorkaroundScript"
             />
           )}
         </Head>

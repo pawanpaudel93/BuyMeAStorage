@@ -40,7 +40,7 @@ const NavItems: Array<NavItem> = [
     isAuthentionRequired: false,
   },
   {
-    key: 0,
+    key: 1,
     label: "Support",
     href: `/${SUPPORT_HANDLE}`,
     isAuthentionRequired: false,
